@@ -1,0 +1,693 @@
+.thanks_msg{
+    padding:50px 0;
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+    margin: 0 auto;
+}
+.thanks_msg h5{
+    font-size: 21px;
+    font-weight: bold;
+}
+.thanks_msg p{
+    font-size: 16px;
+    margin: 15px auto 0;
+}
+
+
+.insurance .insurance__btn {
+    padding: 0;
+    position: relative;
+    border: none;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto 0;
+}
+.insurance .insurance__btn:before {
+    display: none;
+}
+.insurance .insurance__btn {
+    padding: 50px 0 50px 0;
+    position: relative;
+}
+.insurance .insurance__btn .insurance__btn_title {
+    display: block;
+    position: relative;
+    margin: 0 auto 0;
+    border: 1px solid #707070;
+    padding: 50px 0 50px 25px;
+}
+.insurance .insurance__btn .insurance__btn_title:before{
+    -webkit-transform: translateY(-50%);
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    width: 0;
+    height: 0;
+    transform: translateY(-50%);
+    border-width: 5.5px 0 5.5px 8px;
+    transition: .3s;
+    border-style: solid;
+    border-color: transparent transparent transparent #ff0210;
+    content: "";
+}
+.insurance .insurance__btn.open .insurance__btn_title:before {
+    transform: rotate(90deg);
+    top: 35px;
+}
+.insurance .insurance__btn .insurance__box{
+  line-height: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition:line-height .3s ease-out,opacity .1s linear,visibility  .1s linear;
+    padding: 0;
+    height: 0;
+}
+.insurance .insurance__btn.open .insurance__box{
+  line-height: 1.5;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    line-height .3s ease-out,
+    opacity     .1s linear .1s,
+    visibility  .1s linear .1s;
+    padding: 50px 20px 50px 20px;
+    border-right: 1px solid #707070;
+    border-left: 1px solid #707070;
+    border-bottom: 1px solid #707070;
+    height: auto;
+}
+.insurance__box_nomalTx{
+    font-size: 18px;
+    line-height:1.5;
+    margin-bottom: 4vw;
+}
+.insurance__box_subTx{
+    font-size: 15px;
+    line-height:1.7;
+    margin-top: 4vw;
+}
+.insurance__box_nomalTable_head{
+    background-color:#F4F7F0; 
+}
+.insurance__box_nomalTable td{
+    border: 1px solid #707070;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 15px;
+    padding: 10px 0;
+}
+.insurance__box_nomalTable {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+}
+.insurance__box_imgBox{
+    margin-top: 20px;
+}
+.insurance__box_note{
+    font-size: 
+}
+.noteRed{
+    color: #FF0210;
+}
+
+.insurance__box_title h2{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 21px;
+    margin: 30px 0 10px;
+}
+.insurance__box_title h2 span{
+    padding: 5px 10px;
+    font-size: 14px;
+    margin: 0 0 0 5px;
+    color: #fff;
+    border-radius: 6px;
+}
+.insurance__box_title h2 .blo{
+    background-color:#713B23;
+}
+.insurance__box_title h2 .sil{
+    background-color: #B9AFAF;
+}
+.insurance__box_title h2 .gol{
+    background-color: #B7AA06;
+}
+
+.header {
+    height: 90px;
+    position: fixed;
+    top: 0;
+    z-index: 999999999999;
+}
+.mv{
+    padding-top: 90px;
+}
+.flow__tell {
+    color: #ff0210;
+    margin-top: 15px;
+    display: block;
+    font-size: 24px;
+    letter-spacing: 0.12em;
+}
+.error404{
+    text-align: center;
+    margin: 150px auto;
+}
+.error404 img{
+    width: 250px;
+    margin: 0 auto 35px;
+}
+
+.flow .flow__btn {
+    border: 1px solid #00AF40;
+    color: #00AF40;
+}
+.flow .flow__btn:before {
+    border-color: transparent transparent transparent #00AF40;
+}
+#price .nomalcar .price__Box {
+    margin-top: 50px;
+    background-color: #3ac0d1;
+}
+#price .nomalcar .textBox__ttl {
+    border-color: #3ac0d1;
+    color: #3ac0d1;
+}
+#price .nomalcar .color {
+    color: #000;
+}
+#price .busicar .price__Box {
+    margin-top: 50px;
+    background-color: #0046e3;
+}
+#price .busicar .textBox__ttl {
+    border-color: #0046e3;
+    color: #0046e3;
+}
+#price .busicar .color {
+    color: #000;
+}
+.voice_desc{
+    text-align: center;
+    margin: 15px auto;
+}
+.voice_desc p{
+    font-size: 16px;
+}
+.news-box-title {
+    background: #043204;
+    color: #fff;
+    font-weight: bold;
+    font-size: 28px;
+    padding: 9px 18px;
+    line-height: 131%;
+    text-align: center;
+    margin-top: 35px;
+}
+.news-box-inner {
+    background: #F3F3F3;
+    padding: 45px 15px;
+    min-height: 208px;
+    height: auto;
+    position: relative;
+    margin-bottom: 35px;
+}
+.news-box{
+    max-width: 1000px;
+    margin: 0 auto;
+}
+.news-box ul {
+    margin: 0 0 30px 10px;
+}
+.news-box .btn1 {
+    display: block;
+    background: #fff;
+    color: #060;
+    border: 2px solid #060;
+    border-radius: 5px;
+    padding: 15px 10px;
+    text-align: center;
+    font-size: 15px;
+    width: 300px;
+    margin: 0 auto;
+    line-height: 100%;
+    font-weight: bold;
+}
+.news-list li {
+    list-style: none;
+    display: inline-block;
+    width: 32%;
+    padding: 0 40px;
+    text-align: center;
+    vertical-align: top;
+}
+.news-box .news-list li .news-list-thumbnail .thumbnail img {
+    height: 200px;
+    width: 250px;
+    -o-object-fit: cover;
+    object-fit: cover;
+    max-width: 100%;
+}
+.news-box .news-list li .news-list-thumbnail{
+    margin-bottom: 15px;
+}
+.news-list-title {
+    text-align: left;
+    margin-top: 15px;
+    line-height: 1.6;
+}
+.blog_day {
+    font-size: 15px;
+    display: inline-block;
+    vertical-align: middle;
+}
+.blog_cat {
+    font-size: 12px;
+    display: inline-block;
+    vertical-align: middle;
+}
+.blog_cat a {
+    font-size: 12px;
+    color: #666;
+}
+.news-content {
+    margin: 150px auto 200px;
+    width: 1000px;
+    padding: 0;
+}
+.news-content h2.title {
+    margin-top: 20px;
+    margin-bottom: 40px;
+    padding-bottom: 33px;
+    font-size: 42px;
+    font-weight: normal;
+    color: #006600;
+    font-weight: bold;
+    text-align: center;
+    background: url(../img/bg_h2.png) no-repeat center bottom;
+}
+.blog {
+    width: 700px;
+    display: inline-block;
+    margin-right: 90px;
+}
+.blogMain{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.blog_right {
+    width: 200px;
+    display: inline-block;
+    vertical-align: top;
+}
+.blog h3 {
+    background-color: #043204;
+    text-align: left;
+    padding: 10px 30px;
+    margin: 50px 0 30px;
+    color: #fff;
+}
+.blog h3 a {
+    color: #fff;
+    font-size:21px;
+    margin-top: 8px;
+    display: block;
+}
+.blog.archive .thumbnail img {
+    height: 190px !important;
+    -o-object-fit: cover;
+    object-fit: cover;
+    width: 100% !important;
+}
+.post-day {
+    font-size: 12px;
+}
+.post-cat {
+    display: inline-block;
+    margin-left: 10px;
+}
+.post-cat a{
+    font-size:12px; 
+}
+#price .banner01 img{
+    width: 100%;
+}
+#secondary .widget-title {
+    background-color: #043204;
+    color: #fff;
+    padding: 10px 15px;
+    margin: 50px 0 10px;
+    border-radius: 5px;
+}
+.widget ul {
+    margin: 0 0 10px 10px;
+}
+.widget ul li{
+    margin:8px auto ; 
+}
+.blog_content{
+    font-size: 16px;
+    line-height: 1.6;
+    margin-top: 15px;
+}
+.blog_content a{
+    color: #ff0210;
+}
+/*footer*/
+.footer{
+    background: #ff0210;
+    text-align: center;
+}
+.footer p{
+    font-size: 14px;
+    color: #ffffff;
+    padding: 15px 0;
+}
+
+.price .pre{
+    padding-bottom: 50px;
+    margin-top: 50px;
+}
+.price .pre .price__Box{
+    background-color:#5C5C5C !important;
+}
+.price .pre .textBox__ttl{
+    border: 1px solid #5C5C5C;
+    border-color: #5C5C5C!important;
+    color: #5C5C5C !important;
+}
+#price .nomalcar .pre .color {
+    color: #ff0210;
+}
+#price .pre p.pre_p1{
+    padding-top: 15px;
+}
+@media screen and (min-width: 769px) {
+    .price .table__img03 {
+        position: absolute;
+        top: -60.86%;
+        left: 6%;
+        width: 150px;
+    }
+}
+@media screen and (max-width: 768px){
+.news-box {
+    width: 100%;
+    display: block;
+    padding: 23px 13px;
+}
+.news-box ul {
+    margin: 0px;
+}
+.news-box-title {
+    font-size: 20px;
+}
+.news-box-inner {
+    padding: 15px;
+}
+.news-box .news-list li {
+    padding: 0;
+    margin-bottom: 15px;
+    width: 100%;
+    display: block;
+}
+.news-box .news-list li .news-list-thumbnail {
+    width: 250px;
+    display: inline-block;
+    margin-bottom: 0;
+}
+.news-box .news-list li .news-list-thumbnail .thumbnail img {
+    width: 250px;
+    height: 200px;
+}
+.news-box .news-list li .news-list-title {
+    width: calc(100% - 65px);
+    padding-left: 10px;
+}
+.blog_title {
+    width: 100%;
+}
+.news-content h2.title {
+    font-size: 28px;
+    margin-bottom: 23px;
+    padding-bottom: 22px;
+}
+.blog, .blog_left {
+    max-width: 100%;
+    width: auto;
+    margin: 0 10px;
+    float: none;
+    display: block;
+}
+.blogMain {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.news-content {
+    margin: 15vw auto 15vw;
+    width: 100%;
+    padding: 0;
+}
+.widget-area {
+    width: 94%;
+    margin: 0 auto;
+    display: block;
+}
+
+.menu{
+    top: 50px;
+}
+
+.flow__tell {
+    color: #ff0210;
+    margin-top: 15px;
+    display: block;
+    font-size: 5.2vw;
+    letter-spacing: 0.12em;
+}
+.thanks_msg {
+    padding: 0vw 0 10vw;
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+    margin: 0 auto;
+}
+.thanks_msg img {
+    width: 60%;
+}
+.thanks_msg h5 {
+    font-size: 4.2vw;
+    font-weight: bold;
+}
+.thanks_msg p {
+    font-size: 3.28vw;
+    margin: 15px auto 0;
+    line-height: 1.6;
+}
+.flow .flow__head{
+    width: 47.39vw;
+}
+.shop .shop__head{
+    color: #fff;
+    border-bottom: 2px solid #fff;
+}
+.floatMenu .tel {
+    width: 100%;
+}
+.header {
+    height: 50px;
+    position: fixed;
+    top: 0;
+    z-index: 999999999999;
+}
+.mv{
+    padding-top: 50px;
+}
+.mv .mv__img {
+    width: 100%;
+    vertical-align: top;
+}
+.header .hamburger {
+    height: 50px;
+}
+.floatMenu .tel {
+    padding: 0;
+    background: transparent;
+}
+.floatMenu {
+    width: 101vw;
+    bottom: -0.5vw;
+}
+.floatMenu .tel {
+    width: 101vw;
+}
+.floatMenu .tel {
+    padding: 0;
+    background: transparent;
+    display: block;
+}
+.floatMenu .tel img {
+    width: 101vw;
+    vertical-align: bottom;
+}
+.insurance .insurance__btn {
+    padding: 0;
+    position: relative;
+    border: none;
+    width: 91vw;
+    margin: 0 auto 0;
+}
+.insurance .insurance__btn:before {
+    display: none;
+}
+.insurance .insurance__btn {
+    padding: 7.04vw 0 7.04vw 0;
+    position: relative;
+}
+.insurance .insurance__btn .insurance__btn_title {
+    display: block;
+    position: relative;
+    margin: 0 auto 0;
+    border: 1px solid #707070;
+    padding: 7.04vw 0 7.04vw 4.59vw;
+}
+.insurance .insurance__btn .insurance__btn_title:before{
+    -webkit-transform: translateY(-50%);
+    position: absolute;
+    top: 50%;
+    right: 2.8vw;
+    width: 0;
+    height: 0;
+    transform: translateY(-50%);
+    border-width: 5.5px 0 5.5px 8px;
+    transition: .3s;
+    border-style: solid;
+    border-color: transparent transparent transparent #ff0210;
+    content: "";
+}
+.insurance .insurance__btn.open .insurance__btn_title:before {
+    transform: rotate(90deg);
+    top: 8.5vw;
+}
+.insurance .insurance__btn .insurance__box{
+  line-height: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition:line-height .3s ease-out,opacity .1s linear,visibility  .1s linear;
+    padding: 0;
+    height: 0;
+}
+.insurance .insurance__btn.open .insurance__box{
+  line-height: 1.5;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    line-height .3s ease-out,
+    opacity     .1s linear .1s,
+    visibility  .1s linear .1s;
+    padding: 7.04vw 4.59vw 7.04vw 4.59vw;
+    border-right: 1px solid #707070;
+    border-left: 1px solid #707070;
+    border-bottom: 1px solid #707070;
+    height: auto;
+}
+.insurance__box_nomalTx{
+    font-size: 3.8vw;
+    line-height:1.5;
+    margin-bottom: 4vw;
+}
+.insurance__box_subTx{
+    font-size: 3.333vw;
+    line-height:1.7;
+    margin-top: 4vw;
+}
+.insurance__box_nomalTable_head{
+    background-color:#F4F7F0; 
+}
+.insurance__box_nomalTable td{
+    border: 1px solid #707070;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 3.33vw;
+    padding: 3vw 0;
+}
+.insurance__box_nomalTable {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+}
+.insurance__box_imgBox{
+    margin-top: 4vw;
+}
+.insurance__box_note{
+    font-size: 
+}
+.noteRed{
+    color: #FF0210;
+}
+
+.insurance__box_title h2{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 4.3vw;
+    margin: 8vw 0 3vw;
+}
+.insurance__box_title h2 span{
+    padding: 1vw 2vw;
+    font-size: 3.222vw;
+    margin: 0 0 0 1vw;
+    color: #fff;
+    border-radius: 6px;
+}
+.insurance__box_title h2 .blo{
+    background-color:#713B23;
+}
+.insurance__box_title h2 .sil{
+    background-color: #B9AFAF;
+}
+.insurance__box_title h2 .gol{
+    background-color: #B7AA06;
+}
+.insurance .insurance__head{
+    width: 65.46vw!important;
+}
+.faq .faq__head{
+    width: 50.46vw!important;
+}
+.flow .flow02__note {
+    margin-top: 1.61vw;
+}
+.header .headerLogo {
+    width: 50vw
+}
+.voice_desc p {
+    font-size: 3.4vw;
+}
+    .price .inner__img{
+        width: 124px;
+    }
+    .price .price__contentInner{
+        margin-bottom: 40px;
+    }
+    .footer p{
+        font-size: 2.5vw;
+    }
+    .price .table__img03 {
+        position: absolute;
+        top: -51.86%;
+        left: 0%;
+    }
+    .price .pre .price__contentInner {
+        margin-bottom: 75px;
+    }
+    #price .pre p.pre_p1 {
+        font-size: 2.8vw;
+    }
+}

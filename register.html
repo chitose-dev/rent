@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会員登録 | 株式会社ビップオート</title>
+    <link rel="stylesheet" href="all.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="custom.css">
+    <style>
+        .register-page {
+            padding-top: 90px;
+            background: #F9F9F9;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        .register-container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .register-title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: var(--text-color);
+        }
+
+        .register-form .form-group {
+            margin-bottom: 25px;
+        }
+
+        .register-form label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        .required {
+            color: var(--danger);
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .register-form input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #DDD;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .register-form input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .password-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .terms {
+            margin: 30px 0;
+            padding: 20px;
+            background: #F5F5F5;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .terms h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .terms p {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .terms-checkbox {
+            margin: 20px 0;
+        }
+
+        .terms-checkbox label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .terms-checkbox input {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-register:hover:not(:disabled) {
+            background: var(--primary-dark);
+            color: var(--white);
+        }
+
+        .btn-register:disabled {
+            background: #CCC;
+            cursor: not-allowed;
+        }
+
+        .register-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .register-links a {
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+
+        .register-links a:hover {
+            text-decoration: underline;
+        }
+
+        @media screen and (max-width: 768px) {
+            .register-page {
+                padding-top: 60px;
+            }
+
+            .register-container {
+                margin: 20px;
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header__inner">
+            <div class="headerLogo">
+                <a href="index.html">
+                    <h1 style="color: #FFD700; font-size: 24px; margin: 0;">ビップオート</h1>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 会員登録ページ -->
+    <main class="register-page">
+        <div class="register-container">
+            <h1 class="register-title">会員登録</h1>
+
+            <form class="register-form" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="name">お名前 <span class="required">必須</span></label>
+                    <input type="text" id="name" required placeholder="山田 太郎">
+                </div>
+
+                <div class="form-group">
+                    <label for="kana">フリガナ <span class="required">必須</span></label>
+                    <input type="text" id="kana" required placeholder="ヤマダ タロウ">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">メールアドレス <span class="required">必須</span></label>
+                    <input type="email" id="email" required placeholder="example@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">パスワード <span class="required">必須</span></label>
+                    <input type="password" id="password" required minlength="8" placeholder="8文字以上">
+                    <p class="password-hint">※ 8文字以上で入力してください</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="password-confirm">パスワード（確認） <span class="required">必須</span></label>
+                    <input type="password" id="password-confirm" required minlength="8" placeholder="パスワードを再入力">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">電話番号 <span class="required">必須</span></label>
+                    <input type="tel" id="phone" required placeholder="090-1234-5678">
+                </div>
+
+                <div class="form-group">
+                    <label for="postal-code">郵便番号 <span class="required">必須</span></label>
+                    <input type="text" id="postal-code" required placeholder="640-8150">
+                </div>
+
+                <div class="form-group">
+                    <label for="address">住所 <span class="required">必須</span></label>
+                    <input type="text" id="address" required placeholder="和歌山県和歌山市...">
+                </div>
+
+                <div class="terms">
+                    <h3>利用規約</h3>
+                    <p>第1条（適用）<br>
+                    本規約は、株式会社ビップオート（以下「当社」といいます）が提供するレンタカーサービス（以下「本サービス」といいます）の利用に関する条件を定めるものです。</p>
+                    
+                    <p>第2条（会員登録）<br>
+                    本サービスの利用を希望する方は、本規約に同意の上、当社所定の方法により会員登録を行うものとします。</p>
+                    
+                    <p>第3条（禁止事項）<br>
+                    会員は、本サービスの利用にあたり、以下の行為をしてはなりません。<br>
+                    ・法令または公序良俗に違反する行為<br>
+                    ・犯罪行為に関連する行為<br>
+                    ・当社のサーバーまたはネットワークの機能を破壊したり、妨害したりする行為</p>
+                    
+                    <p>第4条（個人情報の取扱い）<br>
+                    当社は、会員の個人情報を適切に管理し、法令に基づく場合を除き、会員の同意なく第三者に提供しません。</p>
+                </div>
+
+                <div class="terms-checkbox">
+                    <label>
+                        <input type="checkbox" id="agree-terms" required>
+                        <span>利用規約に同意する</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-register" id="registerBtn" disabled>
+                    会員登録する
+                </button>
+            </form>
+
+            <div class="register-links">
+                <p>すでに会員の方は <a href="login.html">ログイン</a></p>
+                <p><a href="index.html">トップページに戻る</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 株式会社ビップオート All Rights Reserved.</p>
+    </footer>
+
+    <script src="jquery-3_4_1_min.js"></script>
+    <script>
+        // 利用規約チェックボックスでボタンの有効化
+        document.getElementById('agree-terms').addEventListener('change', function() {
+            document.getElementById('registerBtn').disabled = !this.checked;
+        });
+
+        function handleRegister(event) {
+            event.preventDefault();
+            
+            const password = document.getElementById('password').value;
+            const passwordConfirm = document.getElementById('password-confirm').value;
+
+            // パスワード一致確認
+            if (password !== passwordConfirm) {
+                alert('パスワードが一致しません');
+                return;
+            }
+
+            const registerData = {
+                name: document.getElementById('name').value,
+                kana: document.getElementById('kana').value,
+                email: document.getElementById('email').value,
+                password: password,
+                phone: document.getElementById('phone').value,
+                postalCode: document.getElementById('postal-code').value,
+                address: document.getElementById('address').value
+            };
+
+            // TODO: バックエンドに送信
+            console.log('会員登録:', registerData);
+
+            alert('会員登録が完了しました');
+            window.location.href = 'mypage.html';
+        }
+    </script>
+</body>
+</html>

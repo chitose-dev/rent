@@ -1,0 +1,467 @@
+/* ===================================
+   カスタムスタイル
+   黄色ベースのデザイン + 新規追加機能
+=================================== */
+
+:root {
+    --primary-color: #FFD700; /* 黄色 */
+    --primary-dark: #FFA500;
+    --secondary-color: #333333;
+    --text-color: #333333;
+    --border-color: #DDDDDD;
+    --white: #FFFFFF;
+    --danger: #FF0210;
+}
+
+/* ===================================
+   ヘッダー
+=================================== */
+.header {
+    background: var(--white);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    height: 90px;
+}
+
+.header__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+}
+
+.headerLogo {
+    width: 200px;
+}
+
+.headerLogo img {
+    width: 100%;
+    height: auto;
+}
+
+/* PC用ナビゲーション */
+.header__nav ul {
+    display: flex;
+    gap: 20px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+}
+
+.header__nav ul li a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 16px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.header__nav ul li a:hover {
+    color: var(--primary-dark);
+}
+
+/* ログイン・マイページボタン */
+.header__login-btn,
+.header__mypage-btn {
+    padding: 10px 20px !important;
+    border-radius: 5px;
+    font-weight: bold !important;
+    transition: all 0.3s !important;
+}
+
+.header__login-btn {
+    background: var(--white);
+    color: var(--primary-dark) !important;
+    border: 2px solid var(--primary-color);
+}
+
+.header__login-btn:hover {
+    background: var(--primary-color);
+    color: var(--white) !important;
+}
+
+.header__mypage-btn {
+    background: var(--primary-color);
+    color: var(--white) !important;
+    border: 2px solid var(--primary-color);
+}
+
+.header__mypage-btn:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+/* レスポンシブ対応 */
+.pc-only {
+    display: block;
+}
+
+.sp-only {
+    display: none;
+}
+
+@media screen and (max-width: 768px) {
+    .pc-only {
+        display: none;
+    }
+    
+    .sp-only {
+        display: block;
+    }
+
+    .header {
+        height: 60px;
+    }
+
+    .headerLogo {
+        width: 150px;
+    }
+}
+
+/* ===================================
+   ハンバーガーメニュー
+=================================== */
+.hamburger {
+    width: 30px;
+    height: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.hamburger span {
+    width: 100%;
+    height: 3px;
+    background: var(--text-color);
+    border-radius: 2px;
+    transition: all 0.3s;
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translateY(11px);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translateY(-11px);
+}
+
+/* SPメニュー */
+.menu {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: var(--white);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.menu.active {
+    max-height: 500px;
+}
+
+.menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 20px;
+}
+
+.menu ul li {
+    margin-bottom: 15px;
+}
+
+.menu ul li a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* ===================================
+   メインビジュアル
+=================================== */
+.mv {
+    padding-top: 90px;
+    position: relative;
+}
+
+.mv__inner {
+    position: relative;
+}
+
+.mv__img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+}
+
+.mv__text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--white);
+    width: 90%;
+}
+
+.mv__title {
+    font-size: 48px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.mv__subtitle {
+    font-size: 24px;
+    margin-bottom: 30px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.mv__btn {
+    display: inline-block;
+    padding: 20px 60px;
+    background: var(--primary-color);
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 50px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.mv__btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+@media screen and (max-width: 768px) {
+    .mv {
+        padding-top: 60px;
+    }
+
+    .mv__img {
+        height: 300px;
+    }
+
+    .mv__title {
+        font-size: 28px;
+    }
+
+    .mv__subtitle {
+        font-size: 16px;
+    }
+
+    .mv__btn {
+        padding: 15px 40px;
+        font-size: 16px;
+    }
+}
+
+/* ===================================
+   セクション共通
+=================================== */
+.section__title {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.section__title img {
+    max-width: 400px;
+    width: 100%;
+}
+
+.inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 80px 20px;
+}
+
+/* ===================================
+   料金表
+=================================== */
+.price {
+    background: #F9F9F9;
+}
+
+.textBox {
+    margin-bottom: 30px;
+}
+
+.textBox__ttl {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: var(--primary-dark);
+    border-left: 5px solid var(--primary-color);
+    padding-left: 15px;
+}
+
+.textBox__txt {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #666;
+}
+
+.price__Box {
+    background: var(--primary-color);
+    padding: 40px;
+    border-radius: 10px;
+    margin-bottom: 50px;
+}
+
+.price__content {
+    background: var(--white);
+    padding: 30px;
+    border-radius: 8px;
+}
+
+.price__contentInner {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 20px;
+}
+
+.inner__img {
+    width: 300px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.price__table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.price__table th,
+.price__table td {
+    padding: 15px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+.price__table th {
+    background: #F5F5F5;
+    font-weight: bold;
+    width: 40%;
+}
+
+.price__table td {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary-dark);
+}
+
+.price__btn {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background: var(--primary-dark);
+    color: var(--white);
+    text-align: center;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.price__btn:hover {
+    background: var(--primary-color);
+    color: var(--text-color);
+}
+
+@media screen and (max-width: 768px) {
+    .price__contentInner {
+        flex-direction: column;
+    }
+
+    .inner__img {
+        width: 100%;
+    }
+
+    .price__table td {
+        font-size: 18px;
+    }
+}
+
+/* ===================================
+   フローティングボタン
+=================================== */
+.floatMenu {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9998;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.floatMenu a {
+    display: block;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: transform 0.3s;
+}
+
+.floatMenu a:hover {
+    transform: scale(1.1);
+}
+
+.floatMenu img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+@media screen and (max-width: 768px) {
+    .floatMenu {
+        bottom: 10px;
+        right: 10px;
+    }
+
+    .floatMenu a {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* ===================================
+   フッター
+=================================== */
+.footer {
+    background: var(--secondary-color);
+    color: var(--white);
+    text-align: center;
+    padding: 20px;
+}
+
+.footer p {
+    margin: 0;
+    font-size: 14px;
+}

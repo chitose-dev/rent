@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>レンタカー予約サイト | 株式会社ビップオート</title>
+    <link rel="stylesheet" href="all.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="add.css">
+    <link rel="stylesheet" href="custom.css">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header__inner">
+            <div class="headerLogo">
+                <a href="/">
+                    <h1 style="color: #FFD700; font-size: 24px; margin: 0;">ビップオート</h1>
+                </a>
+            </div>
+            
+            <!-- PC用ナビゲーション -->
+            <nav class="header__nav pc-only">
+                <ul>
+                    <li><a href="#price">料金表</a></li>
+                    <li><a href="#flow">ご利用の流れ</a></li>
+                    <li><a href="#faq">よくある質問</a></li>
+                    <li><a href="#shop">店舗情報</a></li>
+                    <li><a href="login.html" class="header__login-btn">ログイン</a></li>
+                    <li><a href="mypage.html" class="header__mypage-btn">マイページ</a></li>
+                </ul>
+            </nav>
+
+            <!-- ハンバーガーメニュー（SP用） -->
+            <div class="hamburger sp-only">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <!-- SPメニュー -->
+        <nav class="menu sp-only">
+            <ul>
+                <li><a href="#price">料金表</a></li>
+                <li><a href="#flow">ご利用の流れ</a></li>
+                <li><a href="#faq">よくある質問</a></li>
+                <li><a href="#shop">店舗情報</a></li>
+                <li><a href="login.html">ログイン</a></li>
+                <li><a href="mypage.html">マイページ</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- メインビジュアル -->
+    <section class="mv">
+        <div class="mv__inner">
+            <div style="width: 100%; height: 500px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); position: relative;">
+                <div class="mv__text">
+                    <h1 class="mv__title">安心・安全のレンタカー</h1>
+                    <p class="mv__subtitle">長期レンタルでお得にご利用いただけます</p>
+                    <a href="reservation.html" class="mv__btn">今すぐ予約する</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 料金表セクション -->
+    <section id="price" class="price">
+        <div class="inner">
+            <h2 class="section__title">
+                <span style="color: #333; font-size: 36px; font-weight: bold;">料金表</span>
+            </h2>
+
+            <!-- 軽自動車クラス -->
+            <div class="nomalcar">
+                <div class="textBox">
+                    <h3 class="textBox__ttl">軽自動車クラス</h3>
+                    <p class="textBox__txt">
+                        日常のお買い物や通勤に最適な軽自動車クラスです。<br>
+                        燃費も良く、経済的にご利用いただけます。
+                    </p>
+                </div>
+
+                <div class="price__Box">
+                    <div class="price__content">
+                        <div class="price__contentInner">
+                            <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                                <span style="font-size: 48px;">🚗</span>
+                            </div>
+                            <table class="price__table">
+                                <tr>
+                                    <th>10日間</th>
+                                    <td>25,000円</td>
+                                </tr>
+                                <tr>
+                                    <th>20日間</th>
+                                    <td>45,000円</td>
+                                </tr>
+                                <tr>
+                                    <th>30日間</th>
+                                    <td>60,000円</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <a href="reservation.html?class=kei" class="price__btn">この車両で予約する</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 商用車クラス -->
+            <div class="busicar">
+                <div class="textBox">
+                    <h3 class="textBox__ttl">商用車クラス</h3>
+                    <p class="textBox__txt">
+                        荷物の運搬や引っ越しに便利な商用車クラスです。<br>
+                        ビジネスシーンでも活躍します。
+                    </p>
+                </div>
+
+                <div class="price__Box">
+                    <div class="price__content">
+                        <div class="price__contentInner">
+                            <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                                <span style="font-size: 48px;">🚐</span>
+                            </div>
+                            <table class="price__table">
+                                <tr>
+                                    <th>10日間</th>
+                                    <td>35,000円</td>
+                                </tr>
+                                <tr>
+                                    <th>20日間</th>
+                                    <td>65,000円</td>
+                                </tr>
+                                <tr>
+                                    <th>30日間</th>
+                                    <td>90,000円</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <a href="reservation.html?class=van" class="price__btn">この車両で予約する</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 免責保証セクション -->
+    <section class="insurance">
+        <div class="inner">
+            <h2 class="section__title">
+                <span style="color: #333; font-size: 36px; font-weight: bold;">免責保証について</span>
+            </h2>
+
+            <div class="insurance__btn">
+                <div class="insurance__btn_title">
+                    <h3>免責保証について（クリックで詳細を表示）</h3>
+                </div>
+                <div class="insurance__box">
+                    <p class="insurance__box_nomalTx">
+                        万が一の事故の際、免責額を軽減できる安心の保証プランです。
+                    </p>
+
+                    <div class="insurance__box_title">
+                        <h2>ブロンズプラン<span class="blo">おすすめ</span></h2>
+                    </div>
+                    <table class="insurance__box_nomalTable">
+                        <tr class="insurance__box_nomalTable_head">
+                            <td>料金</td>
+                            <td>免責額</td>
+                        </tr>
+                        <tr>
+                            <td>1,100円/日</td>
+                            <td>50,000円</td>
+                        </tr>
+                    </table>
+
+                    <div class="insurance__box_title">
+                        <h2>シルバープラン<span class="sil">安心</span></h2>
+                    </div>
+                    <table class="insurance__box_nomalTable">
+                        <tr class="insurance__box_nomalTable_head">
+                            <td>料金</td>
+                            <td>免責額</td>
+                        </tr>
+                        <tr>
+                            <td>2,200円/日</td>
+                            <td>30,000円</td>
+                        </tr>
+                    </table>
+
+                    <div class="insurance__box_title">
+                        <h2>ゴールドプラン<span class="gol">最安心</span></h2>
+                    </div>
+                    <table class="insurance__box_nomalTable">
+                        <tr class="insurance__box_nomalTable_head">
+                            <td>料金</td>
+                            <td>免責額</td>
+                        </tr>
+                        <tr>
+                            <td>3,300円/日</td>
+                            <td>0円</td>
+                        </tr>
+                    </table>
+
+                    <p class="insurance__box_subTx noteRed">
+                        ※保証プランは予約時に選択できます。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ご利用の流れ -->
+    <section id="flow" class="flow">
+        <div class="inner">
+            <h2 class="section__title">
+                <span style="color: #333; font-size: 36px; font-weight: bold;">ご利用の流れ</span>
+            </h2>
+
+            <div class="flow__content">
+                <div class="flow__step">
+                    <div class="flow__number">1</div>
+                    <h3>Web予約</h3>
+                    <p>公式サイトから24時間いつでも予約可能です。</p>
+                </div>
+
+                <div class="flow__step">
+                    <div class="flow__number">2</div>
+                    <h3>ご来店</h3>
+                    <p>予約日時に店舗へお越しください。</p>
+                </div>
+
+                <div class="flow__step">
+                    <div class="flow__number">3</div>
+                    <h3>貸出手続き</h3>
+                    <p>免許証の確認と契約書のご記入をお願いします。</p>
+                </div>
+
+                <div class="flow__step">
+                    <div class="flow__number">4</div>
+                    <h3>ご利用開始</h3>
+                    <p>車両のご説明後、ご出発いただけます。</p>
+                </div>
+            </div>
+
+            <div class="flow__tel">
+                <p>お電話でのご予約・お問い合わせ</p>
+                <a href="tel:0736-62-1122">0736-62-1122</a>
+                <p class="flow__hours">営業時間：9:00〜18:00（水曜定休）</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- よくある質問 -->
+    <section id="faq" class="faq">
+        <div class="inner">
+            <h2 class="section__title">
+                <span style="color: #333; font-size: 36px; font-weight: bold;">よくある質問</span>
+            </h2>
+
+            <div class="faq__list">
+                <div class="faq__item">
+                    <div class="faq__question">
+                        <h3>Q. 予約はいつまでに必要ですか？</h3>
+                    </div>
+                    <div class="faq__answer">
+                        <p>A. 当日予約も可能ですが、在庫状況により対応できない場合がございます。事前のご予約をおすすめします。</p>
+                    </div>
+                </div>
+
+                <div class="faq__item">
+                    <div class="faq__question">
+                        <h3>Q. キャンセル料はかかりますか？</h3>
+                    </div>
+                    <div class="faq__answer">
+                        <p>A. ご予約の3日前よりキャンセル料が発生します。基本料金の50％をキャンセル料として頂戴いたします。</p>
+                    </div>
+                </div>
+
+                <div class="faq__item">
+                    <div class="faq__question">
+                        <h3>Q. 支払い方法は何がありますか？</h3>
+                    </div>
+                    <div class="faq__answer">
+                        <p>A. クレジットカード決済、または店頭での現金払いが可能です。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 店舗情報 -->
+    <section id="shop" class="shop">
+        <div class="inner">
+            <h2 class="section__title">
+                <span style="color: #333; font-size: 36px; font-weight: bold;">店舗情報</span>
+            </h2>
+
+            <div class="shop__content">
+                <div class="shop__info">
+                    <h3>株式会社ビップオート</h3>
+                    <table class="shop__table">
+                        <tr>
+                            <th>住所</th>
+                            <td>和歌山県岩出市中島804-2</td>
+                        </tr>
+                        <tr>
+                            <th>電話番号</th>
+                            <td>0736-62-1122</td>
+                        </tr>
+                        <tr>
+                            <th>営業時間</th>
+                            <td>9:00〜18:00</td>
+                        </tr>
+                        <tr>
+                            <th>定休日</th>
+                            <td>水曜日、GW、年末年始、夏季休暇</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="shop__map">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3281.234!2d135.234!3d34.123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzTCsDA3JzIzLjAiTiAxMzXCsDE0JzAzLjAiRQ!5e0!3m2!1sja!2sjp!4v1234567890" 
+                            width="100%" 
+                            height="400" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <p>&copy; 2025 株式会社ビップオート All Rights Reserved.</p>
+    </footer>
+
+    <!-- フローティング予約ボタン -->
+    <div class="floatMenu">
+        <a href="reservation.html" class="reserve-btn" style="background: #FFD700; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #333; text-decoration: none;">
+            予約
+        </a>
+        <a href="tel:0736-62-1122" class="tel" style="background: #4CAF50; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; text-decoration: none;">
+            電話
+        </a>
+    </div>
+
+    <script src="jquery-3_4_1_min.js"></script>
+    <script src="app_min.js"></script>
+    <script src="add.js"></script>
+    <script src="custom.js"></script>
+</body>
+</html>

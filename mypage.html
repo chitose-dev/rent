@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マイページ | 株式会社ビップオート</title>
+    <link rel="stylesheet" href="all.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="add.css">
+    <link rel="stylesheet" href="custom.css">
+    <link rel="stylesheet" href="mypage.css">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header__inner">
+            <div class="headerLogo">
+                <a href="/">
+                    <h1 style="color: #FFD700; font-size: 24px; margin: 0;">ビップオート</h1>
+                </a>
+            </div>
+            
+            <nav class="header__nav pc-only">
+                <ul>
+                    <li><a href="index.html#price">料金表</a></li>
+                    <li><a href="index.html#flow">ご利用の流れ</a></li>
+                    <li><a href="index.html#faq">よくある質問</a></li>
+                    <li><a href="index.html#shop">店舗情報</a></li>
+                    <li><a href="mypage.html" class="header__mypage-btn">マイページ</a></li>
+                    <li><a href="#" class="header__logout-btn" onclick="logout()">ログアウト</a></li>
+                </ul>
+            </nav>
+
+            <div class="hamburger sp-only">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <nav class="menu sp-only">
+            <ul>
+                <li><a href="index.html#price">料金表</a></li>
+                <li><a href="index.html#flow">ご利用の流れ</a></li>
+                <li><a href="index.html#faq">よくある質問</a></li>
+                <li><a href="index.html#shop">店舗情報</a></li>
+                <li><a href="mypage.html">マイページ</a></li>
+                <li><a href="#" onclick="logout()">ログアウト</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- マイページメイン -->
+    <main class="mypage">
+        <div class="mypage__container">
+            <h1 class="mypage__title">マイページ</h1>
+
+            <!-- サイドメニュー -->
+            <div class="mypage__wrapper">
+                <aside class="mypage__sidebar">
+                    <nav class="sidebar-nav">
+                        <a href="#" class="sidebar-link active" data-tab="reservations">
+                            <span class="icon">📅</span>
+                            <span>予約履歴</span>
+                        </a>
+                        <a href="#" class="sidebar-link" data-tab="profile">
+                            <span class="icon">👤</span>
+                            <span>登録情報</span>
+                        </a>
+                        <a href="reservation.html" class="sidebar-link">
+                            <span class="icon">➕</span>
+                            <span>新規予約</span>
+                        </a>
+                        <a href="index.html#shop" class="sidebar-link">
+                            <span class="icon">🏪</span>
+                            <span>店舗情報</span>
+                        </a>
+                        <a href="#" class="sidebar-link danger" onclick="confirmLogout()">
+                            <span class="icon">🚪</span>
+                            <span>ログアウト</span>
+                        </a>
+                    </nav>
+                </aside>
+
+                <!-- メインコンテンツ -->
+                <div class="mypage__content">
+                    <!-- 予約履歴タブ -->
+                    <div class="tab-content active" id="reservations">
+                        <h2 class="content__title">予約履歴</h2>
+
+                        <!-- 予約リスト -->
+                        <div class="reservation-list">
+                            <!-- 予約アイテム1（進行中） -->
+                            <div class="reservation-item">
+                                <div class="reservation-header">
+                                    <div class="reservation-status status-confirmed">予約確定</div>
+                                    <div class="reservation-number">予約番号: R20251227-001</div>
+                                    <div class="reservation-date">予約日: 2024年12月27日</div>
+                                </div>
+
+                                <div class="reservation-body">
+                                    <div class="reservation-image">
+                                        <div style="width: 100%; height: 150px; background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); display: flex; align-items: center; justify-content: center; border-radius: 8px;"><span style="font-size: 48px;">🚗</span></div>
+                                    </div>
+
+                                    <div class="reservation-details">
+                                        <h3>軽自動車クラス</h3>
+                                        <div class="detail-row">
+                                            <span class="label">貸出期間</span>
+                                            <span class="value">2025年1月10日 9:00 〜 2025年1月20日 18:00（10日間）</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="label">免責保証</span>
+                                            <span class="value">ブロンズプラン</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="label">合計金額</span>
+                                            <span class="value price">¥36,000</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="reservation-actions">
+                                    <button class="btn-detail" onclick="showReservationDetail('R20251227-001')">詳細を見る</button>
+                                    <button class="btn-cancel" onclick="confirmCancel('R20251227-001')">キャンセル</button>
+                                </div>
+                            </div>
+
+                            <!-- 予約アイテム2（過去） -->
+                            <div class="reservation-item">
+                                <div class="reservation-header">
+                                    <div class="reservation-status status-completed">利用完了</div>
+                                    <div class="reservation-number">予約番号: R20241215-001</div>
+                                    <div class="reservation-date">予約日: 2024年12月1日</div>
+                                </div>
+
+                                <div class="reservation-body">
+                                    <div class="reservation-image">
+                                        <div style="width: 100%; height: 150px; background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); display: flex; align-items: center; justify-content: center; border-radius: 8px;"><span style="font-size: 48px;">🚐</span></div>
+                                    </div>
+
+                                    <div class="reservation-details">
+                                        <h3>商用車クラス</h3>
+                                        <div class="detail-row">
+                                            <span class="label">貸出期間</span>
+                                            <span class="value">2024年12月15日 10:00 〜 2024年12月25日 18:00（10日間）</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="label">免責保証</span>
+                                            <span class="value">なし</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="label">合計金額</span>
+                                            <span class="value price">¥35,000</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="reservation-actions">
+                                    <button class="btn-detail" onclick="showReservationDetail('R20241215-001')">詳細を見る</button>
+                                </div>
+                            </div>
+
+                            <!-- 予約アイテム3（キャンセル済み） -->
+                            <div class="reservation-item">
+                                <div class="reservation-header">
+                                    <div class="reservation-status status-cancelled">キャンセル済み</div>
+                                    <div class="reservation-number">予約番号: R20241120-001</div>
+                                    <div class="reservation-date">予約日: 2024年11月10日</div>
+                                </div>
+
+                                <div class="reservation-body">
+                                    <div class="reservation-image">
+                                        <div style="width: 100%; height: 150px; background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); display: flex; align-items: center; justify-content: center; border-radius: 8px;"><span style="font-size: 48px;">🚗</span></div>
+                                    </div>
+
+                                    <div class="reservation-details">
+                                        <h3>軽自動車クラス</h3>
+                                        <div class="detail-row">
+                                            <span class="label">貸出期間</span>
+                                            <span class="value">2024年11月20日 9:00 〜 2024年11月30日 18:00（10日間）</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="label">キャンセル理由</span>
+                                            <span class="value">都合により</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="reservation-actions">
+                                    <button class="btn-detail" onclick="showReservationDetail('R20241120-001')">詳細を見る</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 登録情報タブ -->
+                    <div class="tab-content" id="profile">
+                        <h2 class="content__title">登録情報</h2>
+
+                        <div class="profile-section">
+                            <form class="profile-form" id="profileForm">
+                                <div class="form-group">
+                                    <label for="profile-name">お名前</label>
+                                    <input type="text" id="profile-name" value="山田 太郎" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="profile-kana">フリガナ</label>
+                                    <input type="text" id="profile-kana" value="ヤマダ タロウ" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="profile-email">メールアドレス</label>
+                                    <input type="email" id="profile-email" value="yamada@example.com" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="profile-phone">電話番号</label>
+                                    <input type="tel" id="profile-phone" value="090-1234-5678" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="profile-postal">郵便番号</label>
+                                    <input type="text" id="profile-postal" value="640-8150" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="profile-address">住所</label>
+                                    <input type="text" id="profile-address" value="和歌山県和歌山市..." required>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="button" class="btn-save" onclick="saveProfile()">保存する</button>
+                                    <button type="button" class="btn-password" onclick="changePassword()">パスワード変更</button>
+                                </div>
+                            </form>
+
+                            <div class="danger-zone">
+                                <h3>アカウントの削除</h3>
+                                <p>アカウントを削除すると、予約履歴を含むすべてのデータが削除されます。</p>
+                                <button class="btn-delete" onclick="confirmDeleteAccount()">アカウントを削除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 予約詳細モーダル -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2 class="modal-title">予約詳細</h2>
+            
+            <div class="modal-body" id="modalBody">
+                <!-- JavaScriptで内容を挿入 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- キャンセル確認モーダル -->
+    <div id="cancelModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeCancelModal()">&times;</span>
+            <h2 class="modal-title">予約キャンセル確認</h2>
+            
+            <div class="modal-body">
+                <p class="cancel-warning">
+                    ⚠️ キャンセルポリシー<br>
+                    ご予約の3日前よりキャンセル料が発生します。<br>
+                    基本料金の50％をキャンセル料として頂戴いたします。
+                </p>
+
+                <div class="cancel-actions">
+                    <button class="btn-cancel-confirm" onclick="executeCancel()">キャンセルする</button>
+                    <button class="btn-cancel-back" onclick="closeCancelModal()">戻る</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 株式会社ビップオート All Rights Reserved.</p>
+    </footer>
+
+    <script src="jquery-3_4_1_min.js"></script>
+    <script src="custom.js"></script>
+    <script src="mypage.js"></script>
+</body>
+</html>

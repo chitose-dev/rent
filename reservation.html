@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予約フォーム | 株式会社ビップオート</title>
+    <link rel="stylesheet" href="all.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="add.css">
+    <link rel="stylesheet" href="custom.css">
+    <link rel="stylesheet" href="reservation.css">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header__inner">
+            <div class="headerLogo">
+                <a href="/">
+                    <h1 style="color: #FFD700; font-size: 24px; margin: 0;">ビップオート</h1>
+                </a>
+            </div>
+            
+            <nav class="header__nav pc-only">
+                <ul>
+                    <li><a href="index.html#price">料金表</a></li>
+                    <li><a href="index.html#flow">ご利用の流れ</a></li>
+                    <li><a href="index.html#faq">よくある質問</a></li>
+                    <li><a href="index.html#shop">店舗情報</a></li>
+                    <li><a href="login.html" class="header__login-btn">ログイン</a></li>
+                    <li><a href="mypage.html" class="header__mypage-btn">マイページ</a></li>
+                </ul>
+            </nav>
+
+            <div class="hamburger sp-only">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <nav class="menu sp-only">
+            <ul>
+                <li><a href="index.html#price">料金表</a></li>
+                <li><a href="index.html#flow">ご利用の流れ</a></li>
+                <li><a href="index.html#faq">よくある質問</a></li>
+                <li><a href="index.html#shop">店舗情報</a></li>
+                <li><a href="login.html">ログイン</a></li>
+                <li><a href="mypage.html">マイページ</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- 予約フォーム -->
+    <main class="reservation">
+        <div class="reservation__container">
+            <h1 class="reservation__title">レンタカー予約</h1>
+
+            <!-- 進捗バー -->
+            <div class="progress-bar">
+                <div class="progress-step active">
+                    <div class="step-number">1</div>
+                    <div class="step-label">車両選択</div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number">2</div>
+                    <div class="step-label">日程選択</div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number">3</div>
+                    <div class="step-label">お客様情報</div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number">4</div>
+                    <div class="step-label">確認</div>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number">5</div>
+                    <div class="step-label">完了</div>
+                </div>
+            </div>
+
+            <!-- ステップ1: 車両選択 -->
+            <div class="reservation__step active" id="step1">
+                <h2 class="step__title">車両クラスを選択してください</h2>
+                
+                <div class="vehicle-cards">
+                    <div class="vehicle-card" data-class="kei">
+                        <div class="vehicle-image">
+                            <div style="width: 100%; height: 250px; background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%); display: flex; align-items: center; justify-content: center;">
+                                <span style="font-size: 72px;">🚗</span>
+                            </div>
+                        </div>
+                        <div class="vehicle-info">
+                            <h3 class="vehicle-name">軽自動車クラス</h3>
+                            <p class="vehicle-description">日常のお買い物や通勤に最適</p>
+                            <div class="vehicle-prices">
+                                <div class="price-item">
+                                    <span class="price-label">10日間</span>
+                                    <span class="price-value">25,000円</span>
+                                </div>
+                                <div class="price-item">
+                                    <span class="price-label">20日間</span>
+                                    <span class="price-value">45,000円</span>
+                                </div>
+                                <div class="price-item">
+                                    <span class="price-label">30日間</span>
+                                    <span class="price-value">60,000円</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="vehicle-select-btn">この車両を選択</button>
+                    </div>
+
+                    <div class="vehicle-card" data-class="van">
+                        <div class="vehicle-image">
+                            <div style="width: 100%; height: 250px; background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); display: flex; align-items: center; justify-content: center;">
+                                <span style="font-size: 72px;">🚐</span>
+                            </div>
+                        </div>
+                        <div class="vehicle-info">
+                            <h3 class="vehicle-name">商用車クラス</h3>
+                            <p class="vehicle-description">荷物の運搬や引っ越しに便利</p>
+                            <div class="vehicle-prices">
+                                <div class="price-item">
+                                    <span class="price-label">10日間</span>
+                                    <span class="price-value">35,000円</span>
+                                </div>
+                                <div class="price-item">
+                                    <span class="price-label">20日間</span>
+                                    <span class="price-value">65,000円</span>
+                                </div>
+                                <div class="price-item">
+                                    <span class="price-label">30日間</span>
+                                    <span class="price-value">90,000円</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="vehicle-select-btn">この車両を選択</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ステップ2: 日程選択 -->
+            <div class="reservation__step" id="step2">
+                <h2 class="step__title">ご利用日程を選択してください</h2>
+                
+                <div class="date-selection">
+                    <div class="date-group">
+                        <label for="start-date">貸出開始日</label>
+                        <input type="date" id="start-date" required>
+                    </div>
+
+                    <div class="date-group">
+                        <label for="rental-period">レンタル期間</label>
+                        <select id="rental-period" required>
+                            <option value="">選択してください</option>
+                            <option value="10">10日間</option>
+                            <option value="20">20日間</option>
+                            <option value="30">30日間</option>
+                        </select>
+                    </div>
+
+                    <div class="date-group">
+                        <label for="pickup-time">来店時間</label>
+                        <select id="pickup-time" required>
+                            <option value="">選択してください</option>
+                            <option value="09:00">9:00</option>
+                            <option value="10:00">10:00</option>
+                            <option value="11:00">11:00</option>
+                            <option value="12:00">12:00</option>
+                            <option value="13:00">13:00</option>
+                            <option value="14:00">14:00</option>
+                            <option value="15:00">15:00</option>
+                            <option value="16:00">16:00</option>
+                            <option value="17:00">17:00</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="insurance-selection">
+                    <h3>免責保証プラン（任意）</h3>
+                    <div class="insurance-options">
+                        <label class="insurance-option">
+                            <input type="radio" name="insurance" value="none" checked>
+                            <div class="insurance-card">
+                                <h4>なし</h4>
+                                <p class="insurance-price">0円</p>
+                            </div>
+                        </label>
+
+                        <label class="insurance-option">
+                            <input type="radio" name="insurance" value="bronze">
+                            <div class="insurance-card">
+                                <h4>ブロンズ</h4>
+                                <p class="insurance-price">1,100円/日</p>
+                                <p class="insurance-detail">免責額: 50,000円</p>
+                            </div>
+                        </label>
+
+                        <label class="insurance-option">
+                            <input type="radio" name="insurance" value="silver">
+                            <div class="insurance-card">
+                                <h4>シルバー</h4>
+                                <p class="insurance-price">2,200円/日</p>
+                                <p class="insurance-detail">免責額: 30,000円</p>
+                            </div>
+                        </label>
+
+                        <label class="insurance-option">
+                            <input type="radio" name="insurance" value="gold">
+                            <div class="insurance-card recommended">
+                                <span class="recommend-badge">おすすめ</span>
+                                <h4>ゴールド</h4>
+                                <p class="insurance-price">3,300円/日</p>
+                                <p class="insurance-detail">免責額: 0円</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="step-buttons">
+                    <button class="btn-back" onclick="goToStep(1)">戻る</button>
+                    <button class="btn-next" onclick="goToStep(3)">次へ</button>
+                </div>
+            </div>
+
+            <!-- ステップ3: お客様情報 -->
+            <div class="reservation__step" id="step3">
+                <h2 class="step__title">お客様情報をご入力ください</h2>
+                
+                <div class="login-option">
+                    <p>会員の方はログインしてください</p>
+                    <a href="login.html" class="btn-login">ログイン</a>
+                    <p class="or-divider">または</p>
+                    <p>会員登録せずに予約する場合は下記にご入力ください</p>
+                </div>
+
+                <form class="customer-form">
+                    <div class="form-group">
+                        <label for="name">お名前 <span class="required">必須</span></label>
+                        <input type="text" id="name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="kana">フリガナ <span class="required">必須</span></label>
+                        <input type="text" id="kana" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">メールアドレス <span class="required">必須</span></label>
+                        <input type="email" id="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">電話番号 <span class="required">必須</span></label>
+                        <input type="tel" id="phone" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="postal-code">郵便番号 <span class="required">必須</span></label>
+                        <input type="text" id="postal-code" placeholder="000-0000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">住所 <span class="required">必須</span></label>
+                        <input type="text" id="address" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="remarks">備考</label>
+                        <textarea id="remarks" rows="4"></textarea>
+                    </div>
+                </form>
+
+                <div class="step-buttons">
+                    <button class="btn-back" onclick="goToStep(2)">戻る</button>
+                    <button class="btn-next" onclick="goToStep(4)">次へ</button>
+                </div>
+            </div>
+
+            <!-- ステップ4: 確認 -->
+            <div class="reservation__step" id="step4">
+                <h2 class="step__title">予約内容をご確認ください</h2>
+                
+                <div class="confirmation-box">
+                    <h3>予約内容</h3>
+                    <table class="confirmation-table">
+                        <tr>
+                            <th>車両クラス</th>
+                            <td id="confirm-vehicle">-</td>
+                        </tr>
+                        <tr>
+                            <th>貸出開始日</th>
+                            <td id="confirm-start-date">-</td>
+                        </tr>
+                        <tr>
+                            <th>レンタル期間</th>
+                            <td id="confirm-period">-</td>
+                        </tr>
+                        <tr>
+                            <th>来店時間</th>
+                            <td id="confirm-time">-</td>
+                        </tr>
+                        <tr>
+                            <th>免責保証</th>
+                            <td id="confirm-insurance">-</td>
+                        </tr>
+                    </table>
+
+                    <h3>お客様情報</h3>
+                    <table class="confirmation-table">
+                        <tr>
+                            <th>お名前</th>
+                            <td id="confirm-name">-</td>
+                        </tr>
+                        <tr>
+                            <th>メールアドレス</th>
+                            <td id="confirm-email">-</td>
+                        </tr>
+                        <tr>
+                            <th>電話番号</th>
+                            <td id="confirm-phone">-</td>
+                        </tr>
+                        <tr>
+                            <th>住所</th>
+                            <td id="confirm-address">-</td>
+                        </tr>
+                    </table>
+
+                    <div class="price-summary">
+                        <div class="price-row">
+                            <span>基本料金</span>
+                            <span id="price-base">0円</span>
+                        </div>
+                        <div class="price-row">
+                            <span>免責保証</span>
+                            <span id="price-insurance">0円</span>
+                        </div>
+                        <div class="price-row total">
+                            <span>合計金額</span>
+                            <span id="price-total">0円</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-method">
+                    <h3>お支払い方法</h3>
+                    <label class="payment-option">
+                        <input type="radio" name="payment" value="credit" checked>
+                        <span>クレジットカード決済（オンライン）</span>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment" value="cash">
+                        <span>現地現金払い</span>
+                    </label>
+                </div>
+
+                <div class="step-buttons">
+                    <button class="btn-back" onclick="goToStep(3)">戻る</button>
+                    <button class="btn-submit" onclick="submitReservation()">予約を確定する</button>
+                </div>
+            </div>
+
+            <!-- ステップ5: 完了 -->
+            <div class="reservation__step" id="step5">
+                <div class="thanks_msg">
+                    <div style="font-size: 80px; margin-bottom: 20px;">✅</div>
+                    <h5>ご予約ありがとうございます</h5>
+                    <p>
+                        予約が完了しました。<br>
+                        予約確認メールを送信いたしましたのでご確認ください。
+                    </p>
+                    
+                    <div class="reservation-number">
+                        <p>予約番号</p>
+                        <h3 id="reservation-number">R20251227-001</h3>
+                    </div>
+
+                    <div class="completion-buttons">
+                        <a href="mypage.html" class="btn-mypage">マイページで確認</a>
+                        <a href="index.html" class="btn-home">トップページへ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 株式会社ビップオート All Rights Reserved.</p>
+    </footer>
+
+    <script src="jquery-3_4_1_min.js"></script>
+    <script src="custom.js"></script>
+    <script src="reservation.js"></script>
+</body>
+</html>

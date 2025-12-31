@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン | 株式会社ビップオート</title>
+    <link rel="stylesheet" href="all.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="custom.css">
+    <style>
+        .login-page {
+            padding-top: 90px;
+            background: #F9F9F9;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            max-width: 500px;
+            width: 90%;
+            background: var(--white);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .login-title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: var(--text-color);
+        }
+
+        .login-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-form label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #DDD;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-login:hover {
+            background: var(--primary-dark);
+            color: var(--white);
+        }
+
+        .login-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .login-links a {
+            color: var(--primary-dark);
+            text-decoration: none;
+            display: block;
+            margin: 10px 0;
+        }
+
+        .login-links a:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #DDD;
+        }
+
+        .divider span {
+            background: var(--white);
+            padding: 0 20px;
+            position: relative;
+            color: #999;
+        }
+
+        .btn-guest {
+            width: 100%;
+            padding: 15px;
+            background: var(--white);
+            color: var(--text-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-guest:hover {
+            background: #F5F5F5;
+        }
+
+        @media screen and (max-width: 768px) {
+            .login-page {
+                padding-top: 60px;
+            }
+
+            .login-container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header__inner">
+            <div class="headerLogo">
+                <a href="index.html">
+                    <h1 style="color: #FFD700; font-size: 24px; margin: 0;">ビップオート</h1>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ログインページ -->
+    <main class="login-page">
+        <div class="login-container">
+            <h1 class="login-title">ログイン</h1>
+
+            <form class="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="email">メールアドレス</label>
+                    <input type="email" id="email" required placeholder="example@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">パスワード</label>
+                    <input type="password" id="password" required placeholder="8文字以上">
+                </div>
+
+                <button type="submit" class="btn-login">ログイン</button>
+            </form>
+
+            <div class="login-links">
+                <a href="register.html">新規会員登録はこちら</a>
+                <a href="#">パスワードをお忘れの方</a>
+            </div>
+
+            <div class="divider">
+                <span>または</span>
+            </div>
+
+            <button class="btn-guest" onclick="guestReservation()">
+                会員登録せずに予約する
+            </button>
+
+            <div class="login-links" style="margin-top: 30px;">
+                <a href="index.html">トップページに戻る</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 株式会社ビップオート All Rights Reserved.</p>
+    </footer>
+
+    <script src="jquery-3_4_1_min.js"></script>
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // TODO: バックエンドに送信
+            console.log('ログイン:', { email, password });
+
+            // 仮でマイページへ遷移
+            alert('ログインしました');
+            window.location.href = 'mypage.html';
+        }
+
+        function guestReservation() {
+            window.location.href = 'reservation.html';
+        }
+    </script>
+</body>
+</html>
