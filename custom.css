@@ -148,44 +148,19 @@
 
 /* ===================================
    ハンバーガーメニュー（スマホのみ）
+   ※参考サイトのadd.cssのスタイルを使用
 =================================== */
-.hamburger {
-    width: 22px;
-    height: 14px;
-    display: none; /* PCでは非表示 */
-    flex-direction: column;
-    justify-content: space-between;
-    cursor: pointer;
-    position: relative;
+/* PC画面では非表示 */
+@media screen and (min-width: 769px) {
+    .hamburger {
+        display: none !important;
+    }
 }
 
-.hamburger span {
-    display: block !important;
-    width: 100% !important;
-    height: 2px !important;
-    background: var(--text-color) !important;
-    border-radius: 1px !important;
-    transition: all 0.3s !important;
-    position: relative !important;
-}
-
-.hamburger.active span:nth-child(1) {
-    transform: rotate(45deg) !important;
-    top: 6px !important;
-}
-
-.hamburger.active span:nth-child(2) {
-    opacity: 0 !important;
-}
-
-.hamburger.active span:nth-child(3) {
-    transform: rotate(-45deg) !important;
-    top: -6px !important;
-}
-
-/* スマホでハンバーガーメニューを表示 */
+/* スマホ画面のみ表示 */
 @media screen and (max-width: 768px) {
     .hamburger {
+        height: 50px !important;
         display: flex !important;
     }
 }
