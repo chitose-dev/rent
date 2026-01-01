@@ -7,6 +7,7 @@ const reservationData = {
     vehicleClass: '',
     vehicleName: '',
     startDate: '',
+    endDate: '',
     rentalPeriod: '',
     pickupTime: '',
     insurance: 'none',
@@ -46,6 +47,32 @@ const insurancePrices = {
     'silver': 2200,
     'gold': 3300
 };
+
+// ===================================
+// 終了日の自動計算
+// ===================================
+function calculateEndDate() {
+    const startDate = document.getElementById('start-date').value;
+    const rentalPeriod = document.getElementById('rental-period').value;
+    const endDateField = document.getElementById('end-date');
+
+    if (startDate && rentalPeriod) {
+        const start = new Date(startDate);
+        const days = parseInt(rentalPeriod);
+        const end = new Date(start);
+        end.setDate(start.getDate() + days);
+
+        const year = end.getFullYear();
+        const month = String(end.getMonth() + 1).padStart(2, '0');
+        const day = String(end.getDate()).padStart(2, '0');
+        
+        endDateField.value = `${year}年${month}月${day}日`;
+        reservationData.endDate = `${year}-${month}-${day}`;
+    } else {
+        endDateField.value = '';
+        reservationData.endDate = '';
+    }
+}
 
 // ===================================
 // ステップ移動
@@ -120,11 +147,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // 日程変更時の処理
     startDateInput.addEventListener('change', function() {
         reservationData.startDate = this.value;
+        calculateEndDate();
         updatePrice();
     });
 
     rentalPeriodSelect.addEventListener('change', function() {
         reservationData.rentalPeriod = this.value;
+        calculateEndDate();
         updatePrice();
     });
 
