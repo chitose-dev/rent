@@ -155,6 +155,7 @@
     display: none;
     position: relative;
     cursor: pointer;
+    align-self: center; /* ヘッダー内で縦中央に配置 */
 }
 
 .hamburger span {
