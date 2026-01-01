@@ -155,7 +155,7 @@
     display: none;
     position: relative;
     cursor: pointer;
-    align-self: center; /* ヘッダー内で縦中央に配置 */
+    margin: auto 0; /* 上下マージンを自動にして中央配置 */
 }
 
 .hamburger span {
@@ -199,6 +199,11 @@
 @media screen and (max-width: 768px) {
     .hamburger {
         display: block !important;
+    }
+    
+    /* ヘッダーの高さに合わせて調整 */
+    .header__inner {
+        align-items: center !important;
     }
 }
 
