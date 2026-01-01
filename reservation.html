@@ -161,6 +161,11 @@
                     </div>
 
                     <div class="date-group">
+                        <label>返却日</label>
+                        <input type="text" id="end-date" readonly placeholder="開始日と期間を選択してください" style="background: #f5f5f5; cursor: default;">
+                    </div>
+
+                    <div class="date-group">
                         <label for="pickup-time">来店時間</label>
                         <select id="pickup-time" required>
                             <option value="">選択してください</option>
@@ -183,8 +188,9 @@
                         <label class="insurance-option">
                             <input type="radio" name="insurance" value="none" checked>
                             <div class="insurance-card">
-                                <h4>なし</h4>
+                                <h4>加入なし</h4>
                                 <p class="insurance-price">0円</p>
+                                <p class="insurance-detail">免責額: 50,000円</p>
                             </div>
                         </label>
 
