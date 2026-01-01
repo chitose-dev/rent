@@ -150,8 +150,8 @@
    ハンバーガーメニュー（スマホのみ）
 =================================== */
 .hamburger {
-    width: 28px;
-    height: 18px;
+    width: 24px;
+    height: 16px;
     display: none; /* PCでは非表示 */
     flex-direction: column;
     justify-content: space-between;
@@ -164,14 +164,14 @@
     width: 100% !important;
     height: 2px !important;
     background: var(--text-color) !important;
-    border-radius: 2px !important;
+    border-radius: 1px !important;
     transition: all 0.3s !important;
     position: relative !important;
 }
 
 .hamburger.active span:nth-child(1) {
     transform: rotate(45deg) !important;
-    top: 8px !important;
+    top: 7px !important;
 }
 
 .hamburger.active span:nth-child(2) {
@@ -180,7 +180,7 @@
 
 .hamburger.active span:nth-child(3) {
     transform: rotate(-45deg) !important;
-    top: -8px !important;
+    top: -7px !important;
 }
 
 /* スマホでハンバーガーメニューを表示 */
