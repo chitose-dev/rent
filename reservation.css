@@ -646,4 +646,88 @@
         width: 100%;
         text-align: center;
     }
+
+    /* 車両カードを細長く */
+    .vehicle-card {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+    }
+
+    .vehicle-image {
+        width: 120px;
+        flex-shrink: 0;
+        margin-right: 15px;
+    }
+
+    .vehicle-image > div {
+        height: 100px !important;
+    }
+
+    .vehicle-image span {
+        font-size: 48px !important;
+    }
+
+    .vehicle-info {
+        flex: 1;
+        text-align: left;
+    }
+
+    .vehicle-name {
+        font-size: 18px !important;
+    }
+
+    .vehicle-description {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    .vehicle-prices {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .price-item {
+        font-size: 12px;
+    }
+
+    .price-value {
+        font-size: 14px !important;
+    }
+
+    .vehicle-select-btn {
+        width: 100%;
+        padding: 10px !important;
+        font-size: 14px !important;
+    }
+
+    /* 免責保証を横並び細長く */
+    .insurance-options {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .insurance-card {
+        padding: 12px 8px;
+    }
+
+    .insurance-card h4 {
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    .insurance-price {
+        font-size: 14px !important;
+        margin-bottom: 3px;
+    }
+
+    .insurance-detail {
+        font-size: 11px;
+    }
+
+    .recommend-badge {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
 }
