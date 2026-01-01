@@ -147,16 +147,16 @@
 }
 
 /* ===================================
-   ハンバーガーメニュー
+   ハンバーガーメニュー（スマホのみ）
 =================================== */
 .hamburger {
-    width: 28px !important;
-    height: 18px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    cursor: pointer !important;
-    position: relative !important;
+    width: 28px;
+    height: 18px;
+    display: none; /* PCでは非表示 */
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    position: relative;
 }
 
 .hamburger span {
@@ -181,6 +181,13 @@
 .hamburger.active span:nth-child(3) {
     transform: rotate(-45deg) !important;
     top: -8px !important;
+}
+
+/* スマホでハンバーガーメニューを表示 */
+@media screen and (max-width: 768px) {
+    .hamburger {
+        display: flex !important;
+    }
 }
 
 /* SPメニュー */
