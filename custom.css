@@ -672,7 +672,7 @@ section {
 }
 
 /* ===================================
-   免責保証アコーディオン
+   免責保証
 =================================== */
 .insurance {
     background: #F9F9F9;
@@ -684,54 +684,24 @@ section {
 }
 
 .insurance__btn_title {
-    background: var(--white);
+    background: var(--primary-color);
     padding: 20px 30px;
-    border: 2px solid var(--primary-color);
-    border-radius: 8px;
-    cursor: pointer;
-    position: relative;
-    transition: all 0.3s;
-}
-
-.insurance__btn_title:hover {
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    border-radius: 8px 8px 0 0;
 }
 
 .insurance__btn_title h3 {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
     color: var(--text-color);
     margin: 0;
-    padding-right: 40px;
-}
-
-.insurance__btn_title::after {
-    content: '▼';
-    position: absolute;
-    right: 25px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 16px;
-    color: var(--primary-dark);
-    transition: transform 0.3s;
-}
-
-.insurance__btn.open .insurance__btn_title::after {
-    transform: translateY(-50%) rotate(180deg);
+    text-align: center;
 }
 
 .insurance__box {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.5s ease-out;
     background: var(--white);
-    margin-top: 10px;
-}
-
-.insurance__btn.open .insurance__box {
-    max-height: 2000px;
     padding: 30px;
     border: 2px solid #EEE;
+    border-top: none;
     border-radius: 0 0 8px 8px;
 }
 
