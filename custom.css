@@ -506,7 +506,8 @@
 @media screen and (max-width: 768px) {
     .floatMenu {
         bottom: 10px !important;
-        right: 10px !important;
+        right: 50% !important;
+        transform: translateX(50%) !important;
     }
 
     .floatMenu a {
