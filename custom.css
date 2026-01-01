@@ -14,49 +14,6 @@
 }
 
 /* ===================================
-   リセットCSS & 基本設定
-=================================== */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-html {
-    font-size: 16px;
-    scroll-behavior: smooth;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background: #fff;
-}
-
-a {
-    text-decoration: none;
-    color: inherit;
-}
-
-img {
-    max-width: 100%;
-    height: auto;
-    vertical-align: bottom;
-}
-
-ul, ol {
-    list-style: none;
-}
-
-button {
-    border: none;
-    background: none;
-    cursor: pointer;
-    font-family: inherit;
-}
-
-/* ===================================
    カラー変数
 =================================== */
 :root {
@@ -66,34 +23,6 @@ button {
     --text-color: #333;
     --white: #fff;
     --border-color: #ddd;
-}
-
-/* ===================================
-   共通レイアウト
-=================================== */
-.inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-section {
-    padding: 80px 0;
-}
-
-.section__title {
-    text-align: center;
-    margin-bottom: 50px;
-}
-
-@media screen and (max-width: 768px) {
-    section {
-        padding: 60px 0;
-    }
-
-    .section__title {
-        margin-bottom: 40px;
-    }
 }
 
 /* ===================================
@@ -568,69 +497,8 @@ section {
 }
 
 /* ===================================
-   料金表
+   料金表ボタンの中央揃え
 =================================== */
-.price {
-    background: #F9F9F9;
-}
-
-.price__content {
-    margin-bottom: 60px;
-}
-
-.price__contentInner {
-    display: flex;
-    gap: 40px;
-    align-items: flex-start;
-    margin-bottom: 40px;
-}
-
-.inner__img {
-    width: 300px;
-    flex-shrink: 0;
-}
-
-.inner__img img {
-    width: 100%;
-    border-radius: 10px;
-}
-
-.price__textBox {
-    flex: 1;
-}
-
-.textBox__ttl {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 3px solid var(--primary-color);
-}
-
-.price__table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    background: var(--white);
-}
-
-.price__table th,
-.price__table td {
-    padding: 15px;
-    border: 1px solid #DDD;
-    text-align: center;
-}
-
-.price__table th {
-    background: #F5F5F5;
-    font-weight: bold;
-}
-
-.price__table td {
-    font-size: 20px;
-    font-weight: bold;
-}
-
 .price__btn {
     display: block !important;
     width: 100% !important;
@@ -653,131 +521,135 @@ section {
     color: var(--text-color) !important;
 }
 
-@media screen and (max-width: 768px) {
-    .price__contentInner {
-        flex-direction: column;
-    }
-
-    .inner__img {
-        width: 100%;
-    }
-
-    .price__table td {
-        font-size: 18px;
-    }
-
-    .textBox__ttl {
-        font-size: 24px;
-    }
-}
-
 /* ===================================
-   免責保証
+   免責保証（最初から全部表示）
 =================================== */
 .insurance {
-    background: #F9F9F9;
+    background: #F9F9F9 !important;
 }
 
 .insurance__btn {
-    max-width: 900px;
-    margin: 0 auto;
+    max-width: 900px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+.insurance__btn:before {
+    display: none !important;
 }
 
 .insurance__btn_title {
-    background: var(--primary-color);
-    padding: 20px 30px;
-    border-radius: 8px 8px 0 0;
+    background: var(--primary-color) !important;
+    padding: 20px 30px !important;
+    border-radius: 8px 8px 0 0 !important;
+    cursor: default !important;
+    border: none !important;
+    position: relative !important;
+}
+
+.insurance__btn_title:before {
+    display: none !important;
 }
 
 .insurance__btn_title h3 {
-    font-size: 20px;
-    font-weight: bold;
-    color: var(--text-color);
-    margin: 0;
-    text-align: center;
+    font-size: 20px !important;
+    font-weight: bold !important;
+    color: var(--text-color) !important;
+    margin: 0 !important;
+    text-align: center !important;
+    padding: 0 !important;
 }
 
 .insurance__box {
-    background: var(--white);
-    padding: 30px;
-    border: 2px solid #EEE;
-    border-top: none;
-    border-radius: 0 0 8px 8px;
+    background: var(--white) !important;
+    padding: 30px !important;
+    border: 2px solid #EEE !important;
+    border-top: none !important;
+    border-radius: 0 0 8px 8px !important;
+    max-height: none !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    line-height: 1.5 !important;
+    height: auto !important;
 }
 
 .insurance__box_nomalTx {
-    font-size: 16px;
-    line-height: 1.8;
-    color: #666;
-    margin-bottom: 30px;
+    font-size: 16px !important;
+    line-height: 1.8 !important;
+    color: #666 !important;
+    margin-bottom: 30px !important;
 }
 
 .insurance__box_title {
-    margin: 30px 0 15px;
+    margin: 30px 0 15px !important;
 }
 
 .insurance__box_title:first-of-type {
-    margin-top: 0;
+    margin-top: 0 !important;
 }
 
 .insurance__box_title h2 {
-    font-size: 20px;
-    font-weight: bold;
-    color: var(--text-color);
-    margin-bottom: 10px;
+    font-size: 20px !important;
+    font-weight: bold !important;
+    color: var(--text-color) !important;
+    margin-bottom: 10px !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
 .insurance__box_title h2 span {
-    display: inline-block;
-    padding: 5px 12px;
-    border-radius: 15px;
-    font-size: 12px;
-    margin-left: 10px;
-    color: var(--white);
-    font-weight: normal;
+    display: inline-block !important;
+    padding: 5px 12px !important;
+    border-radius: 15px !important;
+    font-size: 12px !important;
+    margin-left: 10px !important;
+    color: var(--white) !important;
+    font-weight: normal !important;
 }
 
 .insurance__box_title h2 span.blo {
-    background: #713B23;
+    background: #713B23 !important;
 }
 
 .insurance__box_title h2 span.sil {
-    background: #B9AFAF;
+    background: #B9AFAF !important;
 }
 
 .insurance__box_title h2 span.gol {
-    background: #B7AA06;
+    background: #B7AA06 !important;
 }
 
 .insurance__box_nomalTable {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 20px !important;
 }
 
 .insurance__box_nomalTable_head td {
-    background: #F5F5F5;
-    font-weight: bold;
-    padding: 12px;
-    border: 1px solid #DDD;
-    text-align: center;
+    background: #F5F5F5 !important;
+    font-weight: bold !important;
+    padding: 12px !important;
+    border: 1px solid #DDD !important;
+    text-align: center !important;
 }
 
 .insurance__box_nomalTable tr td {
-    padding: 12px;
-    text-align: center;
-    border: 1px solid #DDD;
-    font-size: 15px;
+    padding: 12px !important;
+    text-align: center !important;
+    border: 1px solid #DDD !important;
+    font-size: 15px !important;
 }
 
 .insurance__box_subTx {
-    font-size: 14px;
-    color: #666;
-    margin-top: 20px;
+    font-size: 14px !important;
+    color: #666 !important;
+    margin-top: 20px !important;
 }
 
 .insurance__box_subTx.noteRed {
-    color: #FF5252;
+    color: #FF5252 !important;
 }
 
 /* ===================================
