@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約内容確認 - レンタカー予約</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .confirm-section {
+      background-color: var(--bg-white);
+      border-radius: 8px;
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .confirm-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+      padding-bottom: var(--spacing-sm);
+      border-bottom: 2px solid var(--primary-color);
+    }
+    
+    .confirm-row {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--spacing-md) 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .confirm-row:last-child {
+      border-bottom: none;
+    }
+    
+    .confirm-label {
+      color: var(--text-light);
+      font-weight: 500;
+    }
+    
+    .confirm-value {
+      font-weight: bold;
+      color: var(--text-dark);
+      text-align: right;
+    }
+    
+    .confirm-total {
+      background-color: var(--primary-light);
+      padding: var(--spacing-lg);
+      border-radius: 8px;
+      margin-top: var(--spacing-md);
+    }
+    
+    .confirm-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .confirm-total-label {
+      font-size: var(--font-lg);
+      font-weight: bold;
+    }
+    
+    .confirm-total-value {
+      font-size: var(--font-xxl);
+      font-weight: bold;
+      color: var(--primary-dark);
+    }
+    
+    .policy-box {
+      background-color: var(--bg-light);
+      padding: var(--spacing-lg);
+      border-radius: 8px;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .policy-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .policy-content {
+      max-height: 200px;
+      overflow-y: auto;
+      padding: var(--spacing-md);
+      background-color: var(--bg-white);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      line-height: 1.8;
+    }
+    
+    .policy-list {
+      margin: 0;
+      padding-left: var(--spacing-lg);
+    }
+    
+    .policy-list li {
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .agreement-box {
+      background-color: var(--primary-light);
+      padding: var(--spacing-lg);
+      border-radius: 8px;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      margin-top: 4px;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+    
+    .checkbox-group label {
+      flex: 1;
+      cursor: pointer;
+      line-height: 1.6;
+      font-size: var(--font-md);
+    }
+    
+    @media (max-width: 768px) {
+      .confirm-row {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+      }
+      
+      .confirm-value {
+        text-align: left;
+      }
+      
+      .confirm-total-value {
+        font-size: var(--font-xl);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-container">
+      <a href="mypage-rental.html" class="header-logo">レンタカー予約</a>
+      <nav class="header-nav">
+        <a href="mypage-rental.html">マイページ</a>
+        <a href="#" onclick="logout()">ログアウト</a>
+      </nav>
+      <button class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <div class="container">
+    <h1 class="page-title">予約内容の確認</h1>
+    
+    <div class="alert alert-info mb-lg">
+      以下の内容で予約を確定します。内容をご確認ください。
+    </div>
+
+    <!-- 車両情報 -->
+    <div class="confirm-section">
+      <div class="confirm-title">車両情報</div>
+      <div class="confirm-row">
+        <span class="confirm-label">車両クラス</span>
+        <span class="confirm-value" id="confirmClass">-</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-label">レンタル日数</span>
+        <span class="confirm-value" id="confirmDays">-</span>
+      </div>
+    </div>
+
+    <!-- 日時情報 -->
+    <div class="confirm-section">
+      <div class="confirm-title">受取・返却日時</div>
+      <div class="confirm-row">
+        <span class="confirm-label">受取日時</span>
+        <span class="confirm-value" id="confirmPickup">-</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-label">返却日時</span>
+        <span class="confirm-value" id="confirmReturn">-</span>
+      </div>
+    </div>
+
+    <!-- 決済情報 -->
+    <div class="confirm-section">
+      <div class="confirm-title">決済情報</div>
+      <div class="confirm-row">
+        <span class="confirm-label">決済方法</span>
+        <span class="confirm-value" id="confirmPayment">-</span>
+      </div>
+      
+      <!-- 合計金額 -->
+      <div class="confirm-total">
+        <div class="confirm-total-row">
+          <span class="confirm-total-label">合計金額</span>
+          <span class="confirm-total-value" id="confirmPrice">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- キャンセルポリシー -->
+    <div class="policy-box">
+      <div class="policy-title">キャンセルポリシー</div>
+      <div class="policy-content">
+        <ul class="policy-list">
+          <li>キャンセルをご希望の場合は、マイページから「キャンセル申請」を行ってください。</li>
+          <li>キャンセル申請後、店舗にて内容を確認し、承認・否認のご連絡をいたします。</li>
+          <li>キャンセル料は申請時期により異なります:
+            <ul style="margin-top: 8px;">
+              <li>利用日の7日前まで: 無料</li>
+              <li>利用日の3〜6日前: 料金の30%</li>
+              <li>利用日の前日〜当日: 料金の50%</li>
+              <li>無断キャンセル: 料金の100%</li>
+            </ul>
+          </li>
+          <li>天候や交通事情などやむを得ない事情の場合は、個別にご相談ください。</li>
+          <li>現地払いの場合でも、上記キャンセル料が適用されます。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 利用規約同意 -->
+    <div class="agreement-box">
+      <div class="checkbox-group">
+        <input type="checkbox" id="agreePolicy" onchange="toggleConfirmButton()">
+        <label for="agreePolicy">
+          <strong>上記のキャンセルポリシーおよび利用規約に同意します</strong>
+        </label>
+      </div>
+    </div>
+
+    <!-- ボタン -->
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goBack()">戻る</button>
+      <button class="btn btn-primary btn-full" id="confirmBtn" disabled onclick="confirmReservation()">
+        予約を確定する
+      </button>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    let reservationData = null;
+
+    // 予約データを取得
+    function loadReservationData() {
+      const data = ReservationStorage.get();
+      if (!data || !data.paymentMethod) {
+        alert('決済方法を選択してください');
+        window.location.href = 'reserve-payment.html';
+        return;
+      }
+      
+      reservationData = data;
+      displayConfirmation();
+    }
+
+    // 確認内容を表示
+    function displayConfirmation() {
+      const carClass = Utils.getCarClass(reservationData.carClassId);
+      
+      // 車両情報
+      document.getElementById('confirmClass').textContent = carClass.name;
+      document.getElementById('confirmDays').textContent = reservationData.planLabel;
+      
+      // 日時情報
+      document.getElementById('confirmPickup').textContent = 
+        Utils.formatDateTimeJP(new Date(reservationData.pickupDateTime));
+      document.getElementById('confirmReturn').textContent = 
+        Utils.formatDateTimeJP(new Date(reservationData.returnDateTime));
+      
+      // 決済情報
+      const paymentText = reservationData.paymentMethod === 'card' 
+        ? 'クレジットカード' 
+        : '現地払い';
+      document.getElementById('confirmPayment').textContent = paymentText;
+      document.getElementById('confirmPrice').textContent = 
+        Utils.formatPrice(reservationData.planPrice);
+    }
+
+    // 確定ボタンの有効/無効切り替え
+    function toggleConfirmButton() {
+      const agreed = document.getElementById('agreePolicy').checked;
+      document.getElementById('confirmBtn').disabled = !agreed;
+    }
+
+    // 予約確定
+    function confirmReservation() {
+      const agreed = document.getElementById('agreePolicy').checked;
+      if (!agreed) {
+        alert('キャンセルポリシーに同意してください');
+        return;
+      }
+      
+      // 同意フラグを保存
+      ReservationStorage.save({
+        agreeCancelPolicy: true,
+        reservationId: generateReservationId(),
+        reservationDate: new Date().toISOString(),
+        status: 'confirmed'
+      });
+      
+      // 完了ページへ
+      window.location.href = 'reserve-complete.html';
+    }
+
+    // 予約番号生成（仮実装）
+    function generateReservationId() {
+      const timestamp = Date.now();
+      const random = Math.floor(Math.random() * 10000);
+      return `R${timestamp}${random}`.substring(0, 16);
+    }
+
+    // 戻る
+    function goBack() {
+      window.location.href = 'reserve-payment.html';
+    }
+
+    // ログアウト
+    function logout() {
+      if (confirm('ログアウトしますか?')) {
+        ReservationStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 初期化
+    loadReservationData();
+  </script>
+</body>
+</html>
