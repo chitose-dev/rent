@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新規予約 - トクノリレンタカー</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .new-reservation-container {
+      text-align: center;
+      padding: var(--spacing-xl);
+      background-color: var(--bg-white);
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .new-reservation-icon {
+      font-size: 80px;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .new-reservation-title {
+      font-size: var(--font-xxl);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+      color: var(--text-dark);
+    }
+    
+    .new-reservation-message {
+      color: var(--text-light);
+      margin-bottom: var(--spacing-xl);
+      line-height: 1.8;
+    }
+    
+    .feature-list {
+      text-align: left;
+      max-width: 600px;
+      margin: 0 auto var(--spacing-xl);
+      background-color: var(--bg-light);
+      padding: var(--spacing-lg);
+      border-radius: 8px;
+    }
+    
+    .feature-item {
+      display: flex;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+      padding: var(--spacing-md);
+      background-color: var(--bg-white);
+      border-radius: 4px;
+    }
+    
+    .feature-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .feature-icon {
+      font-size: var(--font-xl);
+      flex-shrink: 0;
+    }
+    
+    .feature-content h3 {
+      font-size: var(--font-md);
+      font-weight: bold;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .feature-content p {
+      font-size: var(--font-sm);
+      color: var(--text-light);
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-container">
+      <a href="mypage-rental.html" class="header-logo">トクノリレンタカー</a>
+      <nav class="header-nav">
+        <a href="mypage-rental.html">マイページ</a>
+        <a href="#" onclick="logout()">ログアウト</a>
+      </nav>
+      <button class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <div class="container">
+    <h1 class="page-title">マイページ</h1>
+    
+    <!-- タブナビゲーション -->
+    <nav class="mypage-tabs">
+      <button class="mypage-tab" data-tab="rental" onclick="switchTab('rental')">
+        レンタル状況
+      </button>
+      <button class="mypage-tab active" data-tab="new" onclick="switchTab('new')">
+        新規予約
+      </button>
+      <button class="mypage-tab" data-tab="history" onclick="switchTab('history')">
+        予約履歴
+      </button>
+      <button class="mypage-tab" data-tab="profile" onclick="switchTab('profile')">
+        登録情報
+      </button>
+      <button class="mypage-tab" data-tab="withdraw" onclick="switchTab('withdraw')">
+        退会
+      </button>
+    </nav>
+
+    <!-- 新規予約コンテンツ -->
+    <div class="new-reservation-container">
+      <div class="new-reservation-icon">🚗</div>
+      <h2 class="new-reservation-title">新しい予約を作成</h2>
+      <p class="new-reservation-message">
+        お好みの車両クラスとレンタル期間を選択して、<br>
+        簡単に予約を作成できます。
+      </p>
+      
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-icon">✓</div>
+          <div class="feature-content">
+            <h3>豊富な車両クラス</h3>
+            <p>軽自動車からミニバンまで、用途に合わせて選択可能</p>
+          </div>
+        </div>
+        
+        <div class="feature-item">
+          <div class="feature-icon">✓</div>
+          <div class="feature-content">
+            <h3>柔軟な料金プラン</h3>
+            <p>1日から1週間まで、お得な料金プランをご用意</p>
+          </div>
+        </div>
+        
+        <div class="feature-item">
+          <div class="feature-icon">✓</div>
+          <div class="feature-content">
+            <h3>簡単予約</h3>
+            <p>数ステップで予約完了、すぐに確認メールが届きます</p>
+          </div>
+        </div>
+      </div>
+      
+      <button class="btn btn-primary" style="font-size: var(--font-lg); padding: var(--spacing-lg) var(--spacing-xl);" onclick="startReservation()">
+        予約を開始する
+      </button>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    // タブ切り替え
+    function switchTab(tab) {
+      const pages = {
+        'rental': 'mypage-rental.html',
+        'new': 'mypage-new.html',
+        'history': 'mypage-history.html',
+        'profile': 'mypage-profile.html',
+        'withdraw': 'mypage-withdraw.html'
+      };
+      
+      if (pages[tab] && tab !== 'new') {
+        window.location.href = pages[tab];
+      }
+    }
+
+    // 予約開始
+    function startReservation() {
+      // セッションストレージをクリア（新規予約のため）
+      ReservationStorage.clear();
+      window.location.href = 'reserve-class.html';
+    }
+
+    // ログアウト
+    function logout() {
+      if (confirm('ログアウトしますか?')) {
+        ReservationStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+  </script>
+</body>
+</html>
