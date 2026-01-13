@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>レンタル開始日選択 - レンタカー予約</title>
+  <title>レンタル開始日選択 - トクノリレンタカー</title>
   <link rel="stylesheet" href="common.css">
   <style>
     .calendar-container {
@@ -165,7 +164,7 @@
   <!-- ヘッダー -->
   <header class="header">
     <div class="header-container">
-      <a href="mypage-rental.html" class="header-logo">レンタカー予約</a>
+      <a href="mypage-rental.html" class="header-logo">トクノリレンタカー</a>
       <nav class="header-nav">
         <a href="mypage-rental.html">マイページ</a>
         <a href="#" onclick="logout()">ログアウト</a>
@@ -182,15 +181,27 @@
   <div class="container">
     <h1 class="page-title">レンタル開始日を選択</h1>
     
-    <!-- 選択情報 -->
+    <!-- 選択内容サマリー（前ページからの情報） -->
+    <div class="date-info">
+      <div class="info-row">
+        <span class="info-label">車両クラス:</span>
+        <span class="info-value" id="infoCarClass">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">レンタル日数:</span>
+        <span class="info-value" id="infoPlanDays">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">合計金額:</span>
+        <span class="info-value" id="infoPlanPrice">-</span>
+      </div>
+    </div>
+    
+    <!-- 選択した日付情報 -->
     <div class="date-info" id="dateInfo" style="display: none;">
       <div class="info-row">
         <span class="info-label">開始日:</span>
         <span class="info-value" id="infoStartDate">-</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">日数:</span>
-        <span class="info-value" id="infoDays">-</span>
       </div>
       <div class="info-row">
         <span class="info-label">返却日:</span>
@@ -219,10 +230,6 @@
       <div class="calendar-days" id="calendarDays"></div>
     </div>
 
-    <div class="alert alert-info mt-lg">
-      <strong>ご注意:</strong> 過去の日付および6ヶ月より先の日付は選択できません。
-    </div>
-
     <!-- ボタン -->
     <div class="btn-group">
       <button class="btn btn-secondary" onclick="goBack()">戻る</button>
@@ -245,6 +252,12 @@
         return;
       }
       planDays = data.planDays;
+      
+      // 前ページからの情報を表示
+      const carClass = Utils.getCarClass(data.carClassId);
+      document.getElementById('infoCarClass').textContent = carClass.name;
+      document.getElementById('infoPlanDays').textContent = data.planLabel;
+      document.getElementById('infoPlanPrice').textContent = Utils.formatPrice(data.planPrice);
       
       // 前回の選択を復元
       if (data.startDate) {
@@ -369,8 +382,6 @@
       
       document.getElementById('infoStartDate').textContent = 
         Utils.formatDateJP(selectedStartDate);
-      document.getElementById('infoDays').textContent = 
-        `${planDays}日間`;
       document.getElementById('infoEndDate').textContent = 
         Utils.formatDateJP(endDate);
       
