@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>決済方法選択 - レンタカー予約</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .payment-options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-lg);
+    }
+    
+    .payment-card {
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      padding: var(--spacing-lg);
+      cursor: pointer;
+      transition: all 0.3s;
+      background-color: var(--bg-white);
+    }
+    
+    .payment-card:hover {
+      border-color: var(--primary-color);
+      background-color: var(--primary-light);
+    }
+    
+    .payment-card.selected {
+      border-color: var(--primary-color);
+      background-color: var(--primary-light);
+    }
+    
+    .payment-card-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .payment-radio {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+    
+    .payment-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+      flex: 1;
+    }
+    
+    .payment-description {
+      color: var(--text-light);
+      line-height: 1.6;
+    }
+    
+    .payment-note {
+      background-color: var(--bg-light);
+      padding: var(--spacing-md);
+      border-radius: 4px;
+      margin-top: var(--spacing-md);
+      font-size: var(--font-sm);
+    }
+    
+    .summary-box {
+      background-color: var(--primary-light);
+      padding: var(--spacing-lg);
+      border-radius: 8px;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .summary-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+      color: var(--text-dark);
+    }
+    
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .summary-row:last-child {
+      margin-top: var(--spacing-md);
+      padding-top: var(--spacing-md);
+      border-top: 2px solid var(--primary-color);
+      font-weight: bold;
+      font-size: var(--font-lg);
+    }
+    
+    .summary-label {
+      color: var(--text-dark);
+    }
+    
+    .summary-value {
+      font-weight: bold;
+      color: var(--primary-dark);
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-container">
+      <a href="mypage-rental.html" class="header-logo">レンタカー予約</a>
+      <nav class="header-nav">
+        <a href="mypage-rental.html">マイページ</a>
+        <a href="#" onclick="logout()">ログアウト</a>
+      </nav>
+      <button class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <div class="container">
+    <h1 class="page-title">決済方法を選択</h1>
+    
+    <!-- 予約内容サマリー -->
+    <div class="summary-box">
+      <div class="summary-title">予約内容</div>
+      <div class="summary-row">
+        <span class="summary-label">車両クラス:</span>
+        <span class="summary-value" id="summaryClass">-</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">受取日時:</span>
+        <span class="summary-value" id="summaryPickup">-</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">返却日時:</span>
+        <span class="summary-value" id="summaryReturn">-</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">合計金額:</span>
+        <span class="summary-value" id="summaryPrice">-</span>
+      </div>
+    </div>
+
+    <!-- 決済方法選択 -->
+    <div class="section">
+      <h2 class="section-title">決済方法</h2>
+      
+      <div class="payment-options">
+        <!-- クレジットカード -->
+        <div class="payment-card" data-method="card" onclick="selectPayment('card')">
+          <div class="payment-card-header">
+            <input type="radio" name="payment" value="card" class="payment-radio" id="paymentCard">
+            <label for="paymentCard" class="payment-title">クレジットカード</label>
+          </div>
+          <div class="payment-description">
+            オンラインでクレジットカード決済を行います。予約完了後、決済画面へ進みます。
+          </div>
+          <div class="payment-note">
+            <strong>対応カード:</strong> VISA / MasterCard / JCB / AMEX
+          </div>
+        </div>
+
+        <!-- 現地払い -->
+        <div class="payment-card" data-method="onsite" onclick="selectPayment('onsite')">
+          <div class="payment-card-header">
+            <input type="radio" name="payment" value="onsite" class="payment-radio" id="paymentOnsite">
+            <label for="paymentOnsite" class="payment-title">現地払い</label>
+          </div>
+          <div class="payment-description">
+            店舗での車両受取時に、現金またはクレジットカードでお支払いいただけます。
+          </div>
+          <div class="payment-note">
+            <strong>ご注意:</strong> 受取時に運転免許証の確認が必要です。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-warning mt-lg">
+      <strong>キャンセルについて:</strong> キャンセルは申請制となります。詳細は次のページでご確認ください。
+    </div>
+
+    <!-- ボタン -->
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goBack()">戻る</button>
+      <button class="btn btn-primary btn-full" id="nextBtn" disabled onclick="goNext()">次へ進む</button>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    let selectedPayment = null;
+
+    // 予約データを取得
+    function loadReservationData() {
+      const data = ReservationStorage.get();
+      if (!data || !data.returnDateTime) {
+        alert('返却日時を選択してください');
+        window.location.href = 'reserve-return.html';
+        return;
+      }
+      
+      // サマリー表示
+      const carClass = Utils.getCarClass(data.carClassId);
+      document.getElementById('summaryClass').textContent = carClass.name;
+      document.getElementById('summaryPickup').textContent = 
+        Utils.formatDateTimeJP(new Date(data.pickupDateTime));
+      document.getElementById('summaryReturn').textContent = 
+        Utils.formatDateTimeJP(new Date(data.returnDateTime));
+      document.getElementById('summaryPrice').textContent = 
+        Utils.formatPrice(data.planPrice);
+      
+      // 前回の選択を復元
+      if (data.paymentMethod) {
+        selectedPayment = data.paymentMethod;
+        selectPayment(selectedPayment);
+      }
+    }
+
+    // 決済方法選択
+    function selectPayment(method) {
+      selectedPayment = method;
+      
+      // 全カードの選択状態をクリア
+      document.querySelectorAll('.payment-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+      // ラジオボタンをクリア
+      document.querySelectorAll('.payment-radio').forEach(radio => {
+        radio.checked = false;
+      });
+      
+      // 選択したカードを強調
+      const card = document.querySelector(`.payment-card[data-method="${method}"]`);
+      card.classList.add('selected');
+      
+      // ラジオボタンをチェック
+      const radio = card.querySelector('.payment-radio');
+      radio.checked = true;
+      
+      // 次へボタン有効化
+      document.getElementById('nextBtn').disabled = false;
+    }
+
+    // 次へ進む
+    function goNext() {
+      if (!selectedPayment) {
+        alert('決済方法を選択してください');
+        return;
+      }
+      
+      // セッションに保存
+      ReservationStorage.save({
+        paymentMethod: selectedPayment
+      });
+      
+      // 次のページへ
+      window.location.href = 'reserve-confirm.html';
+    }
+
+    // 戻る
+    function goBack() {
+      window.location.href = 'reserve-return.html';
+    }
+
+    // ログアウト
+    function logout() {
+      if (confirm('ログアウトしますか?')) {
+        ReservationStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 初期化
+    loadReservationData();
+  </script>
+</body>
+</html>
