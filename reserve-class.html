@@ -16,12 +16,29 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
     
+    .class-card-header {
+      margin-bottom: var(--spacing-md);
+    }
+    
     .class-card-content {
       display: flex;
       flex-direction: column;
       gap: var(--spacing-md);
     }
     
+    .class-image-placeholder {
+      background-color: var(--bg-light);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-light);
+      flex-shrink: 0;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+    }
+    
+    /* PC表示: 横並びレイアウト */
     @media (min-width: 769px) {
       .class-card-content {
         flex-direction: row;
@@ -29,30 +46,13 @@
       }
       
       .class-image-placeholder {
-        flex-shrink: 0;
         width: 200px;
         height: 200px;
-        aspect-ratio: 1;
       }
       
       .class-card-text {
         flex: 1;
       }
-    }
-    
-    .class-card-header {
-      margin-bottom: var(--spacing-md);
-    }
-    
-    .class-image-placeholder {
-      width: 100%;
-      aspect-ratio: 1;
-      background-color: var(--bg-light);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-light);
     }
     
     .pricing-table {
