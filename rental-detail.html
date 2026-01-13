@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約詳細 - トクノリレンタカー</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .detail-section {
+      background-color: var(--bg-white);
+      border-radius: 8px;
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .detail-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+      padding-bottom: var(--spacing-sm);
+      border-bottom: 2px solid var(--primary-color);
+    }
+    
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--spacing-md) 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+    
+    .detail-label {
+      color: var(--text-light);
+      font-weight: 500;
+    }
+    
+    .detail-value {
+      font-weight: bold;
+      text-align: right;
+    }
+    
+    .notes-box {
+      background-color: var(--bg-light);
+      padding: var(--spacing-lg);
+      border-radius: 8px;
+      line-height: 1.8;
+    }
+    
+    .notes-title {
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .notes-list {
+      padding-left: var(--spacing-lg);
+    }
+    
+    .notes-list li {
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    @media (max-width: 768px) {
+      .detail-row {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+      }
+      
+      .detail-value {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-container">
+      <a href="mypage-rental.html" class="header-logo">トクノリレンタカー</a>
+      <nav class="header-nav">
+        <a href="mypage-rental.html">マイページ</a>
+        <a href="#" onclick="logout()">ログアウト</a>
+      </nav>
+      <button class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <div class="container">
+    <h1 class="page-title">予約詳細</h1>
+    
+    <!-- ステータス表示 -->
+    <div class="alert alert-info">
+      <strong>予約ステータス:</strong> <span id="statusText" class="status-badge">-</span>
+    </div>
+
+    <!-- 予約情報 -->
+    <div class="detail-section">
+      <div class="detail-title">予約情報</div>
+      <div class="detail-row">
+        <span class="detail-label">予約番号</span>
+        <span class="detail-value" id="detailReservationId">-</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">予約日時</span>
+        <span class="detail-value" id="detailReservationDate">-</span>
+      </div>
+    </div>
+
+    <!-- 車両情報 -->
+    <div class="detail-section">
+      <div class="detail-title">車両情報</div>
+      <div class="detail-row">
+        <span class="detail-label">車両クラス</span>
+        <span class="detail-value" id="detailCarClass">-</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">レンタル日数</span>
+        <span class="detail-value" id="detailDays">-</span>
+      </div>
+    </div>
+
+    <!-- 日時情報 -->
+    <div class="detail-section">
+      <div class="detail-title">受取・返却情報</div>
+      <div class="detail-row">
+        <span class="detail-label">受取日時</span>
+        <span class="detail-value" id="detailPickup">-</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">返却日時</span>
+        <span class="detail-value" id="detailReturn">-</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">受取場所</span>
+        <span class="detail-value">店舗受付</span>
+      </div>
+    </div>
+
+    <!-- 料金情報 -->
+    <div class="detail-section">
+      <div class="detail-title">料金情報</div>
+      <div class="detail-row">
+        <span class="detail-label">決済方法</span>
+        <span class="detail-value" id="detailPayment">-</span>
+      </div>
+      <div class="detail-row" style="font-size: var(--font-lg); font-weight: bold;">
+        <span class="detail-label">合計金額</span>
+        <span class="detail-value" style="color: var(--primary-dark);" id="detailPrice">-</span>
+      </div>
+    </div>
+
+    <!-- 注意事項 -->
+    <div class="notes-box">
+      <div class="notes-title">ご利用にあたっての注意事項</div>
+      <ul class="notes-list">
+        <li>受取時に運転免許証の提示が必要です</li>
+        <li>返却時間を過ぎる場合は、事前にご連絡ください</li>
+        <li>車両の損傷や事故があった場合は、すぐにご連絡ください</li>
+        <li>禁煙車両です。車内での喫煙はご遠慮ください</li>
+        <li>ペットの同乗はケージ利用時のみ可能です</li>
+      </ul>
+    </div>
+
+    <!-- アクションボタン -->
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goBack()">戻る</button>
+      <button class="btn btn-danger" id="cancelBtn" onclick="requestCancel()">キャンセル申請</button>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    // 予約詳細を表示
+    function displayDetail() {
+      const data = ReservationStorage.get();
+      
+      if (!data || !data.reservationId) {
+        alert('予約情報が見つかりません');
+        window.location.href = 'mypage-rental.html';
+        return;
+      }
+      
+      const carClass = Utils.getCarClass(data.carClassId);
+      
+      // ステータス表示
+      let statusText = '予約確定';
+      let statusClass = 'status-confirmed';
+      
+      if (data.status === 'cancel-requested') {
+        statusText = 'キャンセル申請中';
+        statusClass = 'status-cancel-requested';
+        document.getElementById('cancelBtn').style.display = 'none';
+      } else if (data.status === 'cancelled') {
+        statusText = 'キャンセル確定';
+        statusClass = 'status-cancelled';
+        document.getElementById('cancelBtn').style.display = 'none';
+      }
+      
+      document.getElementById('statusText').textContent = statusText;
+      document.getElementById('statusText').className = `status-badge ${statusClass}`;
+      
+      // 予約情報
+      document.getElementById('detailReservationId').textContent = data.reservationId;
+      document.getElementById('detailReservationDate').textContent = 
+        data.reservationDate ? Utils.formatDateTimeJP(new Date(data.reservationDate)) : '-';
+      
+      // 車両情報
+      document.getElementById('detailCarClass').textContent = carClass.name;
+      document.getElementById('detailDays').textContent = data.planLabel;
+      
+      // 日時情報
+      document.getElementById('detailPickup').textContent = 
+        Utils.formatDateTimeJP(new Date(data.pickupDateTime));
+      document.getElementById('detailReturn').textContent = 
+        Utils.formatDateTimeJP(new Date(data.returnDateTime));
+      
+      // 料金情報
+      const paymentText = data.paymentMethod === 'card' ? 'クレジットカード' : '現地払い';
+      document.getElementById('detailPayment').textContent = paymentText;
+      document.getElementById('detailPrice').textContent = Utils.formatPrice(data.planPrice);
+    }
+
+    // キャンセル申請
+    function requestCancel() {
+      const data = ReservationStorage.get();
+      if (confirm('キャンセル申請を行いますか?\n申請後、店舗にて内容を確認いたします。')) {
+        window.location.href = `cancel-request.html?id=${data.reservationId}`;
+      }
+    }
+
+    // 戻る
+    function goBack() {
+      window.location.href = 'mypage-rental.html';
+    }
+
+    // ログアウト
+    function logout() {
+      if (confirm('ログアウトしますか?')) {
+        ReservationStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 初期化
+    displayDetail();
+  </script>
+</body>
+</html>
