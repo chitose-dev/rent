@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>キャンセル申請 - トクノリレンタカー</title>
+  <link rel="stylesheet" href="common.css">
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-container">
+      <a href="mypage-rental.html" class="header-logo">トクノリレンタカー</a>
+      <nav class="header-nav">
+        <a href="mypage-rental.html">マイページ</a>
+        <a href="#" onclick="logout()">ログアウト</a>
+      </nav>
+      <button class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <div class="container">
+    <h1 class="page-title">キャンセル申請</h1>
+    
+    <div class="alert alert-warning mb-lg">
+      <strong>ご注意:</strong> キャンセル申請後、店舗にて内容を確認し、承認・否認のご連絡をいたします。
+    </div>
+
+    <!-- 予約情報サマリー -->
+    <div class="section">
+      <h2 class="section-title">予約情報</h2>
+      <div class="detail-row">
+        <span class="detail-label">予約番号</span>
+        <span class="detail-value" id="cancelReservationId">-</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">車両クラス</span>
+        <span class="detail-value" id="cancelCarClass">-</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">受取日時</span>
+        <span class="detail-value" id="cancelPickup">-</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">料金</span>
+        <span class="detail-value" id="cancelPrice">-</span>
+      </div>
+    </div>
+
+    <!-- キャンセル料金 -->
+    <div class="section">
+      <h2 class="section-title">キャンセル料金</h2>
+      <div class="alert alert-info">
+        <strong>現在のキャンセル料:</strong> <span id="cancellationFee" style="font-size: var(--font-lg); font-weight: bold;">-</span>
+      </div>
+      <p class="text-muted text-small">
+        ※キャンセル料は申請時期により異なります。詳細は下記をご確認ください。
+      </p>
+      
+      <div style="background-color: var(--bg-light); padding: var(--spacing-md); border-radius: 4px; margin-top: var(--spacing-md);">
+        <ul style="padding-left: var(--spacing-lg); line-height: 1.8;">
+          <li>利用日の7日前まで: 無料</li>
+          <li>利用日の3〜6日前: 料金の30%</li>
+          <li>利用日の前日〜当日: 料金の50%</li>
+          <li>無断キャンセル: 料金の100%</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- キャンセル理由入力 -->
+    <div class="section">
+      <h2 class="section-title">キャンセル理由</h2>
+      
+      <form id="cancelForm" onsubmit="submitCancel(event)">
+        <div class="form-group">
+          <label for="cancelReason" class="form-label required">理由</label>
+          <textarea id="cancelReason" class="form-textarea" placeholder="キャンセル理由をご入力ください" required></textarea>
+          <span class="form-error">キャンセル理由を入力してください</span>
+        </div>
+
+        <div class="checkbox-group mb-lg">
+          <input type="checkbox" id="agreeCancel" required>
+          <label for="agreeCancel">
+            キャンセルポリシーを理解し、上記のキャンセル料金に同意します
+          </label>
+        </div>
+
+        <div class="alert alert-warning">
+          <strong>確認事項:</strong>
+          <ul style="padding-left: var(--spacing-lg); margin-top: var(--spacing-sm);">
+            <li>申請後、店舗にて内容を確認いたします</li>
+            <li>承認までお時間をいただく場合があります</li>
+            <li>申請が否認される場合もあります</li>
+          </ul>
+        </div>
+
+        <div class="btn-group">
+          <button type="button" class="btn btn-secondary" onclick="goBack()">戻る</button>
+          <button type="submit" class="btn btn-danger btn-full">キャンセル申請を送信</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    // キャンセル料金計算
+    function calculateCancellationFee() {
+      const data = ReservationStorage.get();
+      if (!data || !data.pickupDateTime || !data.planPrice) {
+        return { fee: 0, rate: 0 };
+      }
+      
+      const pickupDate = new Date(data.pickupDateTime);
+      const now = new Date();
+      const daysUntilPickup = Math.ceil((pickupDate - now) / (1000 * 60 * 60 * 24));
+      
+      let rate = 0;
+      if (daysUntilPickup >= 7) {
+        rate = 0; // 無料
+      } else if (daysUntilPickup >= 3) {
+        rate = 0.3; // 30%
+      } else if (daysUntilPickup >= 1) {
+        rate = 0.5; // 50%
+      } else {
+        rate = 0.5; // 当日50%
+      }
+      
+      const fee = Math.floor(data.planPrice * rate);
+      return { fee, rate };
+    }
+
+    // キャンセル情報表示
+    function displayCancelInfo() {
+      const data = ReservationStorage.get();
+      
+      if (!data || !data.reservationId) {
+        alert('予約情報が見つかりません');
+        window.location.href = 'mypage-rental.html';
+        return;
+      }
+      
+      const carClass = Utils.getCarClass(data.carClassId);
+      
+      // 予約情報
+      document.getElementById('cancelReservationId').textContent = data.reservationId;
+      document.getElementById('cancelCarClass').textContent = carClass.name;
+      document.getElementById('cancelPickup').textContent = 
+        Utils.formatDateTimeJP(new Date(data.pickupDateTime));
+      document.getElementById('cancelPrice').textContent = Utils.formatPrice(data.planPrice);
+      
+      // キャンセル料金
+      const { fee, rate } = calculateCancellationFee();
+      const feeText = fee === 0 ? '無料' : Utils.formatPrice(fee);
+      const rateText = rate === 0 ? '' : ` (${rate * 100}%)`;
+      document.getElementById('cancellationFee').textContent = feeText + rateText;
+    }
+
+    // キャンセル申請送信
+    function submitCancel(event) {
+      event.preventDefault();
+      
+      const reason = document.getElementById('cancelReason').value;
+      const agreed = document.getElementById('agreeCancel').checked;
+      
+      if (!agreed) {
+        alert('キャンセルポリシーに同意してください');
+        return;
+      }
+      
+      if (confirm('キャンセル申請を送信しますか？')) {
+        // セッションストレージに状態を保存
+        ReservationStorage.save({
+          status: 'cancel-requested',
+          cancelReason: reason,
+          cancelRequestDate: new Date().toISOString()
+        });
+        
+        // 完了ページへ
+        window.location.href = 'cancel-request-complete.html';
+      }
+    }
+
+    // 戻る
+    function goBack() {
+      window.location.href = 'rental-detail.html';
+    }
+
+    // ログアウト
+    function logout() {
+      if (confirm('ログアウトしますか?')) {
+        ReservationStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 初期化
+    displayCancelInfo();
+  </script>
+</body>
+</html>
