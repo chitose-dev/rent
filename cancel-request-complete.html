@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>キャンセル申請完了 - トクノリレンタカー</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .complete-container {
+      text-align: center;
+      padding: var(--spacing-xl);
+    }
+    
+    .complete-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto var(--spacing-lg);
+      border-radius: 50%;
+      background-color: #F57C00;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 50px;
+      color: var(--bg-white);
+    }
+    
+    .complete-title {
+      font-size: var(--font-xxl);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+      color: #F57C00;
+    }
+    
+    .complete-message {
+      font-size: var(--font-lg);
+      color: var(--text-dark);
+      margin-bottom: var(--spacing-xl);
+      line-height: 1.8;
+    }
+    
+    .next-steps {
+      background-color: var(--bg-light);
+      padding: var(--spacing-lg);
+      border-radius: 8px;
+      text-align: left;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .next-steps-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .next-steps-list {
+      padding-left: var(--spacing-lg);
+      line-height: 2;
+    }
+    
+    .next-steps-list li {
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-xl);
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-container">
+      <a href="mypage-rental.html" class="header-logo">トクノリレンタカー</a>
+      <nav class="header-nav">
+        <a href="mypage-rental.html">マイページ</a>
+        <a href="#" onclick="logout()">ログアウト</a>
+      </nav>
+      <button class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <div class="container">
+    <div class="complete-container">
+      <div class="complete-icon">!</div>
+      <h1 class="complete-title">キャンセル申請を受け付けました</h1>
+      <p class="complete-message">
+        キャンセル申請が完了しました。<br>
+        店舗にて内容を確認し、ご連絡いたします。
+      </p>
+    </div>
+
+    <!-- 予約情報サマリー -->
+    <div class="section">
+      <h2 class="section-title">申請内容</h2>
+      <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color);">
+        <span style="color: var(--text-light);">予約番号</span>
+        <span style="font-weight: bold;" id="summaryReservationId">-</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color);">
+        <span style="color: var(--text-light);">車両クラス</span>
+        <span style="font-weight: bold;" id="summaryCarClass">-</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border-color);">
+        <span style="color: var(--text-light);">受取日時</span>
+        <span style="font-weight: bold;" id="summaryPickup">-</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; padding: var(--spacing-sm) 0;">
+        <span style="color: var(--text-light);">申請日時</span>
+        <span style="font-weight: bold;" id="summaryRequestDate">-</span>
+      </div>
+    </div>
+
+    <!-- 次のステップ -->
+    <div class="next-steps">
+      <div class="next-steps-title">今後の流れ</div>
+      <ol class="next-steps-list">
+        <li>店舗にてキャンセル申請内容を確認いたします</li>
+        <li>承認・否認の結果をメールでご連絡いたします（通常1〜2営業日）</li>
+        <li>承認された場合、予約ステータスが「キャンセル確定」に変更されます</li>
+        <li>否認された場合、予約は継続となります</li>
+        <li>キャンセル料が発生する場合は、別途ご請求させていただきます</li>
+      </ol>
+    </div>
+
+    <div class="alert alert-info">
+      <strong>お問い合わせ:</strong> キャンセル申請について不明な点がございましたら、予約番号を添えてお問い合わせください。
+    </div>
+
+    <!-- アクションボタン -->
+    <div class="action-buttons">
+      <button class="btn btn-primary btn-full" onclick="goToMypage()">
+        マイページへ戻る
+      </button>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    // 申請内容を表示
+    function displaySummary() {
+      const data = ReservationStorage.get();
+      
+      if (!data || !data.reservationId) {
+        alert('予約情報が見つかりません');
+        window.location.href = 'mypage-rental.html';
+        return;
+      }
+      
+      const carClass = Utils.getCarClass(data.carClassId);
+      
+      // 申請内容
+      document.getElementById('summaryReservationId').textContent = data.reservationId;
+      document.getElementById('summaryCarClass').textContent = carClass.name;
+      document.getElementById('summaryPickup').textContent = 
+        Utils.formatDateTimeJP(new Date(data.pickupDateTime));
+      document.getElementById('summaryRequestDate').textContent = 
+        data.cancelRequestDate ? Utils.formatDateTimeJP(new Date(data.cancelRequestDate)) : '-';
+    }
+
+    // マイページへ
+    function goToMypage() {
+      window.location.href = 'mypage-rental.html';
+    }
+
+    // ログアウト
+    function logout() {
+      if (confirm('ログアウトしますか?')) {
+        ReservationStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 初期化
+    displaySummary();
+  </script>
+</body>
+</html>
