@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>受取時間選択 - レンタカー予約</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-lg);
+    }
+    
+    .time-btn {
+      padding: var(--spacing-md);
+      border: 2px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--bg-white);
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 500;
+      text-align: center;
+    }
+    
+    .time-btn:hover {
+      background-color: var(--primary-light);
+      border-color: var(--primary-color);
+    }
+    
+    .time-btn.selected {
+      background-color: var(--primary-color);
+      border-color: var(--primary-dark);
+      color: var(--text-dark);
+      font-weight: bold;
+    }
+    
+    .date-display {
+      background-color: var(--primary-light);
+      padding: var(--spacing-lg);
+      border-radius: 8px;
+      margin-bottom: var(--spacing-lg);
+      text-align: center;
+    }
+    
+    .date-display-title {
+      font-size: var(--font-sm);
+      color: var(--text-light);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .date-display-value {
+      font-size: var(--font-xl);
+      font-weight: bold;
+      color: var(--primary-dark);
+    }
+    
+    @media (max-width: 768px) {
+      .time-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      }
+      
+      .time-btn {
+        padding: var(--spacing-sm);
+        font-size: var(--font-sm);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-container">
+      <a href="mypage-rental.html" class="header-logo">レンタカー予約</a>
+      <nav class="header-nav">
+        <a href="mypage-rental.html">マイページ</a>
+        <a href="#" onclick="logout()">ログアウト</a>
+      </nav>
+      <button class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <div class="container">
+    <h1 class="page-title">受取時間を選択</h1>
+    
+    <!-- 日付表示 -->
+    <div class="date-display">
+      <div class="date-display-title">受取日</div>
+      <div class="date-display-value" id="pickupDate">-</div>
+    </div>
+
+    <!-- 時間選択 -->
+    <div class="section">
+      <h2 class="section-title">受取時間</h2>
+      <p class="text-muted mb-md">営業時間: 9:00〜18:00</p>
+      <div class="time-grid" id="timeGrid"></div>
+    </div>
+
+    <div class="alert alert-info mt-lg">
+      <strong>ご注意:</strong> 受取時間に遅れる場合は、事前にご連絡ください。
+    </div>
+
+    <!-- ボタン -->
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goBack()">戻る</button>
+      <button class="btn btn-primary btn-full" id="nextBtn" disabled onclick="goNext()">次へ進む</button>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    let selectedTime = null;
+    let startDate = null;
+
+    // 予約データを取得
+    function loadReservationData() {
+      const data = ReservationStorage.get();
+      if (!data || !data.startDate) {
+        alert('レンタル開始日を選択してください');
+        window.location.href = 'reserve-date.html';
+        return;
+      }
+      
+      startDate = data.startDate;
+      
+      // 日付表示
+      document.getElementById('pickupDate').textContent = 
+        Utils.formatDateJP(new Date(startDate));
+      
+      // 前回の選択を復元
+      if (data.pickupDateTime) {
+        const datetime = new Date(data.pickupDateTime);
+        const hours = String(datetime.getHours()).padStart(2, '0');
+        const minutes = String(datetime.getMinutes()).padStart(2, '0');
+        selectedTime = `${hours}:${minutes}`;
+      }
+    }
+
+    // 時間グリッド描画
+    function renderTimeGrid() {
+      const container = document.getElementById('timeGrid');
+      container.innerHTML = '';
+      
+      const timeOptions = Utils.generateTimeOptions(
+        AppConfig.openTime,
+        AppConfig.closeTime,
+        AppConfig.timeStepMinutes
+      );
+      
+      timeOptions.forEach(time => {
+        const btn = document.createElement('button');
+        btn.className = 'time-btn';
+        btn.textContent = time;
+        btn.onclick = () => selectTime(time);
+        
+        if (time === selectedTime) {
+          btn.classList.add('selected');
+        }
+        
+        container.appendChild(btn);
+      });
+    }
+
+    // 時間選択
+    function selectTime(time) {
+      selectedTime = time;
+      
+      // 全ボタンの選択状態をクリア
+      document.querySelectorAll('.time-btn').forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      
+      // 選択したボタンを強調
+      event.target.classList.add('selected');
+      
+      // 次へボタン有効化
+      document.getElementById('nextBtn').disabled = false;
+    }
+
+    // 次へ進む
+    function goNext() {
+      if (!selectedTime) {
+        alert('受取時間を選択してください');
+        return;
+      }
+      
+      // 日時を結合
+      const pickupDateTime = `${startDate}T${selectedTime}:00`;
+      
+      // セッションに保存
+      ReservationStorage.save({
+        pickupDateTime: pickupDateTime
+      });
+      
+      // 次のページへ
+      window.location.href = 'reserve-return.html';
+    }
+
+    // 戻る
+    function goBack() {
+      window.location.href = 'reserve-date.html';
+    }
+
+    // ログアウト
+    function logout() {
+      if (confirm('ログアウトしますか?')) {
+        ReservationStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 初期化
+    loadReservationData();
+    renderTimeGrid();
+    
+    // 前回の選択がある場合、次へボタンを有効化
+    if (selectedTime) {
+      document.getElementById('nextBtn').disabled = false;
+    }
+  </script>
+</body>
+</html>
