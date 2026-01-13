@@ -20,6 +20,22 @@
       margin-bottom: var(--spacing-md);
     }
     
+    .price-preview {
+      margin-top: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
+      background-color: var(--primary-light);
+      border-radius: 4px;
+      font-size: var(--font-sm);
+      color: var(--text-dark);
+      line-height: 1.8;
+    }
+    
+    .price-preview-label {
+      font-weight: bold;
+      margin-bottom: var(--spacing-xs);
+      display: block;
+    }
+    
     .class-card-content {
       display: flex;
       flex-direction: column;
@@ -34,8 +50,24 @@
       justify-content: center;
       color: var(--text-light);
       flex-shrink: 0;
-      width: 100%;
-      aspect-ratio: 1 / 1;
+      min-height: 200px;
+    }
+    
+    /* スマホ: 正方形 */
+    @media (max-width: 768px) {
+      .class-image-placeholder {
+        width: 100%;
+        height: 0;
+        padding-bottom: 100%;
+        position: relative;
+      }
+      
+      .class-image-placeholder > * {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
     }
     
     /* PC表示: 横並びレイアウト */
@@ -136,13 +168,18 @@
       AppConfig.carClasses.forEach(carClass => {
         const plans = Utils.getPricingPlans(carClass.id);
         
+        // 料金プレビュー文字列を生成
+        const pricePreviewText = plans.map(plan => 
+          `${plan.label}・${Utils.formatPrice(plan.price)}`
+        ).join(' / ');
+        
         const card = document.createElement('div');
         card.className = 'card class-card';
         card.onclick = () => togglePricing(carClass.id);
         card.innerHTML = `
           <div class="class-card-content">
             <div class="class-image-placeholder">
-              ${carClass.name}の画像
+              <span>${carClass.name}の画像</span>
             </div>
             
             <div class="class-card-text">
@@ -150,6 +187,10 @@
                 <h2 class="card-title">${carClass.name}</h2>
                 <p class="card-body">${carClass.description}</p>
                 <p class="text-small text-muted">${carClass.notes}</p>
+                <div class="price-preview">
+                  <span class="price-preview-label">料金</span>
+                  ${pricePreviewText}
+                </div>
               </div>
               
               <div id="pricing-${carClass.id}" class="pricing-table">
