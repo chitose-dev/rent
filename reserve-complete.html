@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約完了 - レンタカー予約</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .complete-container {
+      text-align: center;
+      padding: var(--spacing-xl) var(--spacing-md);
+    }
+    
+    .complete-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto var(--spacing-lg);
+      border-radius: 50%;
+      background-color: var(--success-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 50px;
+      color: var(--bg-white);
+    }
+    
+    .complete-title {
+      font-size: var(--font-xxl);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+      color: var(--success-color);
+    }
+    
+    .complete-message {
+      font-size: var(--font-lg);
+      color: var(--text-dark);
+      margin-bottom: var(--spacing-xl);
+      line-height: 1.8;
+    }
+    
+    .reservation-id-box {
+      background-color: var(--primary-light);
+      padding: var(--spacing-lg);
+      border-radius: 8px;
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .reservation-id-label {
+      font-size: var(--font-sm);
+      color: var(--text-light);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .reservation-id-value {
+      font-size: var(--font-xl);
+      font-weight: bold;
+      color: var(--primary-dark);
+      font-family: 'Courier New', monospace;
+      letter-spacing: 2px;
+    }
+    
+    .summary-section {
+      background-color: var(--bg-white);
+      border-radius: 8px;
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: left;
+    }
+    
+    .summary-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+      padding-bottom: var(--spacing-sm);
+      border-bottom: 2px solid var(--primary-color);
+    }
+    
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--spacing-sm) 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+    
+    .summary-label {
+      color: var(--text-light);
+    }
+    
+    .summary-value {
+      font-weight: bold;
+      text-align: right;
+    }
+    
+    .next-steps {
+      background-color: var(--bg-light);
+      padding: var(--spacing-lg);
+      border-radius: 8px;
+      text-align: left;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .next-steps-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .next-steps-list {
+      padding-left: var(--spacing-lg);
+      line-height: 2;
+    }
+    
+    .next-steps-list li {
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-xl);
+    }
+    
+    @media (max-width: 768px) {
+      .complete-title {
+        font-size: var(--font-xl);
+      }
+      
+      .complete-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 40px;
+      }
+      
+      .summary-row {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+      }
+      
+      .summary-value {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-container">
+      <a href="mypage-rental.html" class="header-logo">レンタカー予約</a>
+      <nav class="header-nav">
+        <a href="mypage-rental.html">マイページ</a>
+        <a href="#" onclick="logout()">ログアウト</a>
+      </nav>
+      <button class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <div class="container">
+    <div class="complete-container">
+      <div class="complete-icon">✓</div>
+      <h1 class="complete-title">予約が完了しました</h1>
+      <p class="complete-message">
+        ご予約ありがとうございます。<br>
+        予約内容の確認メールをお送りしました。
+      </p>
+      
+      <!-- 予約番号 -->
+      <div class="reservation-id-box">
+        <div class="reservation-id-label">予約番号</div>
+        <div class="reservation-id-value" id="reservationId">-</div>
+      </div>
+    </div>
+
+    <!-- 予約内容サマリー -->
+    <div class="summary-section">
+      <div class="summary-title">予約内容</div>
+      <div class="summary-row">
+        <span class="summary-label">車両クラス</span>
+        <span class="summary-value" id="summaryClass">-</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">受取日時</span>
+        <span class="summary-value" id="summaryPickup">-</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">返却日時</span>
+        <span class="summary-value" id="summaryReturn">-</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">決済方法</span>
+        <span class="summary-value" id="summaryPayment">-</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">合計金額</span>
+        <span class="summary-value" id="summaryPrice">-</span>
+      </div>
+    </div>
+
+    <!-- 次のステップ -->
+    <div class="next-steps">
+      <div class="next-steps-title">次のステップ</div>
+      <ol class="next-steps-list">
+        <li>予約確認メールをご確認ください</li>
+        <li id="paymentStep">クレジットカード決済がお済みでない場合は、メール記載のリンクから決済を完了してください</li>
+        <li>受取当日は、運転免許証をご持参ください</li>
+        <li>予約の確認やキャンセルは、マイページから行えます</li>
+      </ol>
+    </div>
+
+    <div class="alert alert-info">
+      <strong>お問い合わせ:</strong> ご不明な点がございましたら、マイページの「問い合わせ」からご連絡ください。
+    </div>
+
+    <!-- アクションボタン -->
+    <div class="action-buttons">
+      <button class="btn btn-primary btn-full" onclick="goToMypage()">
+        レンタル状況を確認する
+      </button>
+      <button class="btn btn-secondary btn-full" onclick="makeNewReservation()">
+        新しい予約をする
+      </button>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    // 予約データを取得
+    function loadReservationData() {
+      const data = ReservationStorage.get();
+      if (!data || !data.reservationId) {
+        alert('予約情報が見つかりません');
+        window.location.href = 'mypage-rental.html';
+        return;
+      }
+      
+      displaySummary(data);
+    }
+
+    // サマリー表示
+    function displaySummary(data) {
+      // 予約番号
+      document.getElementById('reservationId').textContent = data.reservationId;
+      
+      // 車両情報
+      const carClass = Utils.getCarClass(data.carClassId);
+      document.getElementById('summaryClass').textContent = carClass.name;
+      
+      // 日時情報
+      document.getElementById('summaryPickup').textContent = 
+        Utils.formatDateTimeJP(new Date(data.pickupDateTime));
+      document.getElementById('summaryReturn').textContent = 
+        Utils.formatDateTimeJP(new Date(data.returnDateTime));
+      
+      // 決済情報
+      const paymentText = data.paymentMethod === 'card' 
+        ? 'クレジットカード' 
+        : '現地払い';
+      document.getElementById('summaryPayment').textContent = paymentText;
+      document.getElementById('summaryPrice').textContent = 
+        Utils.formatPrice(data.planPrice);
+      
+      // 現地払いの場合は決済ステップを非表示
+      if (data.paymentMethod === 'onsite') {
+        document.getElementById('paymentStep').style.display = 'none';
+      }
+    }
+
+    // マイページへ
+    function goToMypage() {
+      window.location.href = 'mypage-rental.html';
+    }
+
+    // 新規予約
+    function makeNewReservation() {
+      // 現在の予約データをクリア
+      ReservationStorage.clear();
+      window.location.href = 'reserve-class.html';
+    }
+
+    // ログアウト
+    function logout() {
+      if (confirm('ログアウトしますか?')) {
+        ReservationStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 初期化
+    loadReservationData();
+  </script>
+</body>
+</html>
