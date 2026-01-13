@@ -3,11 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>車両クラス選択 - レンタカー予約</title>
+  <title>車両クラス選択 - トクノリレンタカー</title>
   <link rel="stylesheet" href="common.css">
   <style>
     .class-card {
       margin-bottom: var(--spacing-lg);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .class-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
     
     .class-card-header {
@@ -19,7 +25,7 @@
     
     .class-image-placeholder {
       width: 100%;
-      height: 200px;
+      aspect-ratio: 1;
       background-color: var(--bg-light);
       border-radius: 8px;
       display: flex;
@@ -68,51 +74,13 @@
       color: var(--primary-dark);
       font-weight: bold;
     }
-    
-    .expand-btn {
-      background: none;
-      color: var(--primary-dark);
-      padding: var(--spacing-sm) var(--spacing-md);
-      font-weight: bold;
-    }
-    
-    .expand-btn:hover {
-      background-color: var(--primary-light);
-      border-radius: 4px;
-    }
-    
-    .selected-summary {
-      background-color: var(--primary-light);
-      padding: var(--spacing-lg);
-      border-radius: 8px;
-      margin-bottom: var(--spacing-lg);
-      display: none;
-    }
-    
-    .selected-summary.active {
-      display: block;
-    }
-    
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: var(--spacing-sm);
-    }
-    
-    .summary-row:last-child {
-      margin-bottom: 0;
-      padding-top: var(--spacing-sm);
-      border-top: 2px solid var(--primary-color);
-      font-weight: bold;
-      font-size: var(--font-lg);
-    }
   </style>
 </head>
 <body>
   <!-- ヘッダー -->
   <header class="header">
     <div class="header-container">
-      <a href="mypage-rental.html" class="header-logo">レンタカー予約</a>
+      <a href="mypage-rental.html" class="header-logo">トクノリレンタカー</a>
       <nav class="header-nav">
         <a href="mypage-rental.html">マイページ</a>
         <a href="#" onclick="logout()">ログアウト</a>
@@ -128,38 +96,18 @@
   <!-- メインコンテンツ -->
   <div class="container">
     <h1 class="page-title">車両クラス・プランを選択</h1>
-    
-    <!-- 選択内容サマリー -->
-    <div id="selectedSummary" class="selected-summary">
-      <div class="summary-row">
-        <span>車両クラス:</span>
-        <span id="summaryClassName"></span>
-      </div>
-      <div class="summary-row">
-        <span>レンタル日数:</span>
-        <span id="summaryDays"></span>
-      </div>
-      <div class="summary-row">
-        <span>合計金額:</span>
-        <span id="summaryPrice"></span>
-      </div>
-    </div>
 
     <!-- 車両クラス一覧 -->
     <div id="carClassList"></div>
 
     <!-- ボタン -->
     <div class="btn-group">
-      <button class="btn btn-secondary" onclick="goBack()">戻る</button>
-      <button class="btn btn-primary btn-full" id="nextBtn" disabled onclick="goNext()">次へ進む</button>
+      <button class="btn btn-secondary btn-full" onclick="goBack()">戻る</button>
     </div>
   </div>
 
   <script src="common.js"></script>
   <script>
-    let selectedClass = null;
-    let selectedPlan = null;
-
     // 車両クラス一覧を表示
     function renderCarClasses() {
       const container = document.getElementById('carClassList');
@@ -170,6 +118,7 @@
         
         const card = document.createElement('div');
         card.className = 'card class-card';
+        card.onclick = () => togglePricing(carClass.id);
         card.innerHTML = `
           <div class="class-image-placeholder">
             ${carClass.name}の画像
@@ -180,9 +129,6 @@
               <p class="card-body">${carClass.description}</p>
               <p class="text-small text-muted">${carClass.notes}</p>
             </div>
-            <button class="expand-btn" onclick="togglePricing('${carClass.id}')">
-              料金を見る
-            </button>
           </div>
           
           <div id="pricing-${carClass.id}" class="pricing-table">
@@ -192,7 +138,7 @@
                    data-class-id="${carClass.id}" 
                    data-plan-days="${plan.days}" 
                    data-plan-price="${plan.price}"
-                   onclick="selectPlan('${carClass.id}', ${plan.days}, ${plan.price}, '${plan.label}')">
+                   onclick="event.stopPropagation(); selectPlan('${carClass.id}', ${plan.days}, ${plan.price}, '${plan.label}')">
                 <span class="pricing-label">${plan.label}</span>
                 <span class="pricing-price">${Utils.formatPrice(plan.price)}</span>
               </div>
@@ -212,60 +158,15 @@
 
     // プラン選択
     function selectPlan(classId, days, price, label) {
-      // 既存の選択をクリア
-      document.querySelectorAll('.pricing-row').forEach(row => {
-        row.classList.remove('selected');
-      });
-      
-      // 新しい選択を設定
-      const row = document.querySelector(
-        `.pricing-row[data-class-id="${classId}"][data-plan-days="${days}"]`
-      );
-      row.classList.add('selected');
-      
-      selectedClass = classId;
-      selectedPlan = { days, price, label };
-      
-      // サマリー更新
-      updateSummary();
-      
-      // 次へボタン有効化
-      document.getElementById('nextBtn').disabled = false;
-    }
-
-    // サマリー更新
-    function updateSummary() {
-      if (!selectedClass || !selectedPlan) return;
-      
-      const carClass = Utils.getCarClass(selectedClass);
-      const summary = document.getElementById('selectedSummary');
-      
-      document.getElementById('summaryClassName').textContent = carClass.name;
-      document.getElementById('summaryDays').textContent = selectedPlan.label;
-      document.getElementById('summaryPrice').textContent = Utils.formatPrice(selectedPlan.price);
-      
-      summary.classList.add('active');
-      
-      // ページ上部へスムーススクロール
-      summary.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    // 次へ進む
-    function goNext() {
-      if (!selectedClass || !selectedPlan) {
-        alert('車両クラスとプランを選択してください');
-        return;
-      }
-      
       // セッションに保存
       ReservationStorage.save({
-        carClassId: selectedClass,
-        planDays: selectedPlan.days,
-        planPrice: selectedPlan.price,
-        planLabel: selectedPlan.label
+        carClassId: classId,
+        planDays: days,
+        planPrice: price,
+        planLabel: label
       });
       
-      // 次のページへ
+      // 次のページへ即座に遷移
       window.location.href = 'reserve-date.html';
     }
 
@@ -284,23 +185,6 @@
 
     // 初期化
     renderCarClasses();
-
-    // 前回の選択を復元
-    const savedData = ReservationStorage.get();
-    if (savedData && savedData.carClassId && savedData.planDays) {
-      selectPlan(
-        savedData.carClassId, 
-        savedData.planDays, 
-        savedData.planPrice,
-        savedData.planLabel
-      );
-      
-      // 該当の料金表を開く
-      const pricingTable = document.getElementById(`pricing-${savedData.carClassId}`);
-      if (pricingTable) {
-        pricingTable.classList.add('expanded');
-      }
-    }
   </script>
 </body>
 </html>
