@@ -16,10 +16,30 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
     
-    .class-card-header {
+    .class-card-content {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+    
+    @media (min-width: 769px) {
+      .class-card-content {
+        flex-direction: row;
+        gap: var(--spacing-lg);
+      }
+      
+      .class-image-placeholder {
+        flex-shrink: 0;
+        width: 200px;
+        height: 200px;
+      }
+      
+      .class-card-text {
+        flex: 1;
+      }
+    }
+    
+    .class-card-header {
       margin-bottom: var(--spacing-md);
     }
     
@@ -120,29 +140,32 @@
         card.className = 'card class-card';
         card.onclick = () => togglePricing(carClass.id);
         card.innerHTML = `
-          <div class="class-image-placeholder">
-            ${carClass.name}の画像
-          </div>
-          <div class="class-card-header">
-            <div>
-              <h2 class="card-title">${carClass.name}</h2>
-              <p class="card-body">${carClass.description}</p>
-              <p class="text-small text-muted">${carClass.notes}</p>
+          <div class="class-card-content">
+            <div class="class-image-placeholder">
+              ${carClass.name}の画像
             </div>
-          </div>
-          
-          <div id="pricing-${carClass.id}" class="pricing-table">
-            <h3 class="section-title">料金プラン</h3>
-            ${plans.map(plan => `
-              <div class="pricing-row" 
-                   data-class-id="${carClass.id}" 
-                   data-plan-days="${plan.days}" 
-                   data-plan-price="${plan.price}"
-                   onclick="event.stopPropagation(); selectPlan('${carClass.id}', ${plan.days}, ${plan.price}, '${plan.label}')">
-                <span class="pricing-label">${plan.label}</span>
-                <span class="pricing-price">${Utils.formatPrice(plan.price)}</span>
+            
+            <div class="class-card-text">
+              <div class="class-card-header">
+                <h2 class="card-title">${carClass.name}</h2>
+                <p class="card-body">${carClass.description}</p>
+                <p class="text-small text-muted">${carClass.notes}</p>
               </div>
-            `).join('')}
+              
+              <div id="pricing-${carClass.id}" class="pricing-table">
+                <h3 class="section-title">料金プラン</h3>
+                ${plans.map(plan => `
+                  <div class="pricing-row" 
+                       data-class-id="${carClass.id}" 
+                       data-plan-days="${plan.days}" 
+                       data-plan-price="${plan.price}"
+                       onclick="event.stopPropagation(); selectPlan('${carClass.id}', ${plan.days}, ${plan.price}, '${plan.label}')">
+                    <span class="pricing-label">${plan.label}</span>
+                    <span class="pricing-price">${Utils.formatPrice(plan.price)}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
           </div>
         `;
         
