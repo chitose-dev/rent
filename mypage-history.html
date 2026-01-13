@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約履歴 - トクノリレンタカー</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .history-empty {
+      text-align: center;
+      padding: var(--spacing-xl);
+      background-color: var(--bg-white);
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .history-empty-icon {
+      font-size: 60px;
+      margin-bottom: var(--spacing-md);
+      opacity: 0.3;
+    }
+    
+    .history-empty-title {
+      font-size: var(--font-xl);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+      color: var(--text-light);
+    }
+    
+    .history-card {
+      background-color: var(--bg-white);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-md);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s;
+    }
+    
+    .history-card:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .history-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-md);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid var(--border-color);
+    }
+    
+    .history-card-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+    }
+    
+    .history-date {
+      font-size: var(--font-sm);
+      color: var(--text-light);
+      margin-top: var(--spacing-xs);
+    }
+    
+    .history-info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--spacing-sm) 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .history-info-row:last-child {
+      border-bottom: none;
+    }
+    
+    .history-info-label {
+      color: var(--text-light);
+      font-size: var(--font-sm);
+    }
+    
+    .history-info-value {
+      font-weight: bold;
+      text-align: right;
+    }
+    
+    @media (max-width: 768px) {
+      .history-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+      }
+      
+      .history-info-row {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+      }
+      
+      .history-info-value {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-container">
+      <a href="mypage-rental.html" class="header-logo">トクノリレンタカー</a>
+      <nav class="header-nav">
+        <a href="mypage-rental.html">マイページ</a>
+        <a href="#" onclick="logout()">ログアウト</a>
+      </nav>
+      <button class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <div class="container">
+    <h1 class="page-title">マイページ</h1>
+    
+    <!-- タブナビゲーション -->
+    <nav class="mypage-tabs">
+      <button class="mypage-tab" data-tab="rental" onclick="switchTab('rental')">
+        レンタル状況
+      </button>
+      <button class="mypage-tab" data-tab="new" onclick="switchTab('new')">
+        新規予約
+      </button>
+      <button class="mypage-tab active" data-tab="history" onclick="switchTab('history')">
+        予約履歴
+      </button>
+      <button class="mypage-tab" data-tab="profile" onclick="switchTab('profile')">
+        登録情報
+      </button>
+      <button class="mypage-tab" data-tab="withdraw" onclick="switchTab('withdraw')">
+        退会
+      </button>
+    </nav>
+
+    <!-- 履歴コンテンツ -->
+    <div id="historyContent">
+      <!-- 履歴がない場合 -->
+      <div id="historyEmpty" class="history-empty">
+        <div class="history-empty-icon">📋</div>
+        <h2 class="history-empty-title">予約履歴がありません</h2>
+        <p class="text-muted">過去の予約はここに表示されます。</p>
+      </div>
+
+      <!-- 履歴カード一覧 -->
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    // タブ切り替え
+    function switchTab(tab) {
+      const pages = {
+        'rental': 'mypage-rental.html',
+        'new': 'mypage-new.html',
+        'history': 'mypage-history.html',
+        'profile': 'mypage-profile.html',
+        'withdraw': 'mypage-withdraw.html'
+      };
+      
+      if (pages[tab] && tab !== 'history') {
+        window.location.href = pages[tab];
+      }
+    }
+
+    // 予約履歴を表示（将来はAPIから取得）
+    function displayHistory() {
+      // 現在はダミー表示
+      // 将来的にはlocalStorageやAPIから過去の予約を取得して表示
+      
+      const historyData = getHistoryData();
+      
+      if (historyData.length === 0) {
+        document.getElementById('historyEmpty').style.display = 'block';
+        document.getElementById('historyList').innerHTML = '';
+        return;
+      }
+      
+      document.getElementById('historyEmpty').style.display = 'none';
+      renderHistoryCards(historyData);
+    }
+
+    // 履歴データ取得（仮実装）
+    function getHistoryData() {
+      // 将来はAPIから取得
+      // 今は空配列を返す
+      return [];
+      
+      // デモ用データ例:
+      /*
+      return [
+        {
+          reservationId: 'R123456789',
+          carClassId: 'class-001',
+          reservationDate: '2026-01-01T10:00:00',
+          pickupDateTime: '2026-01-15T10:00:00',
+          returnDateTime: '2026-01-18T17:00:00',
+          planPrice: 10500,
+          status: 'completed'
+        }
+      ];
+      */
+    }
+
+    // 履歴カード描画
+    function renderHistoryCards(historyData) {
+      const container = document.getElementById('historyList');
+      container.innerHTML = '';
+      
+      historyData.forEach(data => {
+        const carClass = Utils.getCarClass(data.carClassId);
+        
+        // ステータス表示
+        let statusText = '完了';
+        let statusClass = 'status-confirmed';
+        
+        if (data.status === 'cancelled') {
+          statusText = 'キャンセル';
+          statusClass = 'status-cancelled';
+        } else if (data.status === 'completed') {
+          statusText = '完了';
+          statusClass = 'status-confirmed';
+        }
+        
+        const card = document.createElement('div');
+        card.className = 'history-card';
+        card.innerHTML = `
+          <div class="history-card-header">
+            <div>
+              <h2 class="history-card-title">${carClass.name}</h2>
+              <div class="history-date">予約日: ${Utils.formatDateTimeJP(new Date(data.reservationDate))}</div>
+            </div>
+            <span class="status-badge ${statusClass}">${statusText}</span>
+          </div>
+          
+          <div class="history-card-body">
+            <div class="history-info-row">
+              <span class="history-info-label">予約番号</span>
+              <span class="history-info-value">${data.reservationId}</span>
+            </div>
+            <div class="history-info-row">
+              <span class="history-info-label">受取日時</span>
+              <span class="history-info-value">${Utils.formatDateTimeJP(new Date(data.pickupDateTime))}</span>
+            </div>
+            <div class="history-info-row">
+              <span class="history-info-label">返却日時</span>
+              <span class="history-info-value">${Utils.formatDateTimeJP(new Date(data.returnDateTime))}</span>
+            </div>
+            <div class="history-info-row">
+              <span class="history-info-label">料金</span>
+              <span class="history-info-value">${Utils.formatPrice(data.planPrice)}</span>
+            </div>
+          </div>
+        `;
+        
+        container.appendChild(card);
+      });
+    }
+
+    // ログアウト
+    function logout() {
+      if (confirm('ログアウトしますか?')) {
+        ReservationStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 初期化
+    displayHistory();
+  </script>
+</body>
+</html>
