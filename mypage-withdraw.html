@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>退会 - トクノリレンタカー</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .withdraw-warning {
+      background-color: #FFF3E0;
+      border: 2px solid #F57C00;
+      border-radius: 8px;
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .withdraw-warning-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+      color: #F57C00;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .withdraw-warning-list {
+      padding-left: var(--spacing-lg);
+      line-height: 1.8;
+    }
+    
+    .withdraw-warning-list li {
+      margin-bottom: var(--spacing-sm);
+      color: var(--text-dark);
+    }
+    
+    .withdraw-confirm {
+      background-color: #FFEBEE;
+      border: 2px solid #D32F2F;
+      border-radius: 8px;
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .withdraw-confirm-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+      color: #D32F2F;
+      margin-bottom: var(--spacing-md);
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-container">
+      <a href="mypage-rental.html" class="header-logo">トクノリレンタカー</a>
+      <nav class="header-nav">
+        <a href="mypage-rental.html">マイページ</a>
+        <a href="#" onclick="logout()">ログアウト</a>
+      </nav>
+      <button class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <div class="container">
+    <h1 class="page-title">マイページ</h1>
+    
+    <!-- タブナビゲーション -->
+    <nav class="mypage-tabs">
+      <button class="mypage-tab" data-tab="rental" onclick="switchTab('rental')">
+        レンタル状況
+      </button>
+      <button class="mypage-tab" data-tab="new" onclick="switchTab('new')">
+        新規予約
+      </button>
+      <button class="mypage-tab" data-tab="history" onclick="switchTab('history')">
+        予約履歴
+      </button>
+      <button class="mypage-tab" data-tab="profile" onclick="switchTab('profile')">
+        登録情報
+      </button>
+      <button class="mypage-tab active" data-tab="withdraw" onclick="switchTab('withdraw')">
+        退会
+      </button>
+    </nav>
+
+    <!-- 退会コンテンツ -->
+    <div class="section">
+      <h2 class="section-title">退会手続き</h2>
+      
+      <div class="withdraw-warning">
+        <div class="withdraw-warning-title">⚠ 退会前にご確認ください</div>
+        <ul class="withdraw-warning-list">
+          <li>退会すると、すべての登録情報が削除されます</li>
+          <li>予約履歴や過去の利用記録も削除され、復元できません</li>
+          <li>進行中の予約がある場合は、退会できません</li>
+          <li>再度ご利用になる場合は、新規登録が必要です</li>
+          <li>退会後も、法令に基づき一部の情報を保管する場合があります</li>
+        </ul>
+      </div>
+
+      <!-- 予約チェック -->
+      <div id="activeReservationAlert" class="alert alert-error" style="display: none;">
+        <strong>退会できません:</strong> 現在、進行中の予約があります。予約をキャンセルしてから退会してください。
+      </div>
+
+      <div class="withdraw-confirm">
+        <div class="withdraw-confirm-title">退会の確認</div>
+        <p style="margin-bottom: var(--spacing-md);">
+          本当に退会しますか？この操作は取り消せません。
+        </p>
+        
+        <form id="withdrawForm" onsubmit="confirmWithdraw(event)">
+          <div class="form-group">
+            <label for="reason" class="form-label">退会理由（任意）</label>
+            <textarea id="reason" class="form-textarea" placeholder="よろしければ退会理由をお聞かせください"></textarea>
+          </div>
+
+          <div class="checkbox-group mb-lg">
+            <input type="checkbox" id="agreeWithdraw" required>
+            <label for="agreeWithdraw">
+              上記の内容を理解し、退会することに同意します
+            </label>
+          </div>
+
+          <div class="btn-group">
+            <button type="button" class="btn btn-secondary" onclick="goBack()">キャンセル</button>
+            <button type="submit" class="btn btn-danger btn-full" id="withdrawBtn">退会する</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    // タブ切り替え
+    function switchTab(tab) {
+      const pages = {
+        'rental': 'mypage-rental.html',
+        'new': 'mypage-new.html',
+        'history': 'mypage-history.html',
+        'profile': 'mypage-profile.html',
+        'withdraw': 'mypage-withdraw.html'
+      };
+      
+      if (pages[tab] && tab !== 'withdraw') {
+        window.location.href = pages[tab];
+      }
+    }
+
+    // 進行中の予約をチェック
+    function checkActiveReservation() {
+      const data = ReservationStorage.get();
+      
+      if (data && data.reservationId && data.status !== 'cancelled') {
+        // 進行中の予約がある
+        document.getElementById('activeReservationAlert').style.display = 'block';
+        document.getElementById('withdrawBtn').disabled = true;
+        return true;
+      }
+      
+      return false;
+    }
+
+    // 退会確認
+    function confirmWithdraw(event) {
+      event.preventDefault();
+      
+      const agreed = document.getElementById('agreeWithdraw').checked;
+      if (!agreed) {
+        alert('退会に同意してください');
+        return;
+      }
+      
+      if (confirm('本当に退会しますか？\nこの操作は取り消せません。')) {
+        processWithdraw();
+      }
+    }
+
+    // 退会処理
+    function processWithdraw() {
+      const reason = document.getElementById('reason').value;
+      
+      // 将来はAPIに送信
+      console.log('退会処理:', { reason });
+      
+      // セッションストレージをクリア
+      ReservationStorage.clear();
+      
+      alert('退会手続きが完了しました。\nご利用ありがとうございました。');
+      
+      // ログイン画面へ
+      window.location.href = 'login.html';
+    }
+
+    // 戻る
+    function goBack() {
+      window.location.href = 'mypage-rental.html';
+    }
+
+    // ログアウト
+    function logout() {
+      if (confirm('ログアウトしますか?')) {
+        ReservationStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 初期化
+    checkActiveReservation();
+  </script>
+</body>
+</html>
