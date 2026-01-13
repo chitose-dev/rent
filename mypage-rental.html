@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>レンタル状況 - マイページ</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .rental-empty {
+      text-align: center;
+      padding: var(--spacing-xl);
+      background-color: var(--bg-white);
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .rental-empty-icon {
+      font-size: 60px;
+      margin-bottom: var(--spacing-md);
+      opacity: 0.3;
+    }
+    
+    .rental-empty-title {
+      font-size: var(--font-xl);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+      color: var(--text-light);
+    }
+    
+    .rental-empty-message {
+      color: var(--text-light);
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .rental-card {
+      background-color: var(--bg-white);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .rental-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-md);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid var(--border-color);
+    }
+    
+    .rental-card-title {
+      font-size: var(--font-xl);
+      font-weight: bold;
+    }
+    
+    .rental-card-body {
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .rental-info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--spacing-sm) 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .rental-info-row:last-child {
+      border-bottom: none;
+    }
+    
+    .rental-info-label {
+      color: var(--text-light);
+      font-size: var(--font-sm);
+    }
+    
+    .rental-info-value {
+      font-weight: bold;
+      text-align: right;
+    }
+    
+    .rental-card-actions {
+      display: flex;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-md);
+    }
+    
+    .rental-card-actions .btn {
+      flex: 1;
+    }
+    
+    @media (max-width: 768px) {
+      .rental-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+      }
+      
+      .rental-info-row {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+      }
+      
+      .rental-info-value {
+        text-align: left;
+      }
+      
+      .rental-card-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-container">
+      <a href="mypage-rental.html" class="header-logo">レンタカー予約</a>
+      <nav class="header-nav">
+        <a href="mypage-rental.html">マイページ</a>
+        <a href="#" onclick="logout()">ログアウト</a>
+      </nav>
+      <button class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <div class="container">
+    <h1 class="page-title">マイページ</h1>
+    
+    <!-- タブナビゲーション -->
+    <nav class="mypage-tabs">
+      <button class="mypage-tab active" data-tab="rental" onclick="switchTab('rental')">
+        レンタル状況
+      </button>
+      <button class="mypage-tab" data-tab="new" onclick="switchTab('new')">
+        新規予約
+      </button>
+      <button class="mypage-tab" data-tab="history" onclick="switchTab('history')">
+        予約履歴
+      </button>
+      <button class="mypage-tab" data-tab="profile" onclick="switchTab('profile')">
+        登録情報
+      </button>
+      <button class="mypage-tab" data-tab="withdraw" onclick="switchTab('withdraw')">
+        退会
+      </button>
+    </nav>
+
+    <!-- レンタル状況コンテンツ -->
+    <div id="rentalContent">
+      <!-- 予約がない場合 -->
+      <div id="rentalEmpty" class="rental-empty" style="display: none;">
+        <div class="rental-empty-icon">🚗</div>
+        <h2 class="rental-empty-title">現在のレンタルはありません</h2>
+        <p class="rental-empty-message">新しい予約を作成して、レンタカーをご利用ください。</p>
+        <button class="btn btn-primary" onclick="goToNewReservation()">
+          新規予約を作成
+        </button>
+      </div>
+
+      <!-- 予約カード一覧 -->
+      <div id="rentalList"></div>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    // タブ切り替え（各ページへ遷移）
+    function switchTab(tab) {
+      const pages = {
+        'rental': 'mypage-rental.html',
+        'new': 'mypage-new.html',
+        'history': 'mypage-history.html',
+        'profile': 'mypage-profile.html',
+        'withdraw': 'mypage-withdraw.html'
+      };
+      
+      if (pages[tab] && tab !== 'rental') {
+        window.location.href = pages[tab];
+      }
+    }
+
+    // レンタル状況を表示
+    function displayRentalStatus() {
+      const data = ReservationStorage.get();
+      
+      if (!data || !data.reservationId || data.status === 'cancelled') {
+        // 予約なし
+        document.getElementById('rentalEmpty').style.display = 'block';
+        document.getElementById('rentalList').innerHTML = '';
+        return;
+      }
+      
+      // 予約あり
+      document.getElementById('rentalEmpty').style.display = 'none';
+      renderRentalCard(data);
+    }
+
+    // 予約カード描画
+    function renderRentalCard(data) {
+      const container = document.getElementById('rentalList');
+      const carClass = Utils.getCarClass(data.carClassId);
+      
+      // ステータス判定（簡易版）
+      let status = 'confirmed';
+      let statusText = '予約確定';
+      let statusClass = 'status-confirmed';
+      
+      if (data.status === 'cancel-requested') {
+        status = 'cancel-requested';
+        statusText = 'キャンセル申請中';
+        statusClass = 'status-cancel-requested';
+      } else if (data.status === 'cancelled') {
+        status = 'cancelled';
+        statusText = 'キャンセル確定';
+        statusClass = 'status-cancelled';
+      } else {
+        // 時系列でステータスを判定
+        const now = new Date();
+        const pickupDate = new Date(data.pickupDateTime);
+        const returnDate = new Date(data.returnDateTime);
+        
+        if (now < pickupDate) {
+          status = 'pending';
+          statusText = '受取待ち';
+          statusClass = 'status-pending';
+        } else if (now >= pickupDate && now < returnDate) {
+          status = 'active';
+          statusText = 'レンタル中';
+          statusClass = 'status-active';
+        } else if (now >= returnDate) {
+          status = 'completed';
+          statusText = '返却予定';
+          statusClass = 'status-pending';
+        }
+      }
+      
+      const paymentText = data.paymentMethod === 'card' 
+        ? 'クレジットカード' 
+        : '現地払い';
+      
+      const card = document.createElement('div');
+      card.className = 'rental-card';
+      card.innerHTML = `
+        <div class="rental-card-header">
+          <h2 class="rental-card-title">${carClass.name}</h2>
+          <span class="status-badge ${statusClass}">${statusText}</span>
+        </div>
+        
+        <div class="rental-card-body">
+          <div class="rental-info-row">
+            <span class="rental-info-label">予約番号</span>
+            <span class="rental-info-value">${data.reservationId}</span>
+          </div>
+          <div class="rental-info-row">
+            <span class="rental-info-label">受取日時</span>
+            <span class="rental-info-value">${Utils.formatDateTimeJP(new Date(data.pickupDateTime))}</span>
+          </div>
+          <div class="rental-info-row">
+            <span class="rental-info-label">返却日時</span>
+            <span class="rental-info-value">${Utils.formatDateTimeJP(new Date(data.returnDateTime))}</span>
+          </div>
+          <div class="rental-info-row">
+            <span class="rental-info-label">決済方法</span>
+            <span class="rental-info-value">${paymentText}</span>
+          </div>
+          <div class="rental-info-row">
+            <span class="rental-info-label">料金</span>
+            <span class="rental-info-value">${Utils.formatPrice(data.planPrice)}</span>
+          </div>
+        </div>
+        
+        <div class="rental-card-actions">
+          <button class="btn btn-secondary" onclick="viewDetail('${data.reservationId}')">
+            詳細を見る
+          </button>
+          ${status === 'cancel-requested' ? `
+            <button class="btn btn-secondary" disabled>
+              申請処理中
+            </button>
+          ` : status === 'cancelled' ? '' : `
+            <button class="btn btn-danger" onclick="requestCancel('${data.reservationId}')">
+              キャンセル申請
+            </button>
+          `}
+        </div>
+      `;
+      
+      container.innerHTML = '';
+      container.appendChild(card);
+    }
+
+    // 詳細表示
+    function viewDetail(reservationId) {
+      window.location.href = `rental-detail.html?id=${reservationId}`;
+    }
+
+    // キャンセル申請
+    function requestCancel(reservationId) {
+      if (confirm('キャンセル申請を行いますか?\n申請後、店舗にて内容を確認いたします。')) {
+        window.location.href = `cancel-request.html?id=${reservationId}`;
+      }
+    }
+
+    // 新規予約へ
+    function goToNewReservation() {
+      window.location.href = 'reserve-class.html';
+    }
+
+    // ログアウト
+    function logout() {
+      if (confirm('ログアウトしますか?')) {
+        ReservationStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 初期化
+    displayRentalStatus();
+  </script>
+</body>
+</html>
