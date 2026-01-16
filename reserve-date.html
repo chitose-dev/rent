@@ -149,6 +149,34 @@
       font-weight: bold;
     }
     
+    /* PC表示: カレンダーを小さめに */
+    @media (min-width: 769px) {
+      .calendar-container {
+        max-width: 450px;
+        margin: 0 auto;
+        padding: var(--spacing-md);
+      }
+      
+      .calendar-month {
+        font-size: var(--font-lg);
+      }
+      
+      .calendar-nav-btn {
+        width: 32px;
+        height: 32px;
+        font-size: var(--font-md);
+      }
+      
+      .calendar-day {
+        font-size: var(--font-sm);
+      }
+      
+      .calendar-weekday {
+        padding: var(--spacing-xs);
+        font-size: var(--font-xs);
+      }
+    }
+    
     @media (max-width: 768px) {
       .calendar-day {
         font-size: var(--font-sm);
@@ -318,10 +346,10 @@
           dayCell.classList.add('selected');
         }
         
-        // レンタル期間内の日付
+        // レンタル期間内の日付（開始日を1日目とするので、planDays - 1日後が最終日）
         if (selectedStartDate) {
-          const endDate = Utils.addDays(selectedStartDate, planDays);
-          if (date > selectedStartDate && date < endDate) {
+          const endDate = Utils.addDays(selectedStartDate, planDays - 1);
+          if (date > selectedStartDate && date <= endDate) {
             dayCell.classList.add('in-range');
           }
         }
@@ -378,7 +406,8 @@
     function updateDateInfo() {
       if (!selectedStartDate) return;
       
-      const endDate = Utils.addDays(selectedStartDate, planDays);
+      // 開始日を1日目とするので、返却日は planDays - 1 日後
+      const endDate = Utils.addDays(selectedStartDate, planDays - 1);
       
       document.getElementById('infoStartDate').textContent = 
         Utils.formatDateJP(selectedStartDate);
@@ -395,7 +424,8 @@
         return;
       }
       
-      const endDate = Utils.addDays(selectedStartDate, planDays);
+      // 開始日を1日目とするので、返却日は planDays - 1 日後
+      const endDate = Utils.addDays(selectedStartDate, planDays - 1);
       
       // セッションに保存
       ReservationStorage.save({
