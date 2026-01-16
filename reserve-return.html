@@ -3,101 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>返却時間選択 - レンタカー予約</title>
+  <title>返却日時選択 - レンタカー予約</title>
   <link rel="stylesheet" href="common.css">
   <style>
-    .time-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: var(--spacing-sm);
+    .select-container {
       margin-top: var(--spacing-lg);
     }
     
-    .time-btn {
+    .custom-select {
+      width: 100%;
       padding: var(--spacing-md);
+      font-size: var(--font-lg);
       border: 2px solid var(--border-color);
-      border-radius: 4px;
+      border-radius: 8px;
       background-color: var(--bg-white);
       cursor: pointer;
-      transition: all 0.3s;
-      font-weight: 500;
-      text-align: center;
+      transition: border-color 0.3s;
     }
     
-    .time-btn:hover {
-      background-color: var(--primary-light);
+    .custom-select:focus {
       border-color: var(--primary-color);
+      outline: none;
     }
     
-    .time-btn.selected {
-      background-color: var(--primary-color);
-      border-color: var(--primary-dark);
-      color: var(--text-dark);
-      font-weight: bold;
-    }
-    
-    .date-selector {
-      background-color: var(--bg-white);
+    .info-box {
+      background-color: var(--primary-light);
       padding: var(--spacing-lg);
       border-radius: 8px;
       margin-bottom: var(--spacing-lg);
     }
     
-    .date-buttons {
+    .info-row {
       display: flex;
-      gap: var(--spacing-sm);
-      flex-wrap: wrap;
-      margin-top: var(--spacing-md);
+      justify-content: space-between;
+      margin-bottom: var(--spacing-sm);
     }
     
-    .date-btn {
-      flex: 1;
-      min-width: 120px;
-      padding: var(--spacing-md);
-      border: 2px solid var(--border-color);
-      border-radius: 4px;
-      background-color: var(--bg-white);
-      cursor: pointer;
-      transition: all 0.3s;
-      text-align: center;
+    .info-row:last-child {
+      margin-bottom: 0;
     }
     
-    .date-btn:hover {
-      background-color: var(--primary-light);
-      border-color: var(--primary-color);
-    }
-    
-    .date-btn.selected {
-      background-color: var(--primary-color);
-      border-color: var(--primary-dark);
-      font-weight: bold;
-    }
-    
-    .date-btn-label {
-      font-size: var(--font-sm);
+    .info-label {
       color: var(--text-light);
-      display: block;
-      margin-bottom: var(--spacing-xs);
     }
     
-    .date-btn-value {
-      font-size: var(--font-md);
+    .info-value {
       font-weight: bold;
+      color: var(--primary-dark);
     }
     
-    @media (max-width: 768px) {
-      .time-grid {
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-      }
-      
-      .time-btn {
-        padding: var(--spacing-sm);
-        font-size: var(--font-sm);
-      }
-      
-      .date-btn {
-        min-width: 100px;
-        padding: var(--spacing-sm);
+    @media (min-width: 769px) {
+      .select-container {
+        max-width: 300px;
       }
     }
   </style>
@@ -106,7 +63,7 @@
   <!-- ヘッダー -->
   <header class="header">
     <div class="header-container">
-      <a href="mypage-rental.html" class="header-logo">レンタカー予約</a>
+      <a href="mypage-rental.html" class="header-logo">トクノリレンタカー</a>
       <nav class="header-nav">
         <a href="mypage-rental.html">マイページ</a>
         <a href="#" onclick="logout()">ログアウト</a>
@@ -123,18 +80,40 @@
   <div class="container">
     <h1 class="page-title">返却日時を選択</h1>
     
+    <!-- 予約情報 -->
+    <div class="info-box">
+      <div class="info-row">
+        <span class="info-label">受取日:</span>
+        <span class="info-value" id="infoStartDate">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">返却日:</span>
+        <span class="info-value" id="infoEndDate">-</span>
+      </div>
+    </div>
+
     <!-- 返却日選択 -->
-    <div class="section date-selector">
+    <div class="section">
       <h2 class="section-title">返却日</h2>
       <p class="text-muted">途中返却も可能です（期間内の日付を選択してください）</p>
-      <div class="date-buttons" id="dateButtons"></div>
+      
+      <div class="select-container">
+        <select id="dateSelect" class="custom-select" onchange="selectDate()">
+          <option value="">返却日を選択してください</option>
+        </select>
+      </div>
     </div>
 
     <!-- 返却時間選択 -->
     <div class="section">
       <h2 class="section-title">返却時間</h2>
       <p class="text-muted mb-md">営業時間: 9:00〜18:00</p>
-      <div class="time-grid" id="timeGrid"></div>
+      
+      <div class="select-container">
+        <select id="timeSelect" class="custom-select" onchange="selectTime()">
+          <option value="">時間を選択してください</option>
+        </select>
+      </div>
     </div>
 
     <div class="alert alert-info mt-lg">
@@ -168,6 +147,10 @@
       startDate = new Date(data.startDate);
       endDate = new Date(data.endDate);
       
+      // 情報表示
+      document.getElementById('infoStartDate').textContent = Utils.formatDateJP(startDate);
+      document.getElementById('infoEndDate').textContent = Utils.formatDateJP(endDate);
+      
       // 選択可能な日付リストを生成（開始日〜返却日）
       availableDates = [];
       let currentDate = new Date(startDate);
@@ -189,61 +172,37 @@
       }
     }
 
-    // 日付ボタン描画
-    function renderDateButtons() {
-      const container = document.getElementById('dateButtons');
-      container.innerHTML = '';
+    // 日付プルダウン描画
+    function renderDateSelect() {
+      const select = document.getElementById('dateSelect');
       
       availableDates.forEach(date => {
         const dateStr = Utils.formatDate(date);
-        const btn = document.createElement('button');
-        btn.className = 'date-btn';
+        const option = document.createElement('option');
+        option.value = dateStr;
         
         const isStartDate = dateStr === Utils.formatDate(startDate);
         const isEndDate = dateStr === Utils.formatDate(endDate);
         
         let label = '';
-        if (isStartDate) label = '受取日';
-        else if (isEndDate) label = '返却日';
-        else label = '途中返却';
+        if (isStartDate) label = '（受取日）';
+        else if (isEndDate) label = '（返却日）';
+        else label = '（途中返却）';
         
-        btn.innerHTML = `
-          <span class="date-btn-label">${label}</span>
-          <span class="date-btn-value">${date.getMonth() + 1}/${date.getDate()}</span>
-        `;
-        
-        btn.onclick = () => selectDate(dateStr);
+        option.textContent = `${date.getMonth() + 1}月${date.getDate()}日 ${label}`;
         
         if (dateStr === selectedDate) {
-          btn.classList.add('selected');
+          option.selected = true;
         }
         
-        container.appendChild(btn);
+        select.appendChild(option);
       });
     }
 
-    // 日付選択
-    function selectDate(dateStr) {
-      selectedDate = dateStr;
-      selectedTime = null; // 時間選択をリセット
-      
-      // 日付ボタン更新
-      document.querySelectorAll('.date-btn').forEach(btn => {
-        btn.classList.remove('selected');
-      });
-      event.target.closest('.date-btn').classList.add('selected');
-      
-      // 時間グリッド再描画
-      renderTimeGrid();
-      
-      // 次へボタン無効化（時間を再選択させる）
-      document.getElementById('nextBtn').disabled = true;
-    }
-
-    // 時間グリッド描画
-    function renderTimeGrid() {
-      const container = document.getElementById('timeGrid');
-      container.innerHTML = '';
+    // 時間プルダウン描画
+    function renderTimeSelect() {
+      const select = document.getElementById('timeSelect');
+      select.innerHTML = '<option value="">時間を選択してください</option>';
       
       const timeOptions = Utils.generateTimeOptions(
         AppConfig.openTime,
@@ -252,33 +211,37 @@
       );
       
       timeOptions.forEach(time => {
-        const btn = document.createElement('button');
-        btn.className = 'time-btn';
-        btn.textContent = time;
-        btn.onclick = () => selectTime(time);
+        const option = document.createElement('option');
+        option.value = time;
+        option.textContent = time;
         
         if (time === selectedTime) {
-          btn.classList.add('selected');
+          option.selected = true;
         }
         
-        container.appendChild(btn);
+        select.appendChild(option);
       });
     }
 
+    // 日付選択
+    function selectDate() {
+      const select = document.getElementById('dateSelect');
+      selectedDate = select.value;
+      
+      updateNextButton();
+    }
+
     // 時間選択
-    function selectTime(time) {
-      selectedTime = time;
+    function selectTime() {
+      const select = document.getElementById('timeSelect');
+      selectedTime = select.value;
       
-      // 全ボタンの選択状態をクリア
-      document.querySelectorAll('.time-btn').forEach(btn => {
-        btn.classList.remove('selected');
-      });
-      
-      // 選択したボタンを強調
-      event.target.classList.add('selected');
-      
-      // 次へボタン有効化
-      document.getElementById('nextBtn').disabled = false;
+      updateNextButton();
+    }
+
+    // 次へボタン更新
+    function updateNextButton() {
+      document.getElementById('nextBtn').disabled = !(selectedDate && selectedTime);
     }
 
     // 次へ進む
@@ -315,13 +278,9 @@
 
     // 初期化
     loadReservationData();
-    renderDateButtons();
-    renderTimeGrid();
-    
-    // 前回の選択がある場合、次へボタンを有効化
-    if (selectedDate && selectedTime) {
-      document.getElementById('nextBtn').disabled = false;
-    }
+    renderDateSelect();
+    renderTimeSelect();
+    updateNextButton();
   </script>
 </body>
 </html>
