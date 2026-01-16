@@ -160,13 +160,16 @@
     function switchTab(tab) {
       const pages = {
         'rental': 'mypage-rental.html',
-        'new': 'mypage-new.html',
+        'new': 'reserve-class.html',
         'history': 'mypage-history.html',
         'profile': 'mypage-profile.html',
         'withdraw': 'mypage-withdraw.html'
       };
       
       if (pages[tab] && tab !== 'history') {
+        if (tab === 'new') {
+          ReservationStorage.clear();
+        }
         window.location.href = pages[tab];
       }
     }
