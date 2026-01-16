@@ -3,30 +3,127 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>返却日時選択 - レンタカー予約</title>
+  <title>レンタル開始日選択 - トクノリレンタカー</title>
   <link rel="stylesheet" href="common.css">
   <style>
-    .select-container {
-      margin-top: var(--spacing-lg);
+    .calendar-container {
+      background-color: var(--bg-white);
+      border-radius: 8px;
+      padding: var(--spacing-lg);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     
-    .custom-select {
-      width: 100%;
-      padding: var(--spacing-md);
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .calendar-month {
+      font-size: var(--font-xl);
+      font-weight: bold;
+    }
+    
+    .calendar-nav-btn {
+      background-color: var(--primary-color);
+      color: var(--text-dark);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-weight: bold;
       font-size: var(--font-lg);
+    }
+    
+    .calendar-nav-btn:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .calendar-nav-btn:disabled {
+      background-color: var(--disabled-color);
+      cursor: not-allowed;
+    }
+    
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .calendar-weekday {
+      text-align: center;
+      font-weight: bold;
+      color: var(--text-light);
+      padding: var(--spacing-sm);
+      font-size: var(--font-md);
+    }
+    
+    .calendar-weekday.sunday {
+      color: #D32F2F;
+    }
+    
+    .calendar-weekday.saturday {
+      color: #1976D2;
+    }
+    
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: var(--spacing-sm);
+    }
+    
+    .calendar-day {
+      aspect-ratio: 1;
       border: 2px solid var(--border-color);
       border-radius: 8px;
-      background-color: var(--bg-white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      transition: border-color 0.3s;
+      transition: all 0.3s;
+      font-weight: 500;
+      font-size: var(--font-md);
     }
     
-    .custom-select:focus {
+    .calendar-day:not(.disabled):hover {
+      background-color: var(--primary-light);
       border-color: var(--primary-color);
-      outline: none;
     }
     
-    .info-box {
+    .calendar-day.disabled {
+      background-color: var(--bg-light);
+      color: var(--disabled-color);
+      cursor: not-allowed;
+      border-color: transparent;
+    }
+    
+    .calendar-day.selected {
+      background-color: var(--primary-color);
+      border-color: var(--primary-dark);
+      color: var(--text-dark);
+      font-weight: bold;
+    }
+    
+    .calendar-day.in-range {
+      background-color: var(--primary-light);
+      border-color: var(--primary-color);
+    }
+    
+    .calendar-day.sunday {
+      color: #D32F2F;
+    }
+    
+    .calendar-day.saturday {
+      color: #1976D2;
+    }
+    
+    .calendar-day.empty {
+      border: none;
+      cursor: default;
+    }
+    
+    .date-info {
       background-color: var(--primary-light);
       padding: var(--spacing-lg);
       border-radius: 8px;
@@ -37,6 +134,7 @@
       display: flex;
       justify-content: space-between;
       margin-bottom: var(--spacing-sm);
+      font-size: var(--font-md);
     }
     
     .info-row:last-child {
@@ -44,17 +142,30 @@
     }
     
     .info-label {
-      color: var(--text-light);
+      font-weight: bold;
     }
     
     .info-value {
-      font-weight: bold;
       color: var(--primary-dark);
+      font-weight: bold;
     }
     
-    @media (min-width: 769px) {
-      .select-container {
-        max-width: 300px;
+    @media (max-width: 768px) {
+      .calendar-day {
+        font-size: var(--font-sm);
+      }
+      
+      .calendar-month {
+        font-size: var(--font-lg);
+      }
+      
+      .calendar-weekday {
+        font-size: var(--font-sm);
+      }
+      
+      .calendar-weekdays,
+      .calendar-days {
+        gap: var(--spacing-xs);
       }
     }
   </style>
@@ -78,12 +189,28 @@
 
   <!-- メインコンテンツ -->
   <div class="container">
-    <h1 class="page-title">返却日時を選択</h1>
+    <h1 class="page-title">レンタル開始日を選択</h1>
     
-    <!-- 予約情報 -->
-    <div class="info-box">
+    <!-- 選択内容サマリー（前ページからの情報） -->
+    <div class="date-info">
       <div class="info-row">
-        <span class="info-label">受取日:</span>
+        <span class="info-label">車両クラス:</span>
+        <span class="info-value" id="infoCarClass">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">レンタル日数:</span>
+        <span class="info-value" id="infoPlanDays">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">合計金額:</span>
+        <span class="info-value" id="infoPlanPrice">-</span>
+      </div>
+    </div>
+    
+    <!-- 選択した日付情報 -->
+    <div class="date-info" id="dateInfo" style="display: none;">
+      <div class="info-row">
+        <span class="info-label">開始日:</span>
         <span class="info-value" id="infoStartDate">-</span>
       </div>
       <div class="info-row">
@@ -92,32 +219,25 @@
       </div>
     </div>
 
-    <!-- 返却日選択 -->
-    <div class="section">
-      <h2 class="section-title">返却日</h2>
-      <p class="text-muted">途中返却も可能です（期間内の日付を選択してください）</p>
-      
-      <div class="select-container">
-        <select id="dateSelect" class="custom-select" onchange="selectDate()">
-          <option value="">返却日を選択してください</option>
-        </select>
+    <!-- カレンダー -->
+    <div class="section calendar-container">
+      <div class="calendar-header">
+        <button class="calendar-nav-btn" id="prevBtn" onclick="changeMonth(-1)">◀</button>
+        <span class="calendar-month" id="calendarMonth"></span>
+        <button class="calendar-nav-btn" id="nextBtn" onclick="changeMonth(1)">▶</button>
       </div>
-    </div>
-
-    <!-- 返却時間選択 -->
-    <div class="section">
-      <h2 class="section-title">返却時間</h2>
-      <p class="text-muted mb-md">営業時間: 9:00〜18:00</p>
       
-      <div class="select-container">
-        <select id="timeSelect" class="custom-select" onchange="selectTime()">
-          <option value="">時間を選択してください</option>
-        </select>
+      <div class="calendar-weekdays">
+        <div class="calendar-weekday sunday">日</div>
+        <div class="calendar-weekday">月</div>
+        <div class="calendar-weekday">火</div>
+        <div class="calendar-weekday">水</div>
+        <div class="calendar-weekday">木</div>
+        <div class="calendar-weekday">金</div>
+        <div class="calendar-weekday saturday">土</div>
       </div>
-    </div>
-
-    <div class="alert alert-info mt-lg">
-      <strong>ご注意:</strong> 返却時間を過ぎる場合は、追加料金が発生する可能性があります。
+      
+      <div class="calendar-days" id="calendarDays"></div>
     </div>
 
     <!-- ボタン -->
@@ -129,143 +249,179 @@
 
   <script src="common.js"></script>
   <script>
-    let selectedDate = null;
-    let selectedTime = null;
-    let startDate = null;
-    let endDate = null;
-    let availableDates = [];
+    let currentDate = new Date();
+    let selectedStartDate = null;
+    let planDays = 0;
 
     // 予約データを取得
     function loadReservationData() {
       const data = ReservationStorage.get();
-      if (!data || !data.startDate || !data.endDate) {
-        alert('レンタル日を選択してください');
-        window.location.href = 'reserve-date.html';
+      if (!data || !data.planDays) {
+        alert('車両クラスを選択してください');
+        window.location.href = 'reserve-class.html';
         return;
       }
+      planDays = data.planDays;
       
-      startDate = new Date(data.startDate);
-      endDate = new Date(data.endDate);
-      
-      // 情報表示
-      document.getElementById('infoStartDate').textContent = Utils.formatDateJP(startDate);
-      document.getElementById('infoEndDate').textContent = Utils.formatDateJP(endDate);
-      
-      // 選択可能な日付リストを生成（開始日〜返却日）
-      availableDates = [];
-      let currentDate = new Date(startDate);
-      while (currentDate <= endDate) {
-        availableDates.push(new Date(currentDate));
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
+      // 前ページからの情報を表示
+      const carClass = Utils.getCarClass(data.carClassId);
+      document.getElementById('infoCarClass').textContent = carClass.name;
+      document.getElementById('infoPlanDays').textContent = data.planLabel;
+      document.getElementById('infoPlanPrice').textContent = Utils.formatPrice(data.planPrice);
       
       // 前回の選択を復元
-      if (data.returnDateTime) {
-        const datetime = new Date(data.returnDateTime);
-        selectedDate = Utils.formatDate(datetime);
-        const hours = String(datetime.getHours()).padStart(2, '0');
-        const minutes = String(datetime.getMinutes()).padStart(2, '0');
-        selectedTime = `${hours}:${minutes}`;
-      } else {
-        // デフォルトは最終日
-        selectedDate = Utils.formatDate(endDate);
+      if (data.startDate) {
+        selectedStartDate = new Date(data.startDate);
+        updateDateInfo();
       }
     }
 
-    // 日付プルダウン描画
-    function renderDateSelect() {
-      const select = document.getElementById('dateSelect');
+    // カレンダー描画
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
       
-      availableDates.forEach(date => {
-        const dateStr = Utils.formatDate(date);
-        const option = document.createElement('option');
-        option.value = dateStr;
+      // ヘッダー更新
+      document.getElementById('calendarMonth').textContent = 
+        `${year}年${month + 1}月`;
+      
+      // 月の最初の日と最後の日
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      
+      // カレンダーの開始位置（日曜日始まり）
+      const startDayOfWeek = firstDay.getDay();
+      
+      // カレンダー描画
+      const container = document.getElementById('calendarDays');
+      container.innerHTML = '';
+      
+      // 空白セル
+      for (let i = 0; i < startDayOfWeek; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-day empty';
+        container.appendChild(emptyDay);
+      }
+      
+      // 日付セル
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+        const date = new Date(year, month, day);
+        const dayCell = document.createElement('div');
+        dayCell.className = 'calendar-day';
+        dayCell.textContent = day;
         
-        const isStartDate = dateStr === Utils.formatDate(startDate);
-        const isEndDate = dateStr === Utils.formatDate(endDate);
+        // 曜日クラス
+        const dayOfWeek = date.getDay();
+        if (dayOfWeek === 0) dayCell.classList.add('sunday');
+        if (dayOfWeek === 6) dayCell.classList.add('saturday');
         
-        let label = '';
-        if (isStartDate) label = '（受取日）';
-        else if (isEndDate) label = '（返却日）';
-        else label = '（途中返却）';
-        
-        option.textContent = `${date.getMonth() + 1}月${date.getDate()}日 ${label}`;
-        
-        if (dateStr === selectedDate) {
-          option.selected = true;
+        // 選択不可判定
+        if (Utils.isDateDisabled(date)) {
+          dayCell.classList.add('disabled');
+        } else {
+          dayCell.onclick = () => selectDate(date);
         }
         
-        select.appendChild(option);
-      });
+        // 選択中の日付
+        if (selectedStartDate && 
+            date.toDateString() === selectedStartDate.toDateString()) {
+          dayCell.classList.add('selected');
+        }
+        
+        // レンタル期間内の日付（開始日を1日目とするので、planDays - 1日後が最終日）
+        if (selectedStartDate) {
+          const endDate = Utils.addDays(selectedStartDate, planDays - 1);
+          if (date > selectedStartDate && date <= endDate) {
+            dayCell.classList.add('in-range');
+          }
+        }
+        
+        container.appendChild(dayCell);
+      }
+      
+      // ナビゲーションボタンの有効/無効
+      updateNavButtons();
     }
 
-    // 時間プルダウン描画
-    function renderTimeSelect() {
-      const select = document.getElementById('timeSelect');
-      select.innerHTML = '<option value="">時間を選択してください</option>';
+    // 月変更
+    function changeMonth(delta) {
+      currentDate.setMonth(currentDate.getMonth() + delta);
+      renderCalendar();
+    }
+
+    // ナビゲーションボタン更新
+    function updateNavButtons() {
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
       
-      const timeOptions = Utils.generateTimeOptions(
-        AppConfig.openTime,
-        AppConfig.closeTime,
-        AppConfig.timeStepMinutes
-      );
+      const today = new Date();
+      const minDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      const maxDate = new Date();
+      maxDate.setMonth(maxDate.getMonth() + AppConfig.maxFutureMonths);
       
-      timeOptions.forEach(time => {
-        const option = document.createElement('option');
-        option.value = time;
-        option.textContent = time;
-        
-        if (time === selectedTime) {
-          option.selected = true;
-        }
-        
-        select.appendChild(option);
-      });
+      // 前月ボタン
+      const prevMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+      prevBtn.disabled = prevMonth < minDate;
+      
+      // 次月ボタン
+      const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+      nextBtn.disabled = nextMonth > maxDate;
     }
 
     // 日付選択
-    function selectDate() {
-      const select = document.getElementById('dateSelect');
-      selectedDate = select.value;
+    function selectDate(date) {
+      selectedStartDate = date;
+      updateDateInfo();
+      renderCalendar();
       
-      updateNextButton();
+      // 次へボタン有効化
+      document.querySelector('.btn-primary').disabled = false;
+      
+      // 情報エリアへスクロール
+      document.getElementById('dateInfo').scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
     }
 
-    // 時間選択
-    function selectTime() {
-      const select = document.getElementById('timeSelect');
-      selectedTime = select.value;
+    // 日付情報更新
+    function updateDateInfo() {
+      if (!selectedStartDate) return;
       
-      updateNextButton();
-    }
-
-    // 次へボタン更新
-    function updateNextButton() {
-      document.getElementById('nextBtn').disabled = !(selectedDate && selectedTime);
+      // 開始日を1日目とするので、返却日は planDays - 1 日後
+      const endDate = Utils.addDays(selectedStartDate, planDays - 1);
+      
+      document.getElementById('infoStartDate').textContent = 
+        Utils.formatDateJP(selectedStartDate);
+      document.getElementById('infoEndDate').textContent = 
+        Utils.formatDateJP(endDate);
+      
+      document.getElementById('dateInfo').style.display = 'block';
     }
 
     // 次へ進む
     function goNext() {
-      if (!selectedDate || !selectedTime) {
-        alert('返却日時を選択してください');
+      if (!selectedStartDate) {
+        alert('開始日を選択してください');
         return;
       }
       
-      // 日時を結合
-      const returnDateTime = `${selectedDate}T${selectedTime}:00`;
+      // 開始日を1日目とするので、返却日は planDays - 1 日後
+      const endDate = Utils.addDays(selectedStartDate, planDays - 1);
       
       // セッションに保存
       ReservationStorage.save({
-        returnDateTime: returnDateTime
+        startDate: Utils.formatDate(selectedStartDate),
+        endDate: Utils.formatDate(endDate)
       });
       
       // 次のページへ
-      window.location.href = 'reserve-payment.html';
+      window.location.href = 'reserve-pickup.html';
     }
 
     // 戻る
     function goBack() {
-      window.location.href = 'reserve-pickup.html';
+      window.location.href = 'reserve-class.html';
     }
 
     // ログアウト
@@ -278,9 +434,7 @@
 
     // 初期化
     loadReservationData();
-    renderDateSelect();
-    renderTimeSelect();
-    updateNextButton();
+    renderCalendar();
   </script>
 </body>
 </html>
