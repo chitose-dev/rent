@@ -6,36 +6,6 @@
   <title>受取時間選択 - レンタカー予約</title>
   <link rel="stylesheet" href="common.css">
   <style>
-    .time-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: var(--spacing-sm);
-      margin-top: var(--spacing-lg);
-    }
-    
-    .time-btn {
-      padding: var(--spacing-md);
-      border: 2px solid var(--border-color);
-      border-radius: 4px;
-      background-color: var(--bg-white);
-      cursor: pointer;
-      transition: all 0.3s;
-      font-weight: 500;
-      text-align: center;
-    }
-    
-    .time-btn:hover {
-      background-color: var(--primary-light);
-      border-color: var(--primary-color);
-    }
-    
-    .time-btn.selected {
-      background-color: var(--primary-color);
-      border-color: var(--primary-dark);
-      color: var(--text-dark);
-      font-weight: bold;
-    }
-    
     .date-display {
       background-color: var(--primary-light);
       padding: var(--spacing-lg);
@@ -56,14 +26,29 @@
       color: var(--primary-dark);
     }
     
-    @media (max-width: 768px) {
-      .time-grid {
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-      }
-      
-      .time-btn {
-        padding: var(--spacing-sm);
-        font-size: var(--font-sm);
+    .time-select-container {
+      margin-top: var(--spacing-lg);
+    }
+    
+    .time-select {
+      width: 100%;
+      padding: var(--spacing-md);
+      font-size: var(--font-lg);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--bg-white);
+      cursor: pointer;
+      transition: border-color 0.3s;
+    }
+    
+    .time-select:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+    
+    @media (min-width: 769px) {
+      .time-select-container {
+        max-width: 300px;
       }
     }
   </style>
@@ -72,7 +57,7 @@
   <!-- ヘッダー -->
   <header class="header">
     <div class="header-container">
-      <a href="mypage-rental.html" class="header-logo">レンタカー予約</a>
+      <a href="mypage-rental.html" class="header-logo">トクノリレンタカー</a>
       <nav class="header-nav">
         <a href="mypage-rental.html">マイページ</a>
         <a href="#" onclick="logout()">ログアウト</a>
@@ -99,7 +84,12 @@
     <div class="section">
       <h2 class="section-title">受取時間</h2>
       <p class="text-muted mb-md">営業時間: 9:00〜18:00</p>
-      <div class="time-grid" id="timeGrid"></div>
+      
+      <div class="time-select-container">
+        <select id="timeSelect" class="time-select" onchange="selectTime()">
+          <option value="">時間を選択してください</option>
+        </select>
+      </div>
     </div>
 
     <div class="alert alert-info mt-lg">
@@ -142,10 +132,9 @@
       }
     }
 
-    // 時間グリッド描画
-    function renderTimeGrid() {
-      const container = document.getElementById('timeGrid');
-      container.innerHTML = '';
+    // 時間プルダウン描画
+    function renderTimeSelect() {
+      const select = document.getElementById('timeSelect');
       
       const timeOptions = Utils.generateTimeOptions(
         AppConfig.openTime,
@@ -154,33 +143,30 @@
       );
       
       timeOptions.forEach(time => {
-        const btn = document.createElement('button');
-        btn.className = 'time-btn';
-        btn.textContent = time;
-        btn.onclick = () => selectTime(time);
+        const option = document.createElement('option');
+        option.value = time;
+        option.textContent = time;
         
         if (time === selectedTime) {
-          btn.classList.add('selected');
+          option.selected = true;
         }
         
-        container.appendChild(btn);
+        select.appendChild(option);
       });
+      
+      // 前回の選択がある場合、次へボタンを有効化
+      if (selectedTime) {
+        document.getElementById('nextBtn').disabled = false;
+      }
     }
 
     // 時間選択
-    function selectTime(time) {
-      selectedTime = time;
+    function selectTime() {
+      const select = document.getElementById('timeSelect');
+      selectedTime = select.value;
       
-      // 全ボタンの選択状態をクリア
-      document.querySelectorAll('.time-btn').forEach(btn => {
-        btn.classList.remove('selected');
-      });
-      
-      // 選択したボタンを強調
-      event.target.classList.add('selected');
-      
-      // 次へボタン有効化
-      document.getElementById('nextBtn').disabled = false;
+      // 次へボタン有効/無効
+      document.getElementById('nextBtn').disabled = !selectedTime;
     }
 
     // 次へ進む
@@ -217,12 +203,7 @@
 
     // 初期化
     loadReservationData();
-    renderTimeGrid();
-    
-    // 前回の選択がある場合、次へボタンを有効化
-    if (selectedTime) {
-      document.getElementById('nextBtn').disabled = false;
-    }
+    renderTimeSelect();
   </script>
 </body>
 </html>
