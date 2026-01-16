@@ -149,31 +149,19 @@
       font-weight: bold;
     }
     
-    /* PC表示: カレンダーを小さめに */
+    /* PC表示: カレンダーを程よいサイズに */
     @media (min-width: 769px) {
       .calendar-container {
-        max-width: 450px;
+        max-width: 550px;
         margin: 0 auto;
-        padding: var(--spacing-md);
-      }
-      
-      .calendar-month {
-        font-size: var(--font-lg);
-      }
-      
-      .calendar-nav-btn {
-        width: 32px;
-        height: 32px;
-        font-size: var(--font-md);
       }
       
       .calendar-day {
-        font-size: var(--font-sm);
+        font-size: var(--font-md);
       }
       
       .calendar-weekday {
-        padding: var(--spacing-xs);
-        font-size: var(--font-xs);
+        font-size: var(--font-sm);
       }
     }
     
