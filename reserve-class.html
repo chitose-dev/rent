@@ -6,34 +6,52 @@
   <title>車両クラス選択 - トクノリレンタカー</title>
   <link rel="stylesheet" href="common.css">
   <style>
+    .summary-info {
+      background-color: var(--primary-light);
+      padding: var(--spacing-lg);
+      border-radius: 8px;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-sm);
+      font-size: var(--font-md);
+    }
+    
+    .summary-row:last-child {
+      margin-bottom: 0;
+    }
+    
+    .summary-label {
+      font-weight: bold;
+      color: var(--text-dark);
+    }
+    
+    .summary-value {
+      color: var(--primary-dark);
+      font-weight: bold;
+    }
+    
     .class-card {
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      padding: var(--spacing-lg);
       margin-bottom: var(--spacing-lg);
       cursor: pointer;
       transition: all 0.3s;
+      background-color: var(--bg-white);
     }
     
     .class-card:hover {
+      border-color: var(--primary-color);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
     
-    .class-card-header {
-      margin-bottom: var(--spacing-md);
-    }
-    
-    .price-preview {
-      margin-top: var(--spacing-sm);
-      padding: var(--spacing-sm) var(--spacing-md);
+    .class-card.selected {
+      border-color: var(--primary-color);
       background-color: var(--primary-light);
-      border-radius: 4px;
-      font-size: var(--font-sm);
-      color: var(--text-dark);
-      line-height: 1.8;
-    }
-    
-    .price-preview-label {
-      font-weight: bold;
-      margin-bottom: var(--spacing-xs);
-      display: block;
     }
     
     .class-card-content {
@@ -50,16 +68,38 @@
       justify-content: center;
       color: var(--text-light);
       flex-shrink: 0;
-      min-height: 200px;
+      min-height: 150px;
     }
     
-    /* スマホ: 正方形（小さめ） */
-    @media (max-width: 768px) {
-      .class-image-placeholder {
-        width: 120px;
-        height: 120px;
-        min-height: 120px;
-      }
+    .class-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+    
+    .class-card-title {
+      font-size: var(--font-xl);
+      font-weight: bold;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .class-card-price {
+      font-size: var(--font-xl);
+      font-weight: bold;
+      color: var(--primary-dark);
+      white-space: nowrap;
+    }
+    
+    .class-card-description {
+      color: var(--text-light);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .class-card-notes {
+      font-size: var(--font-sm);
+      color: var(--text-light);
     }
     
     /* PC表示: 横並びレイアウト */
@@ -70,8 +110,9 @@
       }
       
       .class-image-placeholder {
-        width: 200px;
-        height: 200px;
+        width: 180px;
+        height: 120px;
+        min-height: 120px;
       }
       
       .class-card-text {
@@ -79,44 +120,16 @@
       }
     }
     
-    .pricing-table {
-      margin-top: var(--spacing-md);
-      display: none;
-    }
-    
-    .pricing-table.expanded {
-      display: block;
-    }
-    
-    .pricing-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: var(--spacing-md);
-      border: 2px solid var(--border-color);
-      border-radius: 4px;
-      margin-bottom: var(--spacing-sm);
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    
-    .pricing-row:hover {
-      background-color: var(--primary-light);
-    }
-    
-    .pricing-row.selected {
-      background-color: var(--primary-light);
-      border-color: var(--primary-color);
-    }
-    
-    .pricing-label {
-      font-weight: bold;
-    }
-    
-    .pricing-price {
-      font-size: var(--font-lg);
-      color: var(--primary-dark);
-      font-weight: bold;
+    @media (max-width: 768px) {
+      .class-image-placeholder {
+        width: 100%;
+        height: 120px;
+        min-height: 120px;
+      }
+      
+      .class-card-header {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -139,35 +152,101 @@
 
   <!-- メインコンテンツ -->
   <div class="container">
-    <h1 class="page-title">車両クラス・プランを選択</h1>
+    <h1 class="page-title">車両クラスを選択</h1>
+    
+    <!-- 選択内容サマリー -->
+    <div class="summary-info">
+      <div class="summary-row">
+        <span class="summary-label">レンタル日数:</span>
+        <span class="summary-value" id="summaryDays">-</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">開始日:</span>
+        <span class="summary-value" id="summaryStartDate">-</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">返却日:</span>
+        <span class="summary-value" id="summaryEndDate">-</span>
+      </div>
+    </div>
 
     <!-- 車両クラス一覧 -->
     <div id="carClassList"></div>
 
     <!-- ボタン -->
     <div class="btn-group">
-      <button class="btn btn-secondary btn-full" onclick="goBack()">戻る</button>
+      <button class="btn btn-secondary" onclick="goBack()">戻る</button>
+      <button class="btn btn-primary btn-full" id="nextBtn" disabled onclick="goNext()">次へ進む</button>
     </div>
   </div>
 
   <script src="common.js"></script>
   <script>
+    let selectedClassId = null;
+    let planDays = 0;
+
+    // 予約データを取得
+    function loadReservationData() {
+      const data = ReservationStorage.get();
+      if (!data || !data.startDate) {
+        alert('開始日を選択してください');
+        window.location.href = 'reserve-date.html';
+        return;
+      }
+      
+      planDays = data.planDays;
+      
+      // サマリー表示
+      document.getElementById('summaryDays').textContent = data.planLabel;
+      document.getElementById('summaryStartDate').textContent = 
+        Utils.formatDateJP(new Date(data.startDate));
+      document.getElementById('summaryEndDate').textContent = 
+        Utils.formatDateJP(new Date(data.endDate));
+      
+      // 前回の選択を復元
+      if (data.carClassId) {
+        selectedClassId = data.carClassId;
+      }
+    }
+
     // 車両クラス一覧を表示
     function renderCarClasses() {
       const container = document.getElementById('carClassList');
       container.innerHTML = '';
       
       AppConfig.carClasses.forEach(carClass => {
-        const plans = Utils.getPricingPlans(carClass.id);
+        // 選択中の日数に対応する料金を取得
+        const plan = AppConfig.pricingPlans.find(
+          p => p.carClassId === carClass.id && p.days === planDays
+        );
         
-        // 料金プレビュー文字列を生成
-        const pricePreviewText = plans.map(plan => 
-          `${plan.label}・${Utils.formatPrice(plan.price)}`
-        ).join(' / ');
+        // 料金が設定されていない日数の場合は日割り計算
+        let price = 0;
+        let priceLabel = '';
+        if (plan) {
+          price = plan.price;
+          priceLabel = Utils.formatPrice(price);
+        } else {
+          // 1日料金をベースに計算
+          const dailyPlan = AppConfig.pricingPlans.find(
+            p => p.carClassId === carClass.id && p.days === 1
+          );
+          if (dailyPlan) {
+            price = dailyPlan.price * planDays;
+            priceLabel = Utils.formatPrice(price);
+          }
+        }
         
         const card = document.createElement('div');
-        card.className = 'card class-card';
-        card.onclick = () => togglePricing(carClass.id);
+        card.className = 'class-card';
+        card.dataset.classId = carClass.id;
+        card.dataset.price = price;
+        
+        if (selectedClassId === carClass.id) {
+          card.classList.add('selected');
+        }
+        
+        card.onclick = () => selectClass(carClass.id, price);
         card.innerHTML = `
           <div class="class-card-content">
             <div class="class-image-placeholder">
@@ -176,59 +255,68 @@
             
             <div class="class-card-text">
               <div class="class-card-header">
-                <h2 class="card-title">${carClass.name}</h2>
-                <p class="card-body">${carClass.description}</p>
-                <p class="text-small text-muted">${carClass.notes}</p>
-                <div class="price-preview">
-                  <span class="price-preview-label">料金</span>
-                  ${pricePreviewText}
+                <div>
+                  <div class="class-card-title">${carClass.name}</div>
+                  <div class="class-card-description">${carClass.description}</div>
                 </div>
+                <div class="class-card-price">${priceLabel}</div>
               </div>
-              
-              <div id="pricing-${carClass.id}" class="pricing-table">
-                <h3 class="section-title">料金プラン</h3>
-                ${plans.map(plan => `
-                  <div class="pricing-row" 
-                       data-class-id="${carClass.id}" 
-                       data-plan-days="${plan.days}" 
-                       data-plan-price="${plan.price}"
-                       onclick="event.stopPropagation(); selectPlan('${carClass.id}', ${plan.days}, ${plan.price}, '${plan.label}')">
-                    <span class="pricing-label">${plan.label}</span>
-                    <span class="pricing-price">${Utils.formatPrice(plan.price)}</span>
-                  </div>
-                `).join('')}
-              </div>
+              <div class="class-card-notes">${carClass.notes}</div>
             </div>
           </div>
         `;
         
         container.appendChild(card);
       });
+      
+      // 前回の選択がある場合、ボタンを有効化
+      if (selectedClassId) {
+        document.getElementById('nextBtn').disabled = false;
+      }
     }
 
-    // 料金表の開閉
-    function togglePricing(classId) {
-      const pricingTable = document.getElementById(`pricing-${classId}`);
-      pricingTable.classList.toggle('expanded');
-    }
-
-    // プラン選択
-    function selectPlan(classId, days, price, label) {
-      // セッションに保存
-      ReservationStorage.save({
-        carClassId: classId,
-        planDays: days,
-        planPrice: price,
-        planLabel: label
+    // 車両クラス選択
+    function selectClass(classId, price) {
+      selectedClassId = classId;
+      
+      // 全カードの選択状態をクリア
+      document.querySelectorAll('.class-card').forEach(card => {
+        card.classList.remove('selected');
       });
       
-      // 次のページへ即座に遷移
-      window.location.href = 'reserve-date.html';
+      // 選択したカードを強調
+      const selectedCard = document.querySelector(`.class-card[data-class-id="${classId}"]`);
+      if (selectedCard) {
+        selectedCard.classList.add('selected');
+      }
+      
+      // 次へボタン有効化
+      document.getElementById('nextBtn').disabled = false;
+    }
+
+    // 次へ進む
+    function goNext() {
+      if (!selectedClassId) {
+        alert('車両クラスを選択してください');
+        return;
+      }
+      
+      const selectedCard = document.querySelector(`.class-card[data-class-id="${selectedClassId}"]`);
+      const price = parseInt(selectedCard.dataset.price);
+      
+      // セッションに保存
+      ReservationStorage.save({
+        carClassId: selectedClassId,
+        planPrice: price
+      });
+      
+      // 次のページへ（オプション選択）
+      window.location.href = 'reserve-options.html';
     }
 
     // 戻る
     function goBack() {
-      window.location.href = 'mypage-rental.html';
+      window.location.href = 'reserve-date.html';
     }
 
     // ログアウト
@@ -240,6 +328,7 @@
     }
 
     // 初期化
+    loadReservationData();
     renderCarClasses();
   </script>
 </body>
