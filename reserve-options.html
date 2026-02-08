@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>オプション選択 - トクノリレンタカー</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .summary-info {
+      background-color: var(--primary-light);
+      padding: var(--spacing-lg);
+      border-radius: 8px;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-sm);
+      font-size: var(--font-md);
+    }
+    
+    .summary-row:last-child {
+      margin-bottom: 0;
+    }
+    
+    .summary-label {
+      font-weight: bold;
+      color: var(--text-dark);
+    }
+    
+    .summary-value {
+      color: var(--primary-dark);
+      font-weight: bold;
+    }
+    
+    .option-section {
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .option-section-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+      padding-bottom: var(--spacing-sm);
+      border-bottom: 2px solid var(--primary-color);
+    }
+    
+    .option-card {
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-md);
+      cursor: pointer;
+      transition: all 0.3s;
+      background-color: var(--bg-white);
+    }
+    
+    .option-card:hover {
+      border-color: var(--primary-color);
+      background-color: var(--primary-light);
+    }
+    
+    .option-card.selected {
+      border-color: var(--primary-color);
+      background-color: var(--primary-light);
+    }
+    
+    .option-card.recommended {
+      position: relative;
+    }
+    
+    .option-card.recommended::before {
+      content: 'おすすめ';
+      position: absolute;
+      top: -12px;
+      left: var(--spacing-md);
+      background-color: var(--primary-color);
+      color: var(--text-dark);
+      padding: var(--spacing-xs) var(--spacing-md);
+      border-radius: 4px;
+      font-size: var(--font-sm);
+      font-weight: bold;
+    }
+    
+    .option-header {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .option-checkbox {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    
+    .option-content {
+      flex: 1;
+    }
+    
+    .option-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+      margin-bottom: var(--spacing-xs);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--spacing-sm);
+    }
+    
+    .option-price {
+      color: var(--primary-dark);
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    
+    .option-description {
+      color: var(--text-light);
+      line-height: 1.6;
+      font-size: var(--font-sm);
+    }
+    
+    .option-details {
+      margin-top: var(--spacing-md);
+      padding: var(--spacing-md);
+      background-color: var(--bg-light);
+      border-radius: 4px;
+      font-size: var(--font-sm);
+    }
+    
+    .option-details-title {
+      font-weight: bold;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .option-details ul {
+      padding-left: var(--spacing-lg);
+      line-height: 1.8;
+    }
+    
+    .total-section {
+      background-color: var(--primary-light);
+      padding: var(--spacing-lg);
+      border-radius: 8px;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .total-row:last-child {
+      margin-bottom: 0;
+      padding-top: var(--spacing-md);
+      border-top: 2px solid var(--primary-color);
+      font-size: var(--font-lg);
+    }
+    
+    .total-label {
+      font-weight: bold;
+    }
+    
+    .total-value {
+      font-weight: bold;
+      color: var(--primary-dark);
+    }
+    
+    @media (max-width: 768px) {
+      .option-title {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-container">
+      <a href="mypage-rental.html" class="header-logo">トクノリレンタカー</a>
+      <nav class="header-nav">
+        <a href="mypage-rental.html">マイページ</a>
+        <a href="#" onclick="logout()">ログアウト</a>
+      </nav>
+      <button class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <div class="container">
+    <h1 class="page-title">オプションを選択</h1>
+    
+    <!-- 予約情報サマリー -->
+    <div class="summary-info">
+      <div class="summary-row">
+        <span class="summary-label">車両クラス:</span>
+        <span class="summary-value" id="summaryClass">-</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">受取日時:</span>
+        <span class="summary-value" id="summaryPickup">-</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">基本料金:</span>
+        <span class="summary-value" id="summaryBasePrice">-</span>
+      </div>
+    </div>
+
+    <!-- 免責補償 -->
+    <div class="section option-section">
+      <h2 class="option-section-title">免責補償制度</h2>
+      
+      <div class="alert alert-info mb-lg">
+        万が一の事故に備えて、免責補償制度への加入をおすすめします。
+      </div>
+      
+      <div id="insuranceOptions"></div>
+    </div>
+
+    <!-- 追加オプション -->
+    <div class="section option-section">
+      <h2 class="option-section-title">追加オプション</h2>
+      
+      <div id="additionalOptions"></div>
+    </div>
+
+    <!-- 合計金額 -->
+    <div class="total-section">
+      <div class="total-row">
+        <span class="total-label">基本料金:</span>
+        <span class="total-value" id="totalBasePrice">-</span>
+      </div>
+      <div class="total-row" id="insuranceRow" style="display: none;">
+        <span class="total-label">免責補償:</span>
+        <span class="total-value" id="totalInsurance">-</span>
+      </div>
+      <div class="total-row" id="optionsRow" style="display: none;">
+        <span class="total-label">追加オプション:</span>
+        <span class="total-value" id="totalOptions">-</span>
+      </div>
+      <div class="total-row">
+        <span class="total-label">合計金額:</span>
+        <span class="total-value" id="grandTotal">-</span>
+      </div>
+    </div>
+
+    <!-- ボタン -->
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goBack()">戻る</button>
+      <button class="btn btn-primary btn-full" onclick="goNext()">次へ進む</button>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    // オプションデータ
+    const InsuranceOptions = [
+      {
+        id: 'insurance-standard',
+        name: '免責補償制度（CDW）',
+        pricePerDay: 1100,
+        description: '事故時の車両・対物免責額（5万円）が免除されます。',
+        details: [
+          '車両免責額 5万円 → 0円',
+          '対物免責額 5万円 → 0円',
+          '営業補償（NOC）は含まれません'
+        ],
+        recommended: true
+      },
+      {
+        id: 'insurance-full',
+        name: 'フルカバー補償（CDW+NOC）',
+        pricePerDay: 1650,
+        description: '免責補償に加え、営業補償（NOC）も免除されます。',
+        details: [
+          '車両免責額 5万円 → 0円',
+          '対物免責額 5万円 → 0円',
+          '営業補償（自走可能時2万円）→ 0円',
+          '営業補償（自走不可時5万円）→ 0円'
+        ],
+        recommended: false
+      }
+    ];
+    
+    const AdditionalOptions = [
+      {
+        id: 'option-childseat',
+        name: 'チャイルドシート',
+        pricePerDay: 550,
+        description: '乳幼児用のチャイルドシートをご用意します。',
+        details: ['対象年齢: 0〜4歳', '体重: 18kg以下']
+      },
+      {
+        id: 'option-juniorseat',
+        name: 'ジュニアシート',
+        pricePerDay: 330,
+        description: 'お子様用のジュニアシートをご用意します。',
+        details: ['対象年齢: 4〜10歳', '体重: 15〜36kg']
+      },
+      {
+        id: 'option-snowchain',
+        name: 'スノーチェーン',
+        pricePerDay: 1100,
+        description: '冬季の雪道走行に備えてスノーチェーンをご用意します。',
+        details: ['車両クラスに合ったサイズをご用意', '装着方法のご説明付き']
+      },
+      {
+        id: 'option-etc',
+        name: 'ETCカード',
+        pricePerDay: 330,
+        description: '高速道路のETCレーンをスムーズに通過できます。',
+        details: ['利用料金は返却時に精算', 'ETC車載器は標準装備']
+      }
+    ];
+    
+    let selectedInsurance = null;
+    let selectedOptions = [];
+    let basePrice = 0;
+    let rentalDays = 1;
+
+    // 予約データを取得
+    function loadReservationData() {
+      const data = ReservationStorage.get();
+      if (!data || !data.pickupDateTime) {
+        alert('受取日時を選択してください');
+        window.location.href = 'reserve-pickup.html';
+        return;
+      }
+      
+      basePrice = data.planPrice;
+      rentalDays = data.planDays;
+      
+      // サマリー表示
+      const carClass = Utils.getCarClass(data.carClassId);
+      document.getElementById('summaryClass').textContent = carClass.name;
+      document.getElementById('summaryPickup').textContent = 
+        Utils.formatDateTimeJP(new Date(data.pickupDateTime));
+      document.getElementById('summaryBasePrice').textContent = Utils.formatPrice(basePrice);
+      
+      // 前回の選択を復元
+      if (data.selectedInsurance) {
+        selectedInsurance = data.selectedInsurance;
+      }
+      if (data.selectedOptions) {
+        selectedOptions = data.selectedOptions;
+      }
+    }
+
+    // 免責補償オプション描画
+    function renderInsuranceOptions() {
+      const container = document.getElementById('insuranceOptions');
+      container.innerHTML = '';
+      
+      // 「加入しない」オプション
+      const noInsuranceCard = createOptionCard({
+        id: 'insurance-none',
+        name: '加入しない',
+        pricePerDay: 0,
+        description: '事故時は規定の免責額をお支払いいただきます。',
+        details: [
+          '車両免責額: 最大5万円',
+          '対物免責額: 最大5万円',
+          '営業補償（自走可能時）: 2万円',
+          '営業補償（自走不可時）: 5万円'
+        ]
+      }, 'insurance');
+      container.appendChild(noInsuranceCard);
+      
+      // 補償オプション
+      InsuranceOptions.forEach(option => {
+        const card = createOptionCard(option, 'insurance');
+        container.appendChild(card);
+      });
+    }
+
+    // 追加オプション描画
+    function renderAdditionalOptions() {
+      const container = document.getElementById('additionalOptions');
+      container.innerHTML = '';
+      
+      AdditionalOptions.forEach(option => {
+        const card = createOptionCard(option, 'additional');
+        container.appendChild(card);
+      });
+    }
+
+    // オプションカード作成
+    function createOptionCard(option, type) {
+      const card = document.createElement('div');
+      card.className = 'option-card';
+      if (option.recommended) {
+        card.classList.add('recommended');
+      }
+      
+      // 選択状態の復元
+      if (type === 'insurance' && selectedInsurance === option.id) {
+        card.classList.add('selected');
+      }
+      if (type === 'additional' && selectedOptions.includes(option.id)) {
+        card.classList.add('selected');
+      }
+      
+      const priceText = option.pricePerDay === 0 
+        ? '無料' 
+        : `${Utils.formatPrice(option.pricePerDay)}/日`;
+      
+      const totalPrice = option.pricePerDay * rentalDays;
+      const totalText = option.pricePerDay === 0 
+        ? '' 
+        : `（${rentalDays}日間: ${Utils.formatPrice(totalPrice)}）`;
+      
+      const inputType = type === 'insurance' ? 'radio' : 'checkbox';
+      const inputName = type === 'insurance' ? 'insurance' : option.id;
+      const isChecked = type === 'insurance' 
+        ? selectedInsurance === option.id 
+        : selectedOptions.includes(option.id);
+      
+      card.innerHTML = `
+        <div class="option-header">
+          <input type="${inputType}" 
+                 name="${inputName}" 
+                 id="${option.id}" 
+                 class="option-checkbox" 
+                 ${isChecked ? 'checked' : ''}>
+          <div class="option-content">
+            <div class="option-title">
+              <label for="${option.id}">${option.name}</label>
+              <span class="option-price">${priceText}${totalText}</span>
+            </div>
+            <div class="option-description">${option.description}</div>
+            ${option.details ? `
+              <div class="option-details">
+                <div class="option-details-title">詳細</div>
+                <ul>
+                  ${option.details.map(d => `<li>${d}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+      
+      card.onclick = (e) => {
+        if (e.target.tagName === 'INPUT') return;
+        toggleOption(option.id, type);
+      };
+      
+      const checkbox = card.querySelector('input');
+      checkbox.onchange = () => toggleOption(option.id, type);
+      
+      return card;
+    }
+
+    // オプション選択切り替え
+    function toggleOption(optionId, type) {
+      if (type === 'insurance') {
+        // 免責補償は単一選択
+        selectedInsurance = optionId;
+        
+        // すべてのカードの選択状態をクリア
+        document.querySelectorAll('#insuranceOptions .option-card').forEach(card => {
+          card.classList.remove('selected');
+          card.querySelector('input').checked = false;
+        });
+        
+        // 選択したカードを強調
+        const selectedCard = document.getElementById(optionId).closest('.option-card');
+        selectedCard.classList.add('selected');
+        selectedCard.querySelector('input').checked = true;
+      } else {
+        // 追加オプションは複数選択
+        const index = selectedOptions.indexOf(optionId);
+        if (index > -1) {
+          selectedOptions.splice(index, 1);
+        } else {
+          selectedOptions.push(optionId);
+        }
+        
+        // カードの選択状態を更新
+        const card = document.getElementById(optionId).closest('.option-card');
+        const checkbox = card.querySelector('input');
+        
+        if (selectedOptions.includes(optionId)) {
+          card.classList.add('selected');
+          checkbox.checked = true;
+        } else {
+          card.classList.remove('selected');
+          checkbox.checked = false;
+        }
+      }
+      
+      updateTotal();
+    }
+
+    // 合計金額更新
+    function updateTotal() {
+      let insuranceTotal = 0;
+      let optionsTotal = 0;
+      
+      // 免責補償
+      if (selectedInsurance && selectedInsurance !== 'insurance-none') {
+        const insurance = InsuranceOptions.find(o => o.id === selectedInsurance);
+        if (insurance) {
+          insuranceTotal = insurance.pricePerDay * rentalDays;
+        }
+      }
+      
+      // 追加オプション
+      selectedOptions.forEach(optionId => {
+        const option = AdditionalOptions.find(o => o.id === optionId);
+        if (option) {
+          optionsTotal += option.pricePerDay * rentalDays;
+        }
+      });
+      
+      // 表示更新
+      document.getElementById('totalBasePrice').textContent = Utils.formatPrice(basePrice);
+      
+      if (insuranceTotal > 0) {
+        document.getElementById('insuranceRow').style.display = 'flex';
+        document.getElementById('totalInsurance').textContent = Utils.formatPrice(insuranceTotal);
+      } else {
+        document.getElementById('insuranceRow').style.display = 'none';
+      }
+      
+      if (optionsTotal > 0) {
+        document.getElementById('optionsRow').style.display = 'flex';
+        document.getElementById('totalOptions').textContent = Utils.formatPrice(optionsTotal);
+      } else {
+        document.getElementById('optionsRow').style.display = 'none';
+      }
+      
+      const grandTotal = basePrice + insuranceTotal + optionsTotal;
+      document.getElementById('grandTotal').textContent = Utils.formatPrice(grandTotal);
+    }
+
+    // 次へ進む
+    function goNext() {
+      // 免責補償が未選択の場合、確認
+      if (!selectedInsurance) {
+        if (!confirm('免責補償に加入せずに進みますか？\n事故時は規定の免責額をお支払いいただきます。')) {
+          return;
+        }
+        selectedInsurance = 'insurance-none';
+      }
+      
+      // オプション料金を計算
+      let insuranceTotal = 0;
+      let optionsTotal = 0;
+      
+      if (selectedInsurance && selectedInsurance !== 'insurance-none') {
+        const insurance = InsuranceOptions.find(o => o.id === selectedInsurance);
+        if (insurance) {
+          insuranceTotal = insurance.pricePerDay * rentalDays;
+        }
+      }
+      
+      selectedOptions.forEach(optionId => {
+        const option = AdditionalOptions.find(o => o.id === optionId);
+        if (option) {
+          optionsTotal += option.pricePerDay * rentalDays;
+        }
+      });
+      
+      // セッションに保存
+      ReservationStorage.save({
+        selectedInsurance: selectedInsurance,
+        selectedOptions: selectedOptions,
+        insurancePrice: insuranceTotal,
+        optionsPrice: optionsTotal,
+        totalPrice: basePrice + insuranceTotal + optionsTotal
+      });
+      
+      // 次のページへ
+      window.location.href = 'reserve-return.html';
+    }
+
+    // 戻る
+    function goBack() {
+      window.location.href = 'reserve-pickup.html';
+    }
+
+    // ログアウト
+    function logout() {
+      if (confirm('ログアウトしますか?')) {
+        ReservationStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 初期化
+    loadReservationData();
+    renderInsuranceOptions();
+    renderAdditionalOptions();
+    updateTotal();
+  </script>
+</body>
+</html>

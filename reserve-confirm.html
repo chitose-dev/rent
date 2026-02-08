@@ -194,9 +194,31 @@
       </div>
     </div>
 
+    <!-- オプション情報 -->
+    <div class="confirm-section" id="optionsSection" style="display: none;">
+      <div class="confirm-title">オプション</div>
+      <div class="confirm-row" id="confirmInsuranceRow" style="display: none;">
+        <span class="confirm-label">免責補償</span>
+        <span class="confirm-value" id="confirmInsurance">-</span>
+      </div>
+      <div id="confirmOptionsContainer"></div>
+    </div>
+
     <!-- 決済情報 -->
     <div class="confirm-section">
-      <div class="confirm-title">決済情報</div>
+      <div class="confirm-title">料金・決済</div>
+      <div class="confirm-row">
+        <span class="confirm-label">基本料金</span>
+        <span class="confirm-value" id="confirmBasePrice">-</span>
+      </div>
+      <div class="confirm-row" id="confirmInsurancePriceRow" style="display: none;">
+        <span class="confirm-label">免責補償</span>
+        <span class="confirm-value" id="confirmInsurancePrice">-</span>
+      </div>
+      <div class="confirm-row" id="confirmOptionsPriceRow" style="display: none;">
+        <span class="confirm-label">オプション</span>
+        <span class="confirm-value" id="confirmOptionsPrice">-</span>
+      </div>
       <div class="confirm-row">
         <span class="confirm-label">決済方法</span>
         <span class="confirm-value" id="confirmPayment">-</span>
@@ -268,6 +290,21 @@
       displayConfirmation();
     }
 
+    // 免責補償名称マップ
+    const InsuranceNames = {
+      'insurance-none': '加入なし',
+      'insurance-standard': '免責補償制度（CDW）',
+      'insurance-full': 'フルカバー補償（CDW+NOC）'
+    };
+    
+    // オプション名称マップ
+    const OptionNames = {
+      'option-childseat': 'チャイルドシート',
+      'option-juniorseat': 'ジュニアシート',
+      'option-snowchain': 'スノーチェーン',
+      'option-etc': 'ETCカード'
+    };
+
     // 確認内容を表示
     function displayConfirmation() {
       const carClass = Utils.getCarClass(reservationData.carClassId);
@@ -282,13 +319,60 @@
       document.getElementById('confirmReturn').textContent = 
         Utils.formatDateTimeJP(new Date(reservationData.returnDateTime));
       
-      // 決済情報
+      // オプション情報
+      let hasOptions = false;
+      
+      if (reservationData.selectedInsurance && reservationData.selectedInsurance !== 'insurance-none') {
+        hasOptions = true;
+        document.getElementById('confirmInsuranceRow').style.display = 'flex';
+        document.getElementById('confirmInsurance').textContent = 
+          InsuranceNames[reservationData.selectedInsurance] || reservationData.selectedInsurance;
+      }
+      
+      if (reservationData.selectedOptions && reservationData.selectedOptions.length > 0) {
+        hasOptions = true;
+        const container = document.getElementById('confirmOptionsContainer');
+        reservationData.selectedOptions.forEach(optionId => {
+          const row = document.createElement('div');
+          row.className = 'confirm-row';
+          row.innerHTML = `
+            <span class="confirm-label">追加オプション</span>
+            <span class="confirm-value">${OptionNames[optionId] || optionId}</span>
+          `;
+          container.appendChild(row);
+        });
+      }
+      
+      if (hasOptions) {
+        document.getElementById('optionsSection').style.display = 'block';
+      }
+      
+      // 料金情報
+      document.getElementById('confirmBasePrice').textContent = 
+        Utils.formatPrice(reservationData.planPrice);
+      
+      if (reservationData.insurancePrice && reservationData.insurancePrice > 0) {
+        document.getElementById('confirmInsurancePriceRow').style.display = 'flex';
+        document.getElementById('confirmInsurancePrice').textContent = 
+          Utils.formatPrice(reservationData.insurancePrice);
+      }
+      
+      if (reservationData.optionsPrice && reservationData.optionsPrice > 0) {
+        document.getElementById('confirmOptionsPriceRow').style.display = 'flex';
+        document.getElementById('confirmOptionsPrice').textContent = 
+          Utils.formatPrice(reservationData.optionsPrice);
+      }
+      
+      // 決済方法
       const paymentText = reservationData.paymentMethod === 'card' 
         ? 'クレジットカード' 
         : '現地払い';
       document.getElementById('confirmPayment').textContent = paymentText;
+      
+      // 合計金額（オプション込み）
+      const totalPrice = reservationData.totalPrice || reservationData.planPrice;
       document.getElementById('confirmPrice').textContent = 
-        Utils.formatPrice(reservationData.planPrice);
+        Utils.formatPrice(totalPrice);
     }
 
     // 確定ボタンの有効/無効切り替え
