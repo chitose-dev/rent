@@ -111,9 +111,9 @@
     // 予約データを取得
     function loadReservationData() {
       const data = ReservationStorage.get();
-      if (!data || !data.startDate) {
-        alert('レンタル開始日を選択してください');
-        window.location.href = 'reserve-date.html';
+      if (!data || !data.selectedInsurance) {
+        alert('オプションを選択してください');
+        window.location.href = 'reserve-options.html';
         return;
       }
       
@@ -184,13 +184,13 @@
         pickupDateTime: pickupDateTime
       });
       
-      // 次のページへ（オプション選択）
-      window.location.href = 'reserve-options.html';
+      // 次のページへ（返却日時選択）
+      window.location.href = 'reserve-return.html';
     }
 
     // 戻る
     function goBack() {
-      window.location.href = 'reserve-date.html';
+      window.location.href = 'reserve-options.html';
     }
 
     // ログアウト

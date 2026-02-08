@@ -156,7 +156,7 @@
     <div id="rentalContent">
       <!-- 予約がない場合 -->
       <div id="rentalEmpty" class="rental-empty" style="display: none;">
-        <div class="rental-empty-icon">🚗</div>
+        <div class="rental-empty-icon"></div>
         <h2 class="rental-empty-title">現在のレンタルはありません</h2>
         <p class="rental-empty-message">新しい予約を作成して、レンタカーをご利用ください。</p>
         <button class="btn btn-primary" onclick="goToNewReservation()">
@@ -175,7 +175,7 @@
     function switchTab(tab) {
       const pages = {
         'rental': 'mypage-rental.html',
-        'new': 'reserve-class.html',
+        'new': 'reserve-days.html',
         'history': 'mypage-history.html',
         'profile': 'mypage-profile.html',
         'withdraw': 'mypage-withdraw.html'
@@ -313,7 +313,8 @@
 
     // 新規予約へ
     function goToNewReservation() {
-      window.location.href = 'reserve-class.html';
+      ReservationStorage.clear();
+      window.location.href = 'reserve-days.html';
     }
 
     // ログアウト

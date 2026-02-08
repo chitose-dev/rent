@@ -200,16 +200,8 @@
     <!-- 選択内容サマリー（前ページからの情報） -->
     <div class="date-info">
       <div class="info-row">
-        <span class="info-label">車両クラス:</span>
-        <span class="info-value" id="infoCarClass">-</span>
-      </div>
-      <div class="info-row">
         <span class="info-label">レンタル日数:</span>
         <span class="info-value" id="infoPlanDays">-</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">合計金額:</span>
-        <span class="info-value" id="infoPlanPrice">-</span>
       </div>
     </div>
     
@@ -263,17 +255,14 @@
     function loadReservationData() {
       const data = ReservationStorage.get();
       if (!data || !data.planDays) {
-        alert('車両クラスを選択してください');
-        window.location.href = 'reserve-class.html';
+        alert('レンタル日数を選択してください');
+        window.location.href = 'reserve-days.html';
         return;
       }
       planDays = data.planDays;
       
       // 前ページからの情報を表示
-      const carClass = Utils.getCarClass(data.carClassId);
-      document.getElementById('infoCarClass').textContent = carClass.name;
       document.getElementById('infoPlanDays').textContent = data.planLabel;
-      document.getElementById('infoPlanPrice').textContent = Utils.formatPrice(data.planPrice);
       
       // 前回の選択を復元
       if (data.startDate) {
@@ -421,13 +410,13 @@
         endDate: Utils.formatDate(endDate)
       });
       
-      // 次のページへ
-      window.location.href = 'reserve-pickup.html';
+      // 次のページへ（車両クラス選択）
+      window.location.href = 'reserve-class.html';
     }
 
     // 戻る
     function goBack() {
-      window.location.href = 'reserve-class.html';
+      window.location.href = 'reserve-days.html';
     }
 
     // ログアウト
