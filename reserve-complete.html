@@ -267,8 +267,10 @@
         ? 'クレジットカード' 
         : '現地払い';
       document.getElementById('summaryPayment').textContent = paymentText;
+      // 合計金額（オプション込み）
+      const totalPrice = data.totalPrice || data.planPrice;
       document.getElementById('summaryPrice').textContent = 
-        Utils.formatPrice(data.planPrice);
+        Utils.formatPrice(totalPrice);
       
       // 現地払いの場合は決済ステップを非表示
       if (data.paymentMethod === 'onsite') {

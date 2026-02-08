@@ -139,6 +139,18 @@
         <span class="summary-value" id="summaryReturn">-</span>
       </div>
       <div class="summary-row">
+        <span class="summary-label">基本料金:</span>
+        <span class="summary-value" id="summaryBasePrice">-</span>
+      </div>
+      <div class="summary-row" id="insuranceRow" style="display: none;">
+        <span class="summary-label">免責補償:</span>
+        <span class="summary-value" id="summaryInsurance">-</span>
+      </div>
+      <div class="summary-row" id="optionsRow" style="display: none;">
+        <span class="summary-label">オプション:</span>
+        <span class="summary-value" id="summaryOptions">-</span>
+      </div>
+      <div class="summary-row">
         <span class="summary-label">合計金額:</span>
         <span class="summary-value" id="summaryPrice">-</span>
       </div>
@@ -210,8 +222,28 @@
         Utils.formatDateTimeJP(new Date(data.pickupDateTime));
       document.getElementById('summaryReturn').textContent = 
         Utils.formatDateTimeJP(new Date(data.returnDateTime));
-      document.getElementById('summaryPrice').textContent = 
+      
+      // 料金表示
+      document.getElementById('summaryBasePrice').textContent = 
         Utils.formatPrice(data.planPrice);
+      
+      // オプション料金表示
+      if (data.insurancePrice && data.insurancePrice > 0) {
+        document.getElementById('insuranceRow').style.display = 'flex';
+        document.getElementById('summaryInsurance').textContent = 
+          Utils.formatPrice(data.insurancePrice);
+      }
+      
+      if (data.optionsPrice && data.optionsPrice > 0) {
+        document.getElementById('optionsRow').style.display = 'flex';
+        document.getElementById('summaryOptions').textContent = 
+          Utils.formatPrice(data.optionsPrice);
+      }
+      
+      // 合計金額（オプション込み）
+      const totalPrice = data.totalPrice || data.planPrice;
+      document.getElementById('summaryPrice').textContent = 
+        Utils.formatPrice(totalPrice);
       
       // 前回の選択を復元
       if (data.paymentMethod) {
