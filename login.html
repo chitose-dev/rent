@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン - トクノリレンタカー</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .login-container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: var(--spacing-xl) var(--spacing-md);
+    }
+    
+    .login-header {
+      text-align: center;
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .login-logo {
+      font-size: var(--font-xxl);
+      font-weight: bold;
+      color: var(--primary-dark);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .login-subtitle {
+      color: var(--text-light);
+    }
+    
+    .login-card {
+      background-color: var(--bg-white);
+      border-radius: 8px;
+      padding: var(--spacing-xl);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .login-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--border-color);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .login-tab {
+      flex: 1;
+      padding: var(--spacing-md);
+      text-align: center;
+      background: none;
+      font-weight: bold;
+      color: var(--text-light);
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+      margin-bottom: -2px;
+    }
+    
+    .login-tab:hover {
+      color: var(--text-dark);
+    }
+    
+    .login-tab.active {
+      color: var(--primary-dark);
+      border-bottom-color: var(--primary-color);
+    }
+    
+    .login-form,
+    .register-form {
+      display: none;
+    }
+    
+    .login-form.active,
+    .register-form.active {
+      display: block;
+    }
+    
+    .forgot-password {
+      text-align: right;
+      margin-top: calc(var(--spacing-sm) * -1);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .forgot-password a {
+      font-size: var(--font-sm);
+      color: var(--text-light);
+    }
+    
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: var(--spacing-lg) 0;
+    }
+    
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background-color: var(--border-color);
+    }
+    
+    .divider-text {
+      padding: 0 var(--spacing-md);
+      color: var(--text-light);
+      font-size: var(--font-sm);
+    }
+    
+    .social-login {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+    
+    .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md);
+      border: 2px solid var(--border-color);
+      border-radius: 4px;
+      background-color: var(--bg-white);
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+    
+    .social-btn:hover {
+      background-color: var(--bg-light);
+      border-color: var(--primary-color);
+    }
+    
+    .social-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-lg);
+    }
+    
+    .login-footer {
+      text-align: center;
+      margin-top: var(--spacing-xl);
+      color: var(--text-light);
+      font-size: var(--font-sm);
+    }
+    
+    .login-footer a {
+      color: var(--primary-dark);
+      font-weight: bold;
+    }
+    
+    .password-requirements {
+      font-size: var(--font-sm);
+      color: var(--text-light);
+      margin-top: var(--spacing-xs);
+      line-height: 1.6;
+    }
+    
+    @media (max-width: 768px) {
+      .login-container {
+        padding: var(--spacing-lg) var(--spacing-md);
+      }
+      
+      .login-card {
+        padding: var(--spacing-lg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-container">
+      <a href="login.html" class="header-logo">トクノリレンタカー</a>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <div class="login-container">
+    <div class="login-header">
+      <div class="login-logo">🚗 トクノリレンタカー</div>
+      <p class="login-subtitle">レンタカー予約システム</p>
+    </div>
+
+    <div class="login-card">
+      <!-- タブ -->
+      <div class="login-tabs">
+        <button class="login-tab active" onclick="switchLoginTab('login')">ログイン</button>
+        <button class="login-tab" onclick="switchLoginTab('register')">新規登録</button>
+      </div>
+
+      <!-- ログインフォーム -->
+      <form id="loginForm" class="login-form active" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginEmail" class="form-label required">メールアドレス</label>
+          <input type="email" id="loginEmail" class="form-input" placeholder="example@example.com" required>
+          <span class="form-error">メールアドレスを入力してください</span>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword" class="form-label required">パスワード</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="パスワード" required>
+          <span class="form-error">パスワードを入力してください</span>
+        </div>
+
+        <div class="forgot-password">
+          <a href="#" onclick="showForgotPassword()">パスワードをお忘れですか？</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">ログイン</button>
+      </form>
+
+      <!-- 新規登録フォーム -->
+      <form id="registerForm" class="register-form" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label for="registerName" class="form-label required">氏名</label>
+          <input type="text" id="registerName" class="form-input" placeholder="山田 太郎" required>
+          <span class="form-error">氏名を入力してください</span>
+        </div>
+
+        <div class="form-group">
+          <label for="registerEmail" class="form-label required">メールアドレス</label>
+          <input type="email" id="registerEmail" class="form-input" placeholder="example@example.com" required>
+          <span class="form-error">正しいメールアドレスを入力してください</span>
+        </div>
+
+        <div class="form-group">
+          <label for="registerPhone" class="form-label required">電話番号</label>
+          <input type="tel" id="registerPhone" class="form-input" placeholder="09012345678" required>
+          <span class="form-error">電話番号を入力してください</span>
+        </div>
+
+        <div class="form-group">
+          <label for="registerPassword" class="form-label required">パスワード</label>
+          <input type="password" id="registerPassword" class="form-input" placeholder="8文字以上" minlength="8" required>
+          <span class="form-error">8文字以上のパスワードを入力してください</span>
+          <div class="password-requirements">
+            ※ 8文字以上で、英数字を含めてください
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="registerPasswordConfirm" class="form-label required">パスワード（確認）</label>
+          <input type="password" id="registerPasswordConfirm" class="form-input" placeholder="パスワード再入力" minlength="8" required>
+          <span class="form-error">パスワードが一致しません</span>
+        </div>
+
+        <div class="checkbox-group mb-lg">
+          <input type="checkbox" id="agreeTerms" required>
+          <label for="agreeTerms">
+            <a href="#" onclick="showTerms()">利用規約</a>および<a href="#" onclick="showPrivacy()">プライバシーポリシー</a>に同意します
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">新規登録</button>
+      </form>
+
+      <!-- ソーシャルログイン（将来の拡張用） -->
+      <!--
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">または</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <div class="social-login">
+        <button type="button" class="social-btn" onclick="socialLogin('google')">
+          <span class="social-icon">G</span>
+          <span>Googleでログイン</span>
+        </button>
+        <button type="button" class="social-btn" onclick="socialLogin('line')">
+          <span class="social-icon">L</span>
+          <span>LINEでログイン</span>
+        </button>
+      </div>
+      -->
+    </div>
+
+    <div class="login-footer">
+      <p>お困りの方は <a href="#">お問い合わせ</a> までご連絡ください</p>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    // タブ切り替え
+    function switchLoginTab(tab) {
+      // タブスタイル更新
+      document.querySelectorAll('.login-tab').forEach((el, index) => {
+        if ((tab === 'login' && index === 0) || (tab === 'register' && index === 1)) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      });
+      
+      // フォーム表示切り替え
+      document.getElementById('loginForm').classList.toggle('active', tab === 'login');
+      document.getElementById('registerForm').classList.toggle('active', tab === 'register');
+    }
+
+    // ログイン処理
+    function handleLogin(event) {
+      event.preventDefault();
+      
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      // 将来はAPIに送信
+      console.log('ログイン:', { email, password });
+      
+      // 仮のログイン成功処理
+      // 実際にはAPIでトークンを取得し、ローカルストレージに保存
+      localStorage.setItem('userToken', 'demo-token');
+      localStorage.setItem('userEmail', email);
+      
+      // マイページへ遷移
+      window.location.href = 'mypage-rental.html';
+    }
+
+    // 新規登録処理
+    function handleRegister(event) {
+      event.preventDefault();
+      
+      const name = document.getElementById('registerName').value;
+      const email = document.getElementById('registerEmail').value;
+      const phone = document.getElementById('registerPhone').value;
+      const password = document.getElementById('registerPassword').value;
+      const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+      
+      // パスワード確認
+      if (password !== passwordConfirm) {
+        alert('パスワードが一致しません');
+        return;
+      }
+      
+      // 将来はAPIに送信
+      console.log('新規登録:', { name, email, phone, password });
+      
+      // 仮の登録成功処理
+      alert('登録が完了しました！ログインしてください。');
+      switchLoginTab('login');
+      document.getElementById('loginEmail').value = email;
+    }
+
+    // パスワード忘れ
+    function showForgotPassword() {
+      const email = prompt('パスワードリセット用のメールアドレスを入力してください:');
+      if (email) {
+        // 将来はAPIに送信
+        console.log('パスワードリセット:', { email });
+        alert('パスワードリセット用のメールを送信しました。\nメールをご確認ください。');
+      }
+    }
+
+    // 利用規約表示
+    function showTerms() {
+      alert('利用規約ページを表示します（将来実装）');
+    }
+
+    // プライバシーポリシー表示
+    function showPrivacy() {
+      alert('プライバシーポリシーページを表示します（将来実装）');
+    }
+
+    // ソーシャルログイン（将来の拡張用）
+    function socialLogin(provider) {
+      console.log('ソーシャルログイン:', provider);
+      alert(`${provider}ログインは準備中です`);
+    }
+
+    // 既にログイン済みの場合はマイページへ
+    function checkAuth() {
+      const token = localStorage.getItem('userToken');
+      if (token) {
+        // トークンの有効性チェック（将来はAPIで検証）
+        // 今は単純にマイページへ遷移
+        window.location.href = 'mypage-rental.html';
+      }
+    }
+
+    // 初期化
+    // checkAuth(); // 開発中はコメントアウト
+  </script>
+</body>
+</html>
