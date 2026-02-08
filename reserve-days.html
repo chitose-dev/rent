@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>レンタル日数選択 - トクノリレンタカー</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .days-card {
+      border: 3px solid var(--border-color);
+      border-radius: 8px;
+      padding: var(--spacing-lg);
+      cursor: pointer;
+      transition: all 0.3s;
+      background-color: var(--bg-white);
+      text-align: center;
+    }
+    
+    .days-card:hover {
+      border-color: var(--primary-color);
+      background-color: var(--primary-light);
+    }
+    
+    .days-card.selected {
+      border-color: var(--primary-color);
+      background-color: var(--primary-light);
+    }
+    
+    .days-card-number {
+      font-size: var(--font-xxl);
+      font-weight: bold;
+      color: var(--primary-dark);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .days-card-label {
+      font-size: var(--font-md);
+      color: var(--text-dark);
+    }
+    
+    .days-card-note {
+      font-size: var(--font-sm);
+      color: var(--text-light);
+      margin-top: var(--spacing-sm);
+    }
+    
+    .custom-days-section {
+      background-color: var(--bg-white);
+      border-radius: 8px;
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .custom-days-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .custom-days-input-group {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+    
+    .custom-days-input {
+      width: 100px;
+      padding: var(--spacing-md);
+      font-size: var(--font-lg);
+      border: 2px solid var(--border-color);
+      border-radius: 4px;
+      text-align: center;
+    }
+    
+    .custom-days-input:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+    
+    .custom-days-suffix {
+      font-size: var(--font-lg);
+      font-weight: bold;
+    }
+    
+    .selected-info {
+      background-color: var(--primary-light);
+      padding: var(--spacing-lg);
+      border-radius: 8px;
+      margin-bottom: var(--spacing-lg);
+      display: none;
+    }
+    
+    .selected-info.active {
+      display: block;
+    }
+    
+    .selected-info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--font-lg);
+    }
+    
+    .selected-info-label {
+      font-weight: bold;
+    }
+    
+    .selected-info-value {
+      color: var(--primary-dark);
+      font-weight: bold;
+    }
+    
+    @media (max-width: 768px) {
+      .days-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-container">
+      <a href="mypage-rental.html" class="header-logo">トクノリレンタカー</a>
+      <nav class="header-nav">
+        <a href="mypage-rental.html">マイページ</a>
+        <a href="#" onclick="logout()">ログアウト</a>
+      </nav>
+      <button class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <div class="container">
+    <h1 class="page-title">レンタル日数を選択</h1>
+    
+    <div class="alert alert-info mb-lg">
+      ご利用になる日数を選択してください。料金は車両クラスにより異なります。
+    </div>
+
+    <!-- 日数選択カード -->
+    <div class="section">
+      <div class="days-grid">
+        <div class="days-card" data-days="1" onclick="selectDays(1)">
+          <div class="days-card-number">1</div>
+          <div class="days-card-label">日</div>
+        </div>
+        
+        <div class="days-card" data-days="2" onclick="selectDays(2)">
+          <div class="days-card-number">2</div>
+          <div class="days-card-label">日</div>
+        </div>
+        
+        <div class="days-card" data-days="3" onclick="selectDays(3)">
+          <div class="days-card-number">3</div>
+          <div class="days-card-label">日</div>
+        </div>
+        
+        <div class="days-card" data-days="7" onclick="selectDays(7)">
+          <div class="days-card-number">7</div>
+          <div class="days-card-label">日（1週間）</div>
+          <div class="days-card-note">お得なウィークリープラン</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- カスタム日数入力 -->
+    <div class="custom-days-section">
+      <div class="custom-days-title">その他の日数</div>
+      <div class="custom-days-input-group">
+        <input type="number" 
+               id="customDays" 
+               class="custom-days-input" 
+               min="1" 
+               max="30" 
+               placeholder="--"
+               onchange="selectCustomDays()">
+        <span class="custom-days-suffix">日間</span>
+      </div>
+      <p class="text-small text-muted mt-sm">1〜30日の範囲で入力してください</p>
+    </div>
+
+    <!-- 選択情報 -->
+    <div id="selectedInfo" class="selected-info">
+      <div class="selected-info-row">
+        <span class="selected-info-label">レンタル日数:</span>
+        <span class="selected-info-value" id="selectedDaysText">-</span>
+      </div>
+    </div>
+
+    <!-- ボタン -->
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goBack()">戻る</button>
+      <button class="btn btn-primary btn-full" id="nextBtn" disabled onclick="goNext()">次へ進む</button>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    let selectedDays = null;
+
+    // 初期化
+    function init() {
+      // セッションストレージをクリア（新規予約のため）
+      ReservationStorage.clear();
+      
+      // 前回の選択を復元（戻るボタンで戻ってきた場合）
+      const data = ReservationStorage.get();
+      if (data && data.planDays) {
+        selectDays(data.planDays);
+      }
+    }
+
+    // 日数選択（プリセット）
+    function selectDays(days) {
+      selectedDays = days;
+      
+      // 全カードの選択状態をクリア
+      document.querySelectorAll('.days-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      
+      // カスタム入力をクリア
+      document.getElementById('customDays').value = '';
+      
+      // 選択したカードを強調
+      const selectedCard = document.querySelector(`.days-card[data-days="${days}"]`);
+      if (selectedCard) {
+        selectedCard.classList.add('selected');
+      }
+      
+      updateSelectedInfo();
+    }
+
+    // カスタム日数選択
+    function selectCustomDays() {
+      const input = document.getElementById('customDays');
+      const days = parseInt(input.value);
+      
+      if (days >= 1 && days <= 30) {
+        selectedDays = days;
+        
+        // プリセットカードの選択状態をクリア
+        document.querySelectorAll('.days-card').forEach(card => {
+          card.classList.remove('selected');
+        });
+        
+        updateSelectedInfo();
+      } else {
+        input.value = '';
+        selectedDays = null;
+        updateSelectedInfo();
+      }
+    }
+
+    // 選択情報更新
+    function updateSelectedInfo() {
+      const infoBox = document.getElementById('selectedInfo');
+      const nextBtn = document.getElementById('nextBtn');
+      
+      if (selectedDays) {
+        document.getElementById('selectedDaysText').textContent = `${selectedDays}日間`;
+        infoBox.classList.add('active');
+        nextBtn.disabled = false;
+      } else {
+        infoBox.classList.remove('active');
+        nextBtn.disabled = true;
+      }
+    }
+
+    // 次へ進む
+    function goNext() {
+      if (!selectedDays) {
+        alert('レンタル日数を選択してください');
+        return;
+      }
+      
+      // セッションに保存
+      ReservationStorage.save({
+        planDays: selectedDays,
+        planLabel: selectedDays === 7 ? '1週間' : `${selectedDays}日`
+      });
+      
+      // 次のページへ（開始日選択）
+      window.location.href = 'reserve-date.html';
+    }
+
+    // 戻る
+    function goBack() {
+      window.location.href = 'mypage-new.html';
+    }
+
+    // ログアウト
+    function logout() {
+      if (confirm('ログアウトしますか?')) {
+        ReservationStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+
+    // 初期化
+    init();
+  </script>
+</body>
+</html>

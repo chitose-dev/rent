@@ -175,7 +175,7 @@
     function switchTab(tab) {
       const pages = {
         'rental': 'mypage-rental.html',
-        'new': 'reserve-class.html',
+        'new': 'reserve-days.html',
         'history': 'mypage-history.html',
         'profile': 'mypage-profile.html',
         'withdraw': 'mypage-withdraw.html'
@@ -313,7 +313,8 @@
 
     // 新規予約へ
     function goToNewReservation() {
-      window.location.href = 'reserve-class.html';
+      ReservationStorage.clear();
+      window.location.href = 'reserve-days.html';
     }
 
     // ログアウト
