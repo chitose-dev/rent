@@ -111,22 +111,22 @@ textarea {
 }
 
 .header-logo-icon {
-  height: 40px;
+  height: 56px;
   width: auto;
 }
 
 .header-logo-text {
-  height: 28px;
+  height: 40px;
   width: auto;
 }
 
 @media (max-width: 768px) {
   .header-logo-icon {
-    height: 32px;
+    height: 44px;
   }
   
   .header-logo-text {
-    height: 22px;
+    height: 32px;
   }
 }
 
