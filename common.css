@@ -101,13 +101,33 @@ textarea {
 }
 
 .header-logo {
-  font-size: var(--font-xl);
-  font-weight: bold;
-  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
 .header-logo:hover {
   text-decoration: none;
+}
+
+.header-logo-icon {
+  height: 40px;
+  width: auto;
+}
+
+.header-logo-text {
+  height: 28px;
+  width: auto;
+}
+
+@media (max-width: 768px) {
+  .header-logo-icon {
+    height: 32px;
+  }
+  
+  .header-logo-text {
+    height: 22px;
+  }
 }
 
 .header-nav {
