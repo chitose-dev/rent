@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン - 管理画面</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f5f5;
+    }
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+    }
+    .login-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 40px;
+    }
+    .login-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .login-header h1 {
+      font-size: 24px;
+      color: #333;
+      margin: 0 0 8px;
+    }
+    .login-header p {
+      color: #666;
+      margin: 0;
+      font-size: 14px;
+    }
+    .login-form .form-group {
+      margin-bottom: 20px;
+    }
+    .login-form label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #333;
+      font-size: 14px;
+    }
+    .login-form input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 15px;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+    .login-form input:focus {
+      outline: none;
+      border-color: #333;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .login-btn:hover {
+      background: #555;
+    }
+    .error-message {
+      background: #fee;
+      color: #c00;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+    .error-message.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <h1>管理画面</h1>
+        <p>ログインしてください</p>
+      </div>
+      <div class="error-message" id="errorMessage">
+        IDまたはパスワードが正しくありません
+      </div>
+      <form class="login-form" id="loginForm">
+        <div class="form-group">
+          <label for="adminId">管理者ID</label>
+          <input type="text" id="adminId" name="adminId" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="adminPassword">パスワード</label>
+          <input type="password" id="adminPassword" name="adminPassword" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="login-btn">ログイン</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    // デモ用: 実際にはバックエンドで認証
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('adminId').value;
+      const password = document.getElementById('adminPassword').value;
+      
+      // デモ用認証（実際はAPIで検証）
+      if (id && password) {
+        sessionStorage.setItem('adminLoggedIn', 'true');
+        sessionStorage.setItem('adminId', id);
+        window.location.href = 'index.html';
+      } else {
+        document.getElementById('errorMessage').classList.add('show');
+      }
+    });
+
+    // 既にログイン済みならダッシュボードへ
+    if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
