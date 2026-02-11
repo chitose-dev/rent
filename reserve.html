@@ -118,9 +118,19 @@
     .calendar-container {
       background-color: var(--bg-light);
       border-radius: 8px;
-      padding: var(--spacing-md);
+      padding: var(--spacing-lg);
       margin-top: var(--spacing-md);
-      max-width: 400px;
+      max-width: 500px;
+    }
+    
+    .calendar-guide {
+      background: var(--primary-light);
+      padding: var(--spacing-md);
+      border-radius: 6px;
+      margin-bottom: var(--spacing-md);
+      font-size: var(--font-md);
+      text-align: center;
+      font-weight: 500;
     }
     
     .calendar-header {
@@ -183,15 +193,15 @@
     .calendar-day {
       aspect-ratio: 1;
       border: 2px solid var(--border-color);
-      border-radius: 6px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       transition: all 0.2s;
-      font-weight: 500;
+      font-weight: 600;
       background: var(--bg-white);
-      font-size: var(--font-sm);
+      font-size: var(--font-md);
     }
     
     .calendar-day:not(.disabled):hover {
@@ -598,8 +608,8 @@
       <!-- カレンダー（日数選択後に表示） -->
       <div id="calendarSection" style="display: none;">
         <div class="form-group">
-          <label class="form-label">受取日を選択</label>
           <div class="calendar-container">
+            <div class="calendar-guide" id="calendarGuide">受取希望の日付を選択してください</div>
             <div class="calendar-header">
               <button type="button" class="calendar-nav-btn" id="prevMonthBtn" onclick="changeMonth(-1)">◀</button>
               <span class="calendar-month" id="calendarMonth"></span>
@@ -1012,13 +1022,16 @@
       const month = currentCalendarDate.getMonth();
       
       // ヘッダー更新
-      let headerText = `${year}年${month + 1}月`;
+      document.getElementById('calendarMonth').textContent = `${year}年${month + 1}月`;
+      
+      // ガイドメッセージ更新
       if (!selectedStartDate) {
-        headerText += ' - 開始日を選択';
+        document.getElementById('calendarGuide').textContent = '受取希望の日付を選択してください';
       } else if (!selectedEndDate) {
-        headerText += ' - 終了日を選択';
+        document.getElementById('calendarGuide').textContent = '返却希望の日付を選択してください。プラン途中でも料金は変わりません。';
+      } else {
+        document.getElementById('calendarGuide').textContent = '日程が選択されました';
       }
-      document.getElementById('calendarMonth').textContent = headerText;
       
       // 月の最初の日と最後の日
       const firstDay = new Date(year, month, 1);
@@ -1146,12 +1159,35 @@
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
         state.days = diffDays;
         
+        // より短いプランに自動変更
+        autoSelectPlan(diffDays);
+        
         // 時間選択を表示
         document.getElementById('timeSection').style.display = 'block';
       }
       
       updateDateInfo();
       renderCalendar();
+      updateSections();
+    }
+    
+    // より短いプランに自動変更
+    function autoSelectPlan(days) {
+      const plans = [1, 2, 3, 7];
+      let bestPlan = plans[plans.length - 1]; // デフォルトは最大
+      
+      // 選択日数以上の最小プランを選択
+      for (const plan of plans) {
+        if (plan >= days) {
+          bestPlan = plan;
+          break;
+        }
+      }
+      
+      // ボタンの選択状態を更新
+      document.querySelectorAll('.days-btn').forEach(btn => {
+        btn.classList.toggle('selected', parseInt(btn.dataset.days) === bestPlan);
+      });
     }
     
     // 日付フォーマット
