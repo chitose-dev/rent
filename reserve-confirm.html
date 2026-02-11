@@ -301,9 +301,9 @@
     // 予約データを取得
     function loadReservationData() {
       const data = ReservationStorage.get();
-      if (!data || !data.paymentMethod) {
-        alert('決済方法を選択してください');
-        window.location.href = 'reserve-payment.html';
+      if (!data || !data.vehicleClass) {
+        alert('予約情報を入力してください');
+        window.location.href = 'reserve.html';
         return;
       }
       
@@ -311,54 +311,46 @@
       displayConfirmation();
     }
 
-    // 免責補償名称マップ
-    const InsuranceNames = {
-      'insurance-none': '加入なし',
-      'insurance-standard': '免責補償制度（CDW）',
-      'insurance-full': 'フルカバー補償（CDW+NOC）'
-    };
-    
     // オプション名称マップ
     const OptionNames = {
-      'option-childseat': 'チャイルドシート',
-      'option-juniorseat': 'ジュニアシート',
-      'option-snowchain': 'スノーチェーン',
-      'option-etc': 'ETCカード'
+      'navi': 'カーナビ',
+      'etc': 'ETC車載器',
+      'child': 'チャイルドシート',
+      'junior': 'ジュニアシート'
     };
 
     // 確認内容を表示
     function displayConfirmation() {
-      const carClass = Utils.getCarClass(reservationData.carClassId);
-      
       // 車両情報
-      document.getElementById('confirmClass').textContent = carClass.name;
+      document.getElementById('confirmClass').textContent = reservationData.vehicleClassName;
       document.getElementById('confirmDays').textContent = reservationData.planLabel;
       
       // 日時情報
+      const startDate = new Date(reservationData.startDate);
+      const endDate = new Date(reservationData.endDate);
       document.getElementById('confirmPickup').textContent = 
-        Utils.formatDateTimeJP(new Date(reservationData.pickupDateTime));
+        `${startDate.getFullYear()}年${startDate.getMonth()+1}月${startDate.getDate()}日 ${reservationData.startTime}`;
       document.getElementById('confirmReturn').textContent = 
-        Utils.formatDateTimeJP(new Date(reservationData.returnDateTime));
+        `${endDate.getFullYear()}年${endDate.getMonth()+1}月${endDate.getDate()}日 ${reservationData.endTime}`;
       
       // オプション情報
       let hasOptions = false;
       
-      if (reservationData.selectedInsurance && reservationData.selectedInsurance !== 'insurance-none') {
+      if (reservationData.insurance && reservationData.insurance !== 'none') {
         hasOptions = true;
         document.getElementById('confirmInsuranceRow').style.display = 'flex';
-        document.getElementById('confirmInsurance').textContent = 
-          InsuranceNames[reservationData.selectedInsurance] || reservationData.selectedInsurance;
+        document.getElementById('confirmInsurance').textContent = reservationData.insuranceName;
       }
       
-      if (reservationData.selectedOptions && reservationData.selectedOptions.length > 0) {
+      if (reservationData.options && reservationData.options.length > 0) {
         hasOptions = true;
         const container = document.getElementById('confirmOptionsContainer');
-        reservationData.selectedOptions.forEach(optionId => {
+        reservationData.options.forEach(opt => {
           const row = document.createElement('div');
           row.className = 'confirm-row';
           row.innerHTML = `
             <span class="confirm-label">追加オプション</span>
-            <span class="confirm-value">${OptionNames[optionId] || optionId}</span>
+            <span class="confirm-value">${OptionNames[opt.name] || opt.name}</span>
           `;
           container.appendChild(row);
         });
@@ -369,31 +361,27 @@
       }
       
       // 料金情報
-      document.getElementById('confirmBasePrice').textContent = 
-        Utils.formatPrice(reservationData.planPrice);
+      const days = reservationData.planDays;
+      const basePrice = reservationData.classPrice * days;
+      document.getElementById('confirmBasePrice').textContent = `¥${basePrice.toLocaleString()}`;
       
       if (reservationData.insurancePrice && reservationData.insurancePrice > 0) {
         document.getElementById('confirmInsurancePriceRow').style.display = 'flex';
-        document.getElementById('confirmInsurancePrice').textContent = 
-          Utils.formatPrice(reservationData.insurancePrice);
+        const insuranceTotal = reservationData.insurancePrice * days;
+        document.getElementById('confirmInsurancePrice').textContent = `¥${insuranceTotal.toLocaleString()}`;
       }
       
       if (reservationData.optionsPrice && reservationData.optionsPrice > 0) {
         document.getElementById('confirmOptionsPriceRow').style.display = 'flex';
-        document.getElementById('confirmOptionsPrice').textContent = 
-          Utils.formatPrice(reservationData.optionsPrice);
+        const optionsTotal = reservationData.optionsPrice * days;
+        document.getElementById('confirmOptionsPrice').textContent = `¥${optionsTotal.toLocaleString()}`;
       }
       
       // 決済方法
-      const paymentText = reservationData.paymentMethod === 'card' 
-        ? 'クレジットカード' 
-        : '現地払い';
-      document.getElementById('confirmPayment').textContent = paymentText;
+      document.getElementById('confirmPayment').textContent = reservationData.paymentName;
       
-      // 合計金額（オプション込み）
-      const totalPrice = reservationData.totalPrice || reservationData.planPrice;
-      document.getElementById('confirmPrice').textContent = 
-        Utils.formatPrice(totalPrice);
+      // 合計金額
+      document.getElementById('confirmPrice').textContent = `¥${reservationData.totalPrice.toLocaleString()}`;
     }
 
     // 確定ボタンの有効/無効切り替え
@@ -431,7 +419,7 @@
 
     // 戻る
     function goBack() {
-      window.location.href = 'reserve-payment.html';
+      window.location.href = 'reserve.html';
     }
 
     // ログアウト

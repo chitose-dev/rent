@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>予約入力 - トクノリレンタカー</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .reserve-section {
+      background: var(--bg-white);
+      border-radius: 8px;
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      border: 1px solid var(--border-color);
+    }
+    
+    .reserve-section-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+      padding-bottom: var(--spacing-sm);
+      border-bottom: 2px solid var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+    
+    .reserve-section-number {
+      background: var(--primary-color);
+      color: var(--text-dark);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-md);
+      font-weight: bold;
+    }
+    
+    /* 日数選択 */
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing-sm);
+    }
+    
+    .days-btn {
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: var(--spacing-md);
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--bg-white);
+      text-align: center;
+    }
+    
+    .days-btn:hover, .days-btn.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-light);
+    }
+    
+    .days-btn-number {
+      font-size: var(--font-xl);
+      font-weight: bold;
+      color: var(--primary-dark);
+    }
+    
+    .days-btn-label {
+      font-size: var(--font-sm);
+    }
+    
+    /* 日付・時間 */
+    .date-time-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-md);
+    }
+    
+    .form-group {
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+    
+    .form-label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: var(--spacing-xs);
+      font-size: var(--font-sm);
+    }
+    
+    .form-input, .form-select {
+      width: 100%;
+      padding: var(--spacing-md);
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      font-size: var(--font-md);
+      background: var(--bg-white);
+    }
+    
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+    
+    /* 車両クラス */
+    .class-grid {
+      display: grid;
+      gap: var(--spacing-md);
+    }
+    
+    .class-card {
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: var(--spacing-md);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      gap: var(--spacing-md);
+      align-items: center;
+    }
+    
+    .class-card:hover, .class-card.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-light);
+    }
+    
+    .class-card-image {
+      width: 100px;
+      height: 70px;
+      background: var(--bg-light);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-light);
+      font-size: var(--font-sm);
+      flex-shrink: 0;
+    }
+    
+    .class-card-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .class-card-name {
+      font-weight: bold;
+      font-size: var(--font-md);
+    }
+    
+    .class-card-desc {
+      font-size: var(--font-sm);
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+    
+    .class-card-price {
+      font-weight: bold;
+      color: var(--primary-dark);
+      font-size: var(--font-lg);
+      white-space: nowrap;
+    }
+    
+    /* オプション */
+    .option-group {
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .option-group:last-child {
+      margin-bottom: 0;
+    }
+    
+    .option-group-title {
+      font-weight: bold;
+      margin-bottom: var(--spacing-sm);
+      font-size: var(--font-md);
+    }
+    
+    .option-card {
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+    }
+    
+    .option-card:last-child {
+      margin-bottom: 0;
+    }
+    
+    .option-card:hover, .option-card.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-light);
+    }
+    
+    .option-card input[type="radio"],
+    .option-card input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    
+    .option-card-info {
+      flex: 1;
+    }
+    
+    .option-card-name {
+      font-weight: bold;
+    }
+    
+    .option-card-desc {
+      font-size: var(--font-sm);
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+    
+    .option-card-price {
+      font-weight: bold;
+      color: var(--primary-dark);
+      white-space: nowrap;
+    }
+    
+    .option-card.recommended {
+      position: relative;
+    }
+    
+    .option-card.recommended::before {
+      content: 'おすすめ';
+      position: absolute;
+      top: -10px;
+      left: 12px;
+      background: var(--primary-color);
+      color: var(--text-dark);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: var(--font-xs);
+      font-weight: bold;
+    }
+    
+    /* 決済方法 */
+    .payment-card {
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+    }
+    
+    .payment-card:last-child {
+      margin-bottom: 0;
+    }
+    
+    .payment-card:hover, .payment-card.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-light);
+    }
+    
+    .payment-card input[type="radio"] {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    
+    .payment-card-info {
+      flex: 1;
+    }
+    
+    .payment-card-name {
+      font-weight: bold;
+    }
+    
+    .payment-card-desc {
+      font-size: var(--font-sm);
+      color: var(--text-light);
+      margin-top: 2px;
+    }
+    
+    /* 料金サマリー */
+    .price-summary {
+      background: var(--primary-light);
+      border-radius: 8px;
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+      position: sticky;
+      bottom: 0;
+    }
+    
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-sm);
+      font-size: var(--font-sm);
+    }
+    
+    .price-row.total {
+      margin-top: var(--spacing-md);
+      padding-top: var(--spacing-md);
+      border-top: 2px solid var(--primary-color);
+      font-size: var(--font-lg);
+      font-weight: bold;
+    }
+    
+    .price-label {
+      color: var(--text-dark);
+    }
+    
+    .price-value {
+      font-weight: bold;
+    }
+    
+    /* レスポンシブ */
+    @media (max-width: 768px) {
+      .reserve-section {
+        padding: var(--spacing-md);
+      }
+      
+      .days-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+      
+      .days-btn {
+        padding: var(--spacing-sm);
+      }
+      
+      .days-btn-number {
+        font-size: var(--font-lg);
+      }
+      
+      .date-time-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .class-card {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .class-card-image {
+        width: 100%;
+        height: 120px;
+      }
+      
+      .class-card-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .price-summary {
+        position: relative;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-container">
+      <a href="mypage-rental.html" class="header-logo">
+        <img src="images/logo-icon.png" alt="TOKU-NORI" class="header-logo-icon">
+        <img src="images/logo-text.png" alt="レンタカー" class="header-logo-text">
+      </a>
+      <nav class="header-nav">
+        <a href="mypage-rental.html">マイページ</a>
+        <a href="#" onclick="logout()">ログアウト</a>
+      </nav>
+      <button class="hamburger" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <div class="container">
+    <h1 class="page-title">予約情報入力</h1>
+    
+    <!-- 1. レンタル期間 -->
+    <div class="reserve-section">
+      <h2 class="reserve-section-title">
+        <span class="reserve-section-number">1</span>
+        レンタル期間
+      </h2>
+      
+      <div class="form-group">
+        <label class="form-label">レンタル日数</label>
+        <div class="days-grid">
+          <div class="days-btn" data-days="1" onclick="selectDays(1)">
+            <div class="days-btn-number">1</div>
+            <div class="days-btn-label">日</div>
+          </div>
+          <div class="days-btn" data-days="2" onclick="selectDays(2)">
+            <div class="days-btn-number">2</div>
+            <div class="days-btn-label">日</div>
+          </div>
+          <div class="days-btn" data-days="3" onclick="selectDays(3)">
+            <div class="days-btn-number">3</div>
+            <div class="days-btn-label">日</div>
+          </div>
+          <div class="days-btn" data-days="7" onclick="selectDays(7)">
+            <div class="days-btn-number">7</div>
+            <div class="days-btn-label">日</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="date-time-row">
+        <div class="form-group">
+          <label class="form-label">受取日</label>
+          <input type="date" class="form-input" id="startDate" onchange="updateReturn()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">受取時間</label>
+          <select class="form-select" id="startTime">
+            <option value="">選択してください</option>
+            <option value="08:00">08:00</option>
+            <option value="08:30">08:30</option>
+            <option value="09:00">09:00</option>
+            <option value="09:30">09:30</option>
+            <option value="10:00">10:00</option>
+            <option value="10:30">10:30</option>
+            <option value="11:00">11:00</option>
+            <option value="11:30">11:30</option>
+            <option value="12:00">12:00</option>
+            <option value="12:30">12:30</option>
+            <option value="13:00">13:00</option>
+            <option value="13:30">13:30</option>
+            <option value="14:00">14:00</option>
+            <option value="14:30">14:30</option>
+            <option value="15:00">15:00</option>
+            <option value="15:30">15:30</option>
+            <option value="16:00">16:00</option>
+            <option value="16:30">16:30</option>
+            <option value="17:00">17:00</option>
+            <option value="17:30">17:30</option>
+            <option value="18:00">18:00</option>
+            <option value="18:30">18:30</option>
+            <option value="19:00">19:00</option>
+            <option value="19:30">19:30</option>
+            <option value="20:00">20:00</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="date-time-row">
+        <div class="form-group">
+          <label class="form-label">返却日</label>
+          <input type="date" class="form-input" id="endDate" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">返却時間</label>
+          <select class="form-select" id="endTime">
+            <option value="">選択してください</option>
+            <option value="08:00">08:00</option>
+            <option value="08:30">08:30</option>
+            <option value="09:00">09:00</option>
+            <option value="09:30">09:30</option>
+            <option value="10:00">10:00</option>
+            <option value="10:30">10:30</option>
+            <option value="11:00">11:00</option>
+            <option value="11:30">11:30</option>
+            <option value="12:00">12:00</option>
+            <option value="12:30">12:30</option>
+            <option value="13:00">13:00</option>
+            <option value="13:30">13:30</option>
+            <option value="14:00">14:00</option>
+            <option value="14:30">14:30</option>
+            <option value="15:00">15:00</option>
+            <option value="15:30">15:30</option>
+            <option value="16:00">16:00</option>
+            <option value="16:30">16:30</option>
+            <option value="17:00">17:00</option>
+            <option value="17:30">17:30</option>
+            <option value="18:00">18:00</option>
+            <option value="18:30">18:30</option>
+            <option value="19:00">19:00</option>
+            <option value="19:30">19:30</option>
+            <option value="20:00">20:00</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 2. 車両クラス -->
+    <div class="reserve-section">
+      <h2 class="reserve-section-title">
+        <span class="reserve-section-number">2</span>
+        車両クラス
+      </h2>
+      
+      <div class="class-grid">
+        <div class="class-card" data-class="compact" data-price="3000" onclick="selectClass(this)">
+          <div class="class-card-image">車両画像</div>
+          <div class="class-card-info">
+            <div class="class-card-name">コンパクト</div>
+            <div class="class-card-desc">軽自動車・コンパクトカー</div>
+          </div>
+          <div class="class-card-price" id="price-compact">¥3,000/日</div>
+        </div>
+        
+        <div class="class-card" data-class="standard" data-price="5000" onclick="selectClass(this)">
+          <div class="class-card-image">車両画像</div>
+          <div class="class-card-info">
+            <div class="class-card-name">スタンダード</div>
+            <div class="class-card-desc">普通乗用車</div>
+          </div>
+          <div class="class-card-price" id="price-standard">¥5,000/日</div>
+        </div>
+        
+        <div class="class-card" data-class="minivan" data-price="8000" onclick="selectClass(this)">
+          <div class="class-card-image">車両画像</div>
+          <div class="class-card-info">
+            <div class="class-card-name">ミニバン</div>
+            <div class="class-card-desc">7〜8人乗りミニバン</div>
+          </div>
+          <div class="class-card-price" id="price-minivan">¥8,000/日</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 3. オプション -->
+    <div class="reserve-section">
+      <h2 class="reserve-section-title">
+        <span class="reserve-section-number">3</span>
+        オプション
+      </h2>
+      
+      <div class="option-group">
+        <div class="option-group-title">免責補償</div>
+        
+        <div class="option-card" data-insurance="none" data-price="0" onclick="selectInsurance(this)">
+          <input type="radio" name="insurance" value="none">
+          <div class="option-card-info">
+            <div class="option-card-name">加入しない</div>
+            <div class="option-card-desc">事故時に最大20万円の自己負担が発生します</div>
+          </div>
+          <div class="option-card-price">¥0</div>
+        </div>
+        
+        <div class="option-card recommended" data-insurance="standard" data-price="1100" onclick="selectInsurance(this)">
+          <input type="radio" name="insurance" value="standard">
+          <div class="option-card-info">
+            <div class="option-card-name">スタンダード補償</div>
+            <div class="option-card-desc">対物・車両の免責額を0円に</div>
+          </div>
+          <div class="option-card-price">¥1,100/日</div>
+        </div>
+        
+        <div class="option-card" data-insurance="full" data-price="1650" onclick="selectInsurance(this)">
+          <input type="radio" name="insurance" value="full">
+          <div class="option-card-info">
+            <div class="option-card-name">フル補償</div>
+            <div class="option-card-desc">NOC（休業補償）も含む完全補償</div>
+          </div>
+          <div class="option-card-price">¥1,650/日</div>
+        </div>
+      </div>
+      
+      <div class="option-group">
+        <div class="option-group-title">追加オプション</div>
+        
+        <div class="option-card" data-option="navi" data-price="550" onclick="toggleOption(this)">
+          <input type="checkbox" value="navi">
+          <div class="option-card-info">
+            <div class="option-card-name">カーナビ</div>
+            <div class="option-card-desc">ポータブルカーナビ</div>
+          </div>
+          <div class="option-card-price">¥550/日</div>
+        </div>
+        
+        <div class="option-card" data-option="etc" data-price="330" onclick="toggleOption(this)">
+          <input type="checkbox" value="etc">
+          <div class="option-card-info">
+            <div class="option-card-name">ETC車載器</div>
+            <div class="option-card-desc">ETCカードは含まれません</div>
+          </div>
+          <div class="option-card-price">¥330/日</div>
+        </div>
+        
+        <div class="option-card" data-option="child" data-price="550" onclick="toggleOption(this)">
+          <input type="checkbox" value="child">
+          <div class="option-card-info">
+            <div class="option-card-name">チャイルドシート</div>
+            <div class="option-card-desc">1〜4歳向け</div>
+          </div>
+          <div class="option-card-price">¥550/日</div>
+        </div>
+        
+        <div class="option-card" data-option="junior" data-price="330" onclick="toggleOption(this)">
+          <input type="checkbox" value="junior">
+          <div class="option-card-info">
+            <div class="option-card-name">ジュニアシート</div>
+            <div class="option-card-desc">4〜10歳向け</div>
+          </div>
+          <div class="option-card-price">¥330/日</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 4. 決済方法 -->
+    <div class="reserve-section">
+      <h2 class="reserve-section-title">
+        <span class="reserve-section-number">4</span>
+        決済方法
+      </h2>
+      
+      <div class="payment-card selected" data-payment="card" onclick="selectPayment(this)">
+        <input type="radio" name="payment" value="card" checked>
+        <div class="payment-card-info">
+          <div class="payment-card-name">クレジットカード</div>
+          <div class="payment-card-desc">VISA / MasterCard / JCB / AMEX</div>
+        </div>
+      </div>
+      
+      <div class="payment-card" data-payment="local" onclick="selectPayment(this)">
+        <input type="radio" name="payment" value="local">
+        <div class="payment-card-info">
+          <div class="payment-card-name">現地払い</div>
+          <div class="payment-card-desc">現金またはクレジットカード</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 料金サマリー -->
+    <div class="price-summary">
+      <div class="price-row">
+        <span class="price-label">基本料金</span>
+        <span class="price-value" id="summary-base">¥0</span>
+      </div>
+      <div class="price-row">
+        <span class="price-label">免責補償</span>
+        <span class="price-value" id="summary-insurance">¥0</span>
+      </div>
+      <div class="price-row">
+        <span class="price-label">オプション</span>
+        <span class="price-value" id="summary-options">¥0</span>
+      </div>
+      <div class="price-row total">
+        <span class="price-label">合計（税込）</span>
+        <span class="price-value" id="summary-total">¥0</span>
+      </div>
+    </div>
+    
+    <!-- ボタン -->
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="goBack()">戻る</button>
+      <button class="btn btn-primary btn-full" onclick="goConfirm()">確認画面へ</button>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    // 状態管理
+    let state = {
+      days: null,
+      startDate: null,
+      startTime: null,
+      endDate: null,
+      endTime: null,
+      vehicleClass: null,
+      classPrice: 0,
+      insurance: null,
+      insurancePrice: 0,
+      options: [],
+      optionsPrice: 0,
+      payment: 'card'
+    };
+    
+    // 初期化
+    function init() {
+      // 最小日付を明日に設定
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      document.getElementById('startDate').min = tomorrow.toISOString().split('T')[0];
+      
+      // セッションから復元
+      const saved = ReservationStorage.get();
+      if (saved) {
+        // 復元処理（必要に応じて）
+      }
+      
+      updateSummary();
+    }
+    
+    // 日数選択
+    function selectDays(days) {
+      state.days = days;
+      document.querySelectorAll('.days-btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.days == days);
+      });
+      updateReturn();
+      updateSummary();
+    }
+    
+    // 返却日更新
+    function updateReturn() {
+      const startDate = document.getElementById('startDate').value;
+      if (startDate && state.days) {
+        const end = new Date(startDate);
+        end.setDate(end.getDate() + state.days);
+        document.getElementById('endDate').value = end.toISOString().split('T')[0];
+        state.startDate = startDate;
+        state.endDate = document.getElementById('endDate').value;
+      }
+    }
+    
+    // 車両クラス選択
+    function selectClass(el) {
+      document.querySelectorAll('.class-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      el.classList.add('selected');
+      state.vehicleClass = el.dataset.class;
+      state.classPrice = parseInt(el.dataset.price);
+      updateSummary();
+    }
+    
+    // 免責補償選択
+    function selectInsurance(el) {
+      document.querySelectorAll('[data-insurance]').forEach(card => {
+        card.classList.remove('selected');
+        card.querySelector('input').checked = false;
+      });
+      el.classList.add('selected');
+      el.querySelector('input').checked = true;
+      state.insurance = el.dataset.insurance;
+      state.insurancePrice = parseInt(el.dataset.price);
+      updateSummary();
+    }
+    
+    // オプション切り替え
+    function toggleOption(el) {
+      el.classList.toggle('selected');
+      const checkbox = el.querySelector('input');
+      checkbox.checked = !checkbox.checked;
+      
+      const option = el.dataset.option;
+      const price = parseInt(el.dataset.price);
+      
+      if (checkbox.checked) {
+        state.options.push({ name: option, price: price });
+      } else {
+        state.options = state.options.filter(o => o.name !== option);
+      }
+      
+      state.optionsPrice = state.options.reduce((sum, o) => sum + o.price, 0);
+      updateSummary();
+    }
+    
+    // 決済方法選択
+    function selectPayment(el) {
+      document.querySelectorAll('.payment-card').forEach(card => {
+        card.classList.remove('selected');
+        card.querySelector('input').checked = false;
+      });
+      el.classList.add('selected');
+      el.querySelector('input').checked = true;
+      state.payment = el.dataset.payment;
+    }
+    
+    // 料金更新
+    function updateSummary() {
+      const days = state.days || 1;
+      const basePrice = state.classPrice * days;
+      const insuranceTotal = state.insurancePrice * days;
+      const optionsTotal = state.optionsPrice * days;
+      const total = basePrice + insuranceTotal + optionsTotal;
+      
+      document.getElementById('summary-base').textContent = `¥${basePrice.toLocaleString()}`;
+      document.getElementById('summary-insurance').textContent = `¥${insuranceTotal.toLocaleString()}`;
+      document.getElementById('summary-options').textContent = `¥${optionsTotal.toLocaleString()}`;
+      document.getElementById('summary-total').textContent = `¥${total.toLocaleString()}`;
+    }
+    
+    // 確認画面へ
+    function goConfirm() {
+      // バリデーション
+      if (!state.days) {
+        alert('レンタル日数を選択してください');
+        return;
+      }
+      if (!document.getElementById('startDate').value) {
+        alert('受取日を選択してください');
+        return;
+      }
+      if (!document.getElementById('startTime').value) {
+        alert('受取時間を選択してください');
+        return;
+      }
+      if (!document.getElementById('endTime').value) {
+        alert('返却時間を選択してください');
+        return;
+      }
+      if (!state.vehicleClass) {
+        alert('車両クラスを選択してください');
+        return;
+      }
+      if (!state.insurance) {
+        alert('免責補償を選択してください');
+        return;
+      }
+      
+      // 時間を取得
+      state.startTime = document.getElementById('startTime').value;
+      state.endTime = document.getElementById('endTime').value;
+      
+      // セッションに保存
+      const days = state.days;
+      const classNames = { compact: 'コンパクト', standard: 'スタンダード', minivan: 'ミニバン' };
+      const insuranceNames = { none: '加入しない', standard: 'スタンダード補償', full: 'フル補償' };
+      const paymentNames = { card: 'クレジットカード', local: '現地払い' };
+      
+      ReservationStorage.save({
+        planDays: days,
+        planLabel: days + '日',
+        startDate: state.startDate,
+        startTime: state.startTime,
+        endDate: state.endDate,
+        endTime: state.endTime,
+        vehicleClass: state.vehicleClass,
+        vehicleClassName: classNames[state.vehicleClass],
+        classPrice: state.classPrice,
+        insurance: state.insurance,
+        insuranceName: insuranceNames[state.insurance],
+        insurancePrice: state.insurancePrice,
+        options: state.options,
+        optionsPrice: state.optionsPrice,
+        payment: state.payment,
+        paymentName: paymentNames[state.payment],
+        totalPrice: (state.classPrice + state.insurancePrice + state.optionsPrice) * days
+      });
+      
+      window.location.href = 'reserve-confirm.html';
+    }
+    
+    // 戻る
+    function goBack() {
+      window.location.href = 'mypage-new.html';
+    }
+    
+    // ログアウト
+    function logout() {
+      if (confirm('ログアウトしますか?')) {
+        ReservationStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+    
+    init();
+  </script>
+</body>
+</html>
