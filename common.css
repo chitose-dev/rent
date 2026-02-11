@@ -122,11 +122,11 @@ textarea {
 
 @media (max-width: 768px) {
   .header-logo-icon {
-    height: 48px;
+    height: 40px;
   }
   
   .header-logo-text {
-    height: 36px;
+    height: 28px;
   }
 }
 
