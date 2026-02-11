@@ -6,27 +6,11 @@
   <title>車両クラス管理 - 管理画面</title>
   <link rel="stylesheet" href="common.css">
   <style>
-    .price-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 12px;
-      margin-top: 12px;
-    }
-    .price-item {
-      background: #f5f5f5;
-      padding: 12px;
-      border-radius: 6px;
-    }
-    .price-item label {
-      font-size: 12px;
-      color: #666;
-      display: block;
-      margin-bottom: 4px;
-    }
     .class-card {
       border: 1px solid #e0e0e0;
       border-radius: 8px;
       margin-bottom: 16px;
+      background: #fff;
     }
     .class-card-header {
       background: #fafafa;
@@ -41,11 +25,16 @@
       padding: 16px;
     }
     .class-image {
-      width: 120px;
-      height: 80px;
+      width: 100px;
+      height: 70px;
       object-fit: cover;
       border-radius: 4px;
       background: #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 12px;
     }
   </style>
 </head>
@@ -70,6 +59,7 @@
         <div class="nav-section">
           <div class="nav-section-title">車両・サービス</div>
           <a href="classes.html" class="nav-item active">車両クラス</a>
+          <a href="pricing.html" class="nav-item">料金設定</a>
           <a href="vehicles.html" class="nav-item">車両・在庫</a>
           <a href="options.html" class="nav-item">オプション</a>
         </div>
@@ -95,253 +85,64 @@
       </div>
 
       <div class="alert alert-info">
-        <span></span>
-        <div>車両クラスごとにレンタル日数別の料金を設定できます。日数設定は<a href="settings.html">店舗設定</a>で変更できます。</div>
+        <span>i</span>
+        <div>車両クラスの追加・削除を行います。料金設定は<a href="pricing.html">料金設定</a>ページで行ってください。</div>
       </div>
 
       <!-- 車両クラス一覧 -->
-      <div id="class-list">
-        <!-- コンパクト -->
-        <div class="class-card">
-          <div class="class-card-header">
-            <div style="display: flex; align-items: center; gap: 16px;">
-              <div class="class-image" style="display: flex; align-items: center; justify-content: center; color: #999;">画像</div>
-              <div>
-                <h3 style="margin: 0; font-size: 18px;">コンパクト</h3>
-                <p style="margin: 4px 0 0; color: #666; font-size: 13px;">軽自動車・コンパクトカー</p>
-              </div>
-            </div>
-            <div class="btn-group">
-              <button class="btn btn-sm btn-outline">編集</button>
-              <button class="btn btn-sm btn-danger">削除</button>
-            </div>
-          </div>
-          <div class="class-card-body">
-            <div class="form-group">
-              <label class="form-label">説明文</label>
-              <textarea class="form-textarea" rows="2">燃費の良い軽自動車・コンパクトカー。街乗りや近距離移動に最適です。</textarea>
-            </div>
-            <div class="form-group">
-              <label class="form-label">日数別料金設定</label>
-              <div class="price-grid">
-                <div class="price-item">
-                  <label>1日</label>
-                  <div class="form-inline">
-                    <input type="number" class="form-input" value="3000" style="width: 100px;">
-                    <span>円</span>
-                  </div>
-                </div>
-                <div class="price-item">
-                  <label>3日</label>
-                  <div class="form-inline">
-                    <input type="number" class="form-input" value="8000" style="width: 100px;">
-                    <span>円</span>
-                  </div>
-                </div>
-                <div class="price-item">
-                  <label>1週間</label>
-                  <div class="form-inline">
-                    <input type="number" class="form-input" value="15000" style="width: 100px;">
-                    <span>円</span>
-                  </div>
-                </div>
-                <div class="price-item">
-                  <label>2週間</label>
-                  <div class="form-inline">
-                    <input type="number" class="form-input" value="25000" style="width: 100px;">
-                    <span>円</span>
-                  </div>
-                </div>
-                <div class="price-item">
-                  <label>1ヶ月</label>
-                  <div class="form-inline">
-                    <input type="number" class="form-input" value="40000" style="width: 100px;">
-                    <span>円</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="form-row" style="margin-top: 16px;">
-              <div class="form-group">
-                <label class="form-label">在庫数</label>
-                <input type="number" class="form-input" value="5" style="width: 80px;" disabled>
-                <p class="form-hint"><a href="vehicles.html">車両管理</a>で設定</p>
-              </div>
-              <div class="form-group">
-                <label class="form-label">表示順</label>
-                <input type="number" class="form-input" value="1" style="width: 80px;">
-              </div>
-              <div class="form-group">
-                <label class="form-label">ステータス</label>
-                <select class="form-select" style="width: 150px;">
-                  <option value="active" selected>公開中</option>
-                  <option value="hidden">非公開</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- スタンダード -->
-        <div class="class-card">
-          <div class="class-card-header">
-            <div style="display: flex; align-items: center; gap: 16px;">
-              <div class="class-image" style="display: flex; align-items: center; justify-content: center; color: #999;">画像</div>
-              <div>
-                <h3 style="margin: 0; font-size: 18px;">スタンダード</h3>
-                <p style="margin: 4px 0 0; color: #666; font-size: 13px;">普通乗用車</p>
-              </div>
-            </div>
-            <div class="btn-group">
-              <button class="btn btn-sm btn-outline">編集</button>
-              <button class="btn btn-sm btn-danger">削除</button>
-            </div>
-          </div>
-          <div class="class-card-body">
-            <div class="form-group">
-              <label class="form-label">説明文</label>
-              <textarea class="form-textarea" rows="2">快適な乗り心地の普通乗用車。長距離ドライブや家族でのお出かけに。</textarea>
-            </div>
-            <div class="form-group">
-              <label class="form-label">日数別料金設定</label>
-              <div class="price-grid">
-                <div class="price-item">
-                  <label>1日</label>
-                  <div class="form-inline">
-                    <input type="number" class="form-input" value="5000" style="width: 100px;">
-                    <span>円</span>
-                  </div>
-                </div>
-                <div class="price-item">
-                  <label>3日</label>
-                  <div class="form-inline">
-                    <input type="number" class="form-input" value="13000" style="width: 100px;">
-                    <span>円</span>
-                  </div>
-                </div>
-                <div class="price-item">
-                  <label>1週間</label>
-                  <div class="form-inline">
-                    <input type="number" class="form-input" value="25000" style="width: 100px;">
-                    <span>円</span>
-                  </div>
-                </div>
-                <div class="price-item">
-                  <label>2週間</label>
-                  <div class="form-inline">
-                    <input type="number" class="form-input" value="45000" style="width: 100px;">
-                    <span>円</span>
-                  </div>
-                </div>
-                <div class="price-item">
-                  <label>1ヶ月</label>
-                  <div class="form-inline">
-                    <input type="number" class="form-input" value="70000" style="width: 100px;">
-                    <span>円</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="form-row" style="margin-top: 16px;">
-              <div class="form-group">
-                <label class="form-label">在庫数</label>
-                <input type="number" class="form-input" value="3" style="width: 80px;" disabled>
-                <p class="form-hint"><a href="vehicles.html">車両管理</a>で設定</p>
-              </div>
-              <div class="form-group">
-                <label class="form-label">表示順</label>
-                <input type="number" class="form-input" value="2" style="width: 80px;">
-              </div>
-              <div class="form-group">
-                <label class="form-label">ステータス</label>
-                <select class="form-select" style="width: 150px;">
-                  <option value="active" selected>公開中</option>
-                  <option value="hidden">非公開</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ミニバン -->
-        <div class="class-card">
-          <div class="class-card-header">
-            <div style="display: flex; align-items: center; gap: 16px;">
-              <div class="class-image" style="display: flex; align-items: center; justify-content: center; color: #999;">画像</div>
-              <div>
-                <h3 style="margin: 0; font-size: 18px;">ミニバン</h3>
-                <p style="margin: 4px 0 0; color: #666; font-size: 13px;">7〜8人乗りミニバン</p>
-              </div>
-            </div>
-            <div class="btn-group">
-              <button class="btn btn-sm btn-outline">編集</button>
-              <button class="btn btn-sm btn-danger">削除</button>
-            </div>
-          </div>
-          <div class="class-card-body">
-            <div class="form-group">
-              <label class="form-label">説明文</label>
-              <textarea class="form-textarea" rows="2">広々とした室内空間のミニバン。大人数での移動や荷物が多い旅行に最適です。</textarea>
-            </div>
-            <div class="form-group">
-              <label class="form-label">日数別料金設定</label>
-              <div class="price-grid">
-                <div class="price-item">
-                  <label>1日</label>
-                  <div class="form-inline">
-                    <input type="number" class="form-input" value="8000" style="width: 100px;">
-                    <span>円</span>
-                  </div>
-                </div>
-                <div class="price-item">
-                  <label>3日</label>
-                  <div class="form-inline">
-                    <input type="number" class="form-input" value="20000" style="width: 100px;">
-                    <span>円</span>
-                  </div>
-                </div>
-                <div class="price-item">
-                  <label>1週間</label>
-                  <div class="form-inline">
-                    <input type="number" class="form-input" value="40000" style="width: 100px;">
-                    <span>円</span>
-                  </div>
-                </div>
-                <div class="price-item">
-                  <label>2週間</label>
-                  <div class="form-inline">
-                    <input type="number" class="form-input" value="70000" style="width: 100px;">
-                    <span>円</span>
-                  </div>
-                </div>
-                <div class="price-item">
-                  <label>1ヶ月</label>
-                  <div class="form-inline">
-                    <input type="number" class="form-input" value="110000" style="width: 100px;">
-                    <span>円</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="form-row" style="margin-top: 16px;">
-              <div class="form-group">
-                <label class="form-label">在庫数</label>
-                <input type="number" class="form-input" value="2" style="width: 80px;" disabled>
-                <p class="form-hint"><a href="vehicles.html">車両管理</a>で設定</p>
-              </div>
-              <div class="form-group">
-                <label class="form-label">表示順</label>
-                <input type="number" class="form-input" value="3" style="width: 80px;">
-              </div>
-              <div class="form-group">
-                <label class="form-label">ステータス</label>
-                <select class="form-select" style="width: 150px;">
-                  <option value="active" selected>公開中</option>
-                  <option value="hidden">非公開</option>
-                </select>
-              </div>
-            </div>
-          </div>
+      <div class="admin-card">
+        <div class="card-body" style="padding: 0;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>画像</th>
+                <th>クラス名</th>
+                <th>説明</th>
+                <th>在庫数</th>
+                <th>表示順</th>
+                <th>ステータス</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="class-image">画像</div></td>
+                <td><strong>コンパクト</strong><br><small class="text-muted">軽自動車・コンパクトカー</small></td>
+                <td style="max-width: 250px;">燃費の良い軽自動車・コンパクトカー。街乗りや近距離移動に最適です。</td>
+                <td>5台</td>
+                <td><input type="number" class="form-input" value="1" style="width: 60px;"></td>
+                <td><span class="badge badge-success">公開中</span></td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-outline" onclick="openModal('edit-class-modal')">編集</button>
+                  <button class="btn btn-sm btn-danger">削除</button>
+                </td>
+              </tr>
+              <tr>
+                <td><div class="class-image">画像</div></td>
+                <td><strong>スタンダード</strong><br><small class="text-muted">普通乗用車</small></td>
+                <td style="max-width: 250px;">快適な乗り心地の普通乗用車。長距離ドライブや家族でのお出かけに。</td>
+                <td>3台</td>
+                <td><input type="number" class="form-input" value="2" style="width: 60px;"></td>
+                <td><span class="badge badge-success">公開中</span></td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-outline" onclick="openModal('edit-class-modal')">編集</button>
+                  <button class="btn btn-sm btn-danger">削除</button>
+                </td>
+              </tr>
+              <tr>
+                <td><div class="class-image">画像</div></td>
+                <td><strong>ミニバン</strong><br><small class="text-muted">7〜8人乗りミニバン</small></td>
+                <td style="max-width: 250px;">広々とした室内空間のミニバン。大人数での移動や荷物が多い旅行に最適です。</td>
+                <td>2台</td>
+                <td><input type="number" class="form-input" value="3" style="width: 60px;"></td>
+                <td><span class="badge badge-success">公開中</span></td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-outline" onclick="openModal('edit-class-modal')">編集</button>
+                  <button class="btn btn-sm btn-danger">削除</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -357,7 +158,7 @@
     <div class="modal">
       <div class="modal-header">
         <h3 class="modal-title">新規車両クラス追加</h3>
-        <button class="modal-close" onclick="closeModal('add-class-modal')">&times;</button>
+        <button class="modal-close" onclick="closeModal('add-class-modal')">×</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -376,10 +177,71 @@
           <label class="form-label">画像</label>
           <input type="file" class="form-input" accept="image/*">
         </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">表示順</label>
+            <input type="number" class="form-input" value="1" style="width: 80px;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ステータス</label>
+            <select class="form-select">
+              <option value="active">公開中</option>
+              <option value="hidden">非公開</option>
+            </select>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('add-class-modal')">キャンセル</button>
         <button class="btn btn-primary">追加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 編集モーダル -->
+  <div class="modal-overlay" id="edit-class-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">車両クラス編集</h3>
+        <button class="modal-close" onclick="closeModal('edit-class-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">クラス名<span class="required">*</span></label>
+          <input type="text" class="form-input" value="コンパクト">
+        </div>
+        <div class="form-group">
+          <label class="form-label">サブタイトル</label>
+          <input type="text" class="form-input" value="軽自動車・コンパクトカー">
+        </div>
+        <div class="form-group">
+          <label class="form-label">説明文</label>
+          <textarea class="form-textarea" rows="3">燃費の良い軽自動車・コンパクトカー。街乗りや近距離移動に最適です。</textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">画像</label>
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="class-image">現在の画像</div>
+            <input type="file" class="form-input" accept="image/*" style="flex: 1;">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">表示順</label>
+            <input type="number" class="form-input" value="1" style="width: 80px;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ステータス</label>
+            <select class="form-select">
+              <option value="active" selected>公開中</option>
+              <option value="hidden">非公開</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('edit-class-modal')">キャンセル</button>
+        <button class="btn btn-primary">保存</button>
       </div>
     </div>
   </div>

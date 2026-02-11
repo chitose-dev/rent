@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>料金設定 - 管理画面</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .pricing-matrix {
+      overflow-x: auto;
+    }
+    .pricing-matrix table {
+      min-width: 600px;
+    }
+    .pricing-matrix th {
+      background-color: #f5f5f5;
+      white-space: nowrap;
+    }
+    .pricing-matrix td input {
+      width: 100px;
+      text-align: right;
+    }
+    .pricing-matrix .class-header {
+      background-color: #e3f2fd;
+      font-weight: bold;
+    }
+    .unit {
+      color: #666;
+      font-size: 12px;
+      margin-left: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- サイドバー -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-logo">
+          予約管理
+          <small>管理画面</small></a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="index.html" class="nav-item">ダッシュボード</a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">予約管理</div>
+          <a href="reservations.html" class="nav-item">予約一覧</a>
+          <a href="members.html" class="nav-item">会員管理</a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">車両・サービス</div>
+          <a href="classes.html" class="nav-item">車両クラス</a>
+          <a href="pricing.html" class="nav-item active">料金設定</a>
+          <a href="vehicles.html" class="nav-item">車両・在庫</a>
+          <a href="options.html" class="nav-item">オプション</a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">設定</div>
+          <a href="settings.html" class="nav-item">店舗設定</a>
+          <a href="documents.html" class="nav-item">法的文書</a>
+        </div>
+        <div class="nav-section">
+          <a href="../login.html" class="nav-item">予約サイトへ</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="admin-main">
+      <div class="admin-header">
+        <div>
+          <h1 class="admin-title">料金設定</h1>
+          <p class="admin-breadcrumb"><a href="index.html">ダッシュボード</a> / 料金設定</p>
+        </div>
+      </div>
+
+      <div class="alert alert-info">
+        <span>i</span>
+        <div>
+          日数とクラスの組み合わせごとに料金を設定します。<br>
+          日数の追加・削除は<a href="settings.html">店舗設定</a>、車両クラスの追加・削除は<a href="classes.html">車両クラス</a>で行ってください。
+        </div>
+      </div>
+
+      <!-- 料金マトリックス -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">基本料金（税込）</h2>
+        </div>
+        <div class="card-body pricing-matrix">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>車両クラス</th>
+                <th>1日</th>
+                <th>3日</th>
+                <th>1週間</th>
+                <th>2週間</th>
+                <th>1ヶ月</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="class-header">コンパクト</td>
+                <td><input type="number" class="form-input" value="3000"><span class="unit">円</span></td>
+                <td><input type="number" class="form-input" value="8000"><span class="unit">円</span></td>
+                <td><input type="number" class="form-input" value="15000"><span class="unit">円</span></td>
+                <td><input type="number" class="form-input" value="25000"><span class="unit">円</span></td>
+                <td><input type="number" class="form-input" value="40000"><span class="unit">円</span></td>
+              </tr>
+              <tr>
+                <td class="class-header">スタンダード</td>
+                <td><input type="number" class="form-input" value="5000"><span class="unit">円</span></td>
+                <td><input type="number" class="form-input" value="13000"><span class="unit">円</span></td>
+                <td><input type="number" class="form-input" value="25000"><span class="unit">円</span></td>
+                <td><input type="number" class="form-input" value="45000"><span class="unit">円</span></td>
+                <td><input type="number" class="form-input" value="70000"><span class="unit">円</span></td>
+              </tr>
+              <tr>
+                <td class="class-header">ミニバン</td>
+                <td><input type="number" class="form-input" value="8000"><span class="unit">円</span></td>
+                <td><input type="number" class="form-input" value="20000"><span class="unit">円</span></td>
+                <td><input type="number" class="form-input" value="40000"><span class="unit">円</span></td>
+                <td><input type="number" class="form-input" value="70000"><span class="unit">円</span></td>
+                <td><input type="number" class="form-input" value="110000"><span class="unit">円</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 延長料金 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">延長料金（1日あたり・税込）</h2>
+        </div>
+        <div class="card-body">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>車両クラス</th>
+                <th>延長料金/日</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="class-header">コンパクト</td>
+                <td><input type="number" class="form-input" value="3000" style="width: 100px;"><span class="unit">円</span></td>
+              </tr>
+              <tr>
+                <td class="class-header">スタンダード</td>
+                <td><input type="number" class="form-input" value="5000" style="width: 100px;"><span class="unit">円</span></td>
+              </tr>
+              <tr>
+                <td class="class-header">ミニバン</td>
+                <td><input type="number" class="form-input" value="8000" style="width: 100px;"><span class="unit">円</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 保存ボタン -->
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+        <button class="btn btn-secondary">キャンセル</button>
+        <button class="btn btn-primary btn-lg">料金を保存</button>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
