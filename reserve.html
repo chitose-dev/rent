@@ -114,8 +114,117 @@
       font-size: var(--font-sm);
     }
     
-    /* 日付・時間 */
-    .date-time-row {
+    /* カレンダー */
+    .calendar-container {
+      background-color: var(--bg-light);
+      border-radius: 8px;
+      padding: var(--spacing-md);
+      margin-top: var(--spacing-md);
+    }
+    
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .calendar-month {
+      font-size: var(--font-lg);
+      font-weight: bold;
+    }
+    
+    .calendar-nav-btn {
+      background-color: var(--primary-color);
+      color: var(--text-dark);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-weight: bold;
+      font-size: var(--font-md);
+      border: none;
+      cursor: pointer;
+    }
+    
+    .calendar-nav-btn:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .calendar-nav-btn:disabled {
+      background-color: var(--disabled-color);
+      cursor: not-allowed;
+    }
+    
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .calendar-weekday {
+      text-align: center;
+      font-weight: bold;
+      color: var(--text-light);
+      padding: var(--spacing-xs);
+      font-size: var(--font-sm);
+    }
+    
+    .calendar-weekday.sunday { color: #D32F2F; }
+    .calendar-weekday.saturday { color: #1976D2; }
+    
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    
+    .calendar-day {
+      aspect-ratio: 1;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      background: var(--bg-white);
+      font-size: var(--font-sm);
+    }
+    
+    .calendar-day:not(.disabled):hover {
+      background-color: var(--primary-light);
+      border-color: var(--primary-color);
+    }
+    
+    .calendar-day.disabled {
+      background-color: var(--bg-light);
+      color: var(--disabled-color);
+      cursor: not-allowed;
+      border-color: transparent;
+    }
+    
+    .calendar-day.selected {
+      background-color: var(--primary-color);
+      border-color: var(--primary-dark);
+      color: var(--text-dark);
+      font-weight: bold;
+    }
+    
+    .calendar-day.in-range {
+      background-color: var(--primary-light);
+      border-color: var(--primary-color);
+    }
+    
+    .calendar-day.sunday { color: #D32F2F; }
+    .calendar-day.saturday { color: #1976D2; }
+    .calendar-day.selected.sunday,
+    .calendar-day.selected.saturday { color: var(--text-dark); }
+    .calendar-day.empty { border: none; cursor: default; background: transparent; }
+    
+    /* 時間選択 */
+    .time-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: var(--spacing-md);
@@ -149,6 +258,24 @@
     .form-input:focus, .form-select:focus {
       outline: none;
       border-color: var(--primary-color);
+    }
+    
+    .date-info-box {
+      background: var(--primary-light);
+      padding: var(--spacing-md);
+      border-radius: 6px;
+      margin-top: var(--spacing-md);
+    }
+    
+    .date-info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--font-sm);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .date-info-row:last-child {
+      margin-bottom: 0;
     }
     
     /* 車両クラス */
@@ -443,6 +570,8 @@
       </h2>
       <div class="section-completed" id="completed-period"></div>
       <div class="section-content" id="content-period">
+      
+      <!-- 日数選択 -->
       <div class="form-group">
         <label class="form-label">レンタル日数</label>
         <div class="days-grid">
@@ -465,81 +594,110 @@
         </div>
       </div>
       
-      <div class="date-time-row">
+      <!-- カレンダー（日数選択後に表示） -->
+      <div id="calendarSection" style="display: none;">
         <div class="form-group">
-          <label class="form-label">受取日</label>
-          <input type="date" class="form-input" id="startDate" onchange="updateReturn()">
+          <label class="form-label">受取日を選択</label>
+          <div class="calendar-container">
+            <div class="calendar-header">
+              <button type="button" class="calendar-nav-btn" id="prevMonthBtn" onclick="changeMonth(-1)">◀</button>
+              <span class="calendar-month" id="calendarMonth"></span>
+              <button type="button" class="calendar-nav-btn" id="nextMonthBtn" onclick="changeMonth(1)">▶</button>
+            </div>
+            <div class="calendar-weekdays">
+              <div class="calendar-weekday sunday">日</div>
+              <div class="calendar-weekday">月</div>
+              <div class="calendar-weekday">火</div>
+              <div class="calendar-weekday">水</div>
+              <div class="calendar-weekday">木</div>
+              <div class="calendar-weekday">金</div>
+              <div class="calendar-weekday saturday">土</div>
+            </div>
+            <div class="calendar-days" id="calendarDays"></div>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">受取時間</label>
-          <select class="form-select" id="startTime" onchange="checkPeriodComplete()">
-            <option value="">選択してください</option>
-            <option value="08:00">08:00</option>
-            <option value="08:30">08:30</option>
-            <option value="09:00">09:00</option>
-            <option value="09:30">09:30</option>
-            <option value="10:00">10:00</option>
-            <option value="10:30">10:30</option>
-            <option value="11:00">11:00</option>
-            <option value="11:30">11:30</option>
-            <option value="12:00">12:00</option>
-            <option value="12:30">12:30</option>
-            <option value="13:00">13:00</option>
-            <option value="13:30">13:30</option>
-            <option value="14:00">14:00</option>
-            <option value="14:30">14:30</option>
-            <option value="15:00">15:00</option>
-            <option value="15:30">15:30</option>
-            <option value="16:00">16:00</option>
-            <option value="16:30">16:30</option>
-            <option value="17:00">17:00</option>
-            <option value="17:30">17:30</option>
-            <option value="18:00">18:00</option>
-            <option value="18:30">18:30</option>
-            <option value="19:00">19:00</option>
-            <option value="19:30">19:30</option>
-            <option value="20:00">20:00</option>
-          </select>
+        
+        <!-- 選択した日程情報 -->
+        <div class="date-info-box" id="dateInfoBox" style="display: none;">
+          <div class="date-info-row">
+            <span>受取日:</span>
+            <strong id="infoStartDate">-</strong>
+          </div>
+          <div class="date-info-row">
+            <span>返却日:</span>
+            <strong id="infoEndDate">-</strong>
+          </div>
+        </div>
+        
+        <!-- 時間選択（日付選択後に表示） -->
+        <div id="timeSection" style="display: none;">
+          <div class="time-row">
+            <div class="form-group">
+              <label class="form-label">受取時間</label>
+              <select class="form-select" id="startTime" onchange="checkPeriodComplete()">
+                <option value="">選択してください</option>
+                <option value="08:00">08:00</option>
+                <option value="08:30">08:30</option>
+                <option value="09:00">09:00</option>
+                <option value="09:30">09:30</option>
+                <option value="10:00">10:00</option>
+                <option value="10:30">10:30</option>
+                <option value="11:00">11:00</option>
+                <option value="11:30">11:30</option>
+                <option value="12:00">12:00</option>
+                <option value="12:30">12:30</option>
+                <option value="13:00">13:00</option>
+                <option value="13:30">13:30</option>
+                <option value="14:00">14:00</option>
+                <option value="14:30">14:30</option>
+                <option value="15:00">15:00</option>
+                <option value="15:30">15:30</option>
+                <option value="16:00">16:00</option>
+                <option value="16:30">16:30</option>
+                <option value="17:00">17:00</option>
+                <option value="17:30">17:30</option>
+                <option value="18:00">18:00</option>
+                <option value="18:30">18:30</option>
+                <option value="19:00">19:00</option>
+                <option value="19:30">19:30</option>
+                <option value="20:00">20:00</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">返却時間</label>
+              <select class="form-select" id="endTime" onchange="checkPeriodComplete()">
+                <option value="">選択してください</option>
+                <option value="08:00">08:00</option>
+                <option value="08:30">08:30</option>
+                <option value="09:00">09:00</option>
+                <option value="09:30">09:30</option>
+                <option value="10:00">10:00</option>
+                <option value="10:30">10:30</option>
+                <option value="11:00">11:00</option>
+                <option value="11:30">11:30</option>
+                <option value="12:00">12:00</option>
+                <option value="12:30">12:30</option>
+                <option value="13:00">13:00</option>
+                <option value="13:30">13:30</option>
+                <option value="14:00">14:00</option>
+                <option value="14:30">14:30</option>
+                <option value="15:00">15:00</option>
+                <option value="15:30">15:30</option>
+                <option value="16:00">16:00</option>
+                <option value="16:30">16:30</option>
+                <option value="17:00">17:00</option>
+                <option value="17:30">17:30</option>
+                <option value="18:00">18:00</option>
+                <option value="18:30">18:30</option>
+                <option value="19:00">19:00</option>
+                <option value="19:30">19:30</option>
+                <option value="20:00">20:00</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
       
-      <div class="date-time-row">
-        <div class="form-group">
-          <label class="form-label">返却日</label>
-          <input type="date" class="form-input" id="endDate" readonly>
-        </div>
-        <div class="form-group">
-          <label class="form-label">返却時間</label>
-          <select class="form-select" id="endTime" onchange="checkPeriodComplete()">
-            <option value="">選択してください</option>
-            <option value="08:00">08:00</option>
-            <option value="08:30">08:30</option>
-            <option value="09:00">09:00</option>
-            <option value="09:30">09:30</option>
-            <option value="10:00">10:00</option>
-            <option value="10:30">10:30</option>
-            <option value="11:00">11:00</option>
-            <option value="11:30">11:30</option>
-            <option value="12:00">12:00</option>
-            <option value="12:30">12:30</option>
-            <option value="13:00">13:00</option>
-            <option value="13:30">13:30</option>
-            <option value="14:00">14:00</option>
-            <option value="14:30">14:30</option>
-            <option value="15:00">15:00</option>
-            <option value="15:30">15:30</option>
-            <option value="16:00">16:00</option>
-            <option value="16:30">16:30</option>
-            <option value="17:00">17:00</option>
-            <option value="17:30">17:30</option>
-            <option value="18:00">18:00</option>
-            <option value="18:30">18:30</option>
-            <option value="19:00">19:00</option>
-            <option value="19:30">19:30</option>
-            <option value="20:00">20:00</option>
-          </select>
-        </div>
-      </div>
       </div>
     </div>
     
@@ -737,13 +895,12 @@
       payment: null
     };
     
+    // カレンダー用
+    let currentCalendarDate = new Date();
+    let selectedStartDate = null;
+    
     // 初期化
     function init() {
-      // 最小日付を明日に設定
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      document.getElementById('startDate').min = tomorrow.toISOString().split('T')[0];
-      
       // セッションから復元
       const saved = ReservationStorage.get();
       if (saved) {
@@ -829,21 +986,135 @@
       document.querySelectorAll('.days-btn').forEach(btn => {
         btn.classList.toggle('selected', btn.dataset.days == days);
       });
-      updateReturn();
-      checkPeriodComplete();
+      
+      // カレンダーを表示
+      document.getElementById('calendarSection').style.display = 'block';
+      renderCalendar();
+      
+      // 既に日付が選択されていたら再計算
+      if (selectedStartDate) {
+        updateDateInfo();
+        renderCalendar();
+      }
     }
     
-    // 返却日更新
-    function updateReturn() {
-      const startDate = document.getElementById('startDate').value;
-      if (startDate && state.days) {
-        const end = new Date(startDate);
-        end.setDate(end.getDate() + state.days);
-        document.getElementById('endDate').value = end.toISOString().split('T')[0];
-        state.startDate = startDate;
-        state.endDate = document.getElementById('endDate').value;
+    // カレンダー描画
+    function renderCalendar() {
+      const year = currentCalendarDate.getFullYear();
+      const month = currentCalendarDate.getMonth();
+      
+      // ヘッダー更新
+      document.getElementById('calendarMonth').textContent = `${year}年${month + 1}月`;
+      
+      // 月の最初の日と最後の日
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startDayOfWeek = firstDay.getDay();
+      
+      const container = document.getElementById('calendarDays');
+      container.innerHTML = '';
+      
+      // 空白セル
+      for (let i = 0; i < startDayOfWeek; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-day empty';
+        container.appendChild(emptyDay);
       }
-      checkPeriodComplete();
+      
+      // 今日の日付
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // 日付セル
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+        const date = new Date(year, month, day);
+        const dayCell = document.createElement('div');
+        dayCell.className = 'calendar-day';
+        dayCell.textContent = day;
+        
+        // 曜日クラス
+        const dayOfWeek = date.getDay();
+        if (dayOfWeek === 0) dayCell.classList.add('sunday');
+        if (dayOfWeek === 6) dayCell.classList.add('saturday');
+        
+        // 過去の日付は選択不可
+        if (date <= today) {
+          dayCell.classList.add('disabled');
+        } else {
+          dayCell.onclick = () => selectDate(date);
+        }
+        
+        // 選択中の日付
+        if (selectedStartDate && date.toDateString() === selectedStartDate.toDateString()) {
+          dayCell.classList.add('selected');
+        }
+        
+        // レンタル期間内の日付
+        if (selectedStartDate && state.days) {
+          const endDate = new Date(selectedStartDate);
+          endDate.setDate(endDate.getDate() + state.days - 1);
+          if (date > selectedStartDate && date <= endDate) {
+            dayCell.classList.add('in-range');
+          }
+        }
+        
+        container.appendChild(dayCell);
+      }
+      
+      updateNavButtons();
+    }
+    
+    // 月変更
+    function changeMonth(delta) {
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+      renderCalendar();
+    }
+    
+    // ナビゲーションボタン更新
+    function updateNavButtons() {
+      const today = new Date();
+      const minDate = new Date(today.getFullYear(), today.getMonth(), 1);
+      const maxDate = new Date();
+      maxDate.setMonth(maxDate.getMonth() + 3);
+      
+      const prevMonth = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() - 1, 1);
+      document.getElementById('prevMonthBtn').disabled = prevMonth < minDate;
+      
+      const nextMonth = new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1, 1);
+      document.getElementById('nextMonthBtn').disabled = nextMonth > maxDate;
+    }
+    
+    // 日付選択
+    function selectDate(date) {
+      selectedStartDate = date;
+      state.startDate = formatDate(date);
+      updateDateInfo();
+      renderCalendar();
+      
+      // 時間選択を表示
+      document.getElementById('timeSection').style.display = 'block';
+    }
+    
+    // 日付フォーマット
+    function formatDate(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    
+    // 日付情報更新
+    function updateDateInfo() {
+      if (!selectedStartDate || !state.days) return;
+      
+      const endDate = new Date(selectedStartDate);
+      endDate.setDate(endDate.getDate() + state.days - 1);
+      state.endDate = formatDate(endDate);
+      
+      const formatJP = (d) => `${d.getMonth()+1}月${d.getDate()}日`;
+      document.getElementById('infoStartDate').textContent = formatJP(selectedStartDate);
+      document.getElementById('infoEndDate').textContent = formatJP(endDate);
+      document.getElementById('dateInfoBox').style.display = 'block';
     }
     
     // 期間セクション完了チェック
