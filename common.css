@@ -677,7 +677,7 @@ textarea {
 @media (max-width: 768px) {
   /* ベースフォントサイズを小さく */
   body {
-    font-size: 14px;
+    font-size: 13px;
   }
   
   /* ヘッダーをコンパクトに */
@@ -705,20 +705,20 @@ textarea {
   }
   
   .section-title {
-    font-size: 16px;
-    margin-bottom: 10px;
+    font-size: 13px;
+    margin-bottom: 8px;
   }
   
   /* ページタイトル */
   .page-title {
-    font-size: 18px;
-    margin-bottom: 12px;
+    font-size: 15px;
+    margin-bottom: 10px;
   }
   
   /* ボタンをコンパクトに */
   .btn {
-    padding: 10px 16px;
-    font-size: 14px;
+    padding: 8px 14px;
+    font-size: 13px;
   }
   
   /* カードをコンパクトに */
@@ -728,7 +728,7 @@ textarea {
   }
   
   .card-title {
-    font-size: 15px;
+    font-size: 13px;
   }
   
   /* フォーム要素をコンパクトに */
@@ -744,8 +744,8 @@ textarea {
   .form-input,
   .form-select,
   .form-textarea {
-    padding: 10px 12px;
-    font-size: 14px;
+    padding: 8px 10px;
+    font-size: 13px;
   }
   
   /* アラートをコンパクトに */
