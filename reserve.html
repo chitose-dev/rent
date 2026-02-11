@@ -14,6 +14,10 @@
       border: 1px solid var(--border-color);
     }
     
+    .reserve-section.locked {
+      opacity: 0.7;
+    }
+    
     .reserve-section-title {
       font-size: var(--font-lg);
       font-weight: bold;
@@ -36,6 +40,46 @@
       justify-content: center;
       font-size: var(--font-md);
       font-weight: bold;
+    }
+    
+    .reserve-section.locked .reserve-section-number {
+      background: var(--border-color);
+      color: var(--text-light);
+    }
+    
+    .reserve-section.locked .reserve-section-title {
+      border-bottom-color: var(--border-color);
+    }
+    
+    .section-content {
+      display: block;
+    }
+    
+    .section-content.hidden {
+      display: none;
+    }
+    
+    .section-locked-message {
+      color: #c00;
+      font-size: var(--font-sm);
+      margin-top: var(--spacing-sm);
+    }
+    
+    .section-locked-message.hidden {
+      display: none;
+    }
+    
+    .section-completed {
+      background: var(--primary-light);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: 6px;
+      font-size: var(--font-sm);
+      color: var(--primary-dark);
+      display: none;
+    }
+    
+    .section-completed.show {
+      display: block;
     }
     
     /* 日数選択 */
@@ -392,12 +436,13 @@
     <h1 class="page-title">予約情報入力</h1>
     
     <!-- 1. レンタル期間 -->
-    <div class="reserve-section">
+    <div class="reserve-section" id="section-period">
       <h2 class="reserve-section-title">
         <span class="reserve-section-number">1</span>
         レンタル期間
       </h2>
-      
+      <div class="section-completed" id="completed-period"></div>
+      <div class="section-content" id="content-period">
       <div class="form-group">
         <label class="form-label">レンタル日数</label>
         <div class="days-grid">
@@ -427,7 +472,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">受取時間</label>
-          <select class="form-select" id="startTime">
+          <select class="form-select" id="startTime" onchange="checkPeriodComplete()">
             <option value="">選択してください</option>
             <option value="08:00">08:00</option>
             <option value="08:30">08:30</option>
@@ -465,7 +510,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">返却時間</label>
-          <select class="form-select" id="endTime">
+          <select class="form-select" id="endTime" onchange="checkPeriodComplete()">
             <option value="">選択してください</option>
             <option value="08:00">08:00</option>
             <option value="08:30">08:30</option>
@@ -495,15 +540,18 @@
           </select>
         </div>
       </div>
+      </div>
     </div>
     
     <!-- 2. 車両クラス -->
-    <div class="reserve-section">
+    <div class="reserve-section locked" id="section-class">
       <h2 class="reserve-section-title">
         <span class="reserve-section-number">2</span>
         車両クラス
       </h2>
-      
+      <div class="section-locked-message" id="locked-class">レンタル期間を選択してください</div>
+      <div class="section-completed" id="completed-class"></div>
+      <div class="section-content hidden" id="content-class">
       <div class="class-grid">
         <div class="class-card" data-class="compact" data-price="3000" onclick="selectClass(this)">
           <div class="class-card-image">車両画像</div>
@@ -532,15 +580,18 @@
           <div class="class-card-price" id="price-minivan">¥8,000/日</div>
         </div>
       </div>
+      </div>
     </div>
     
     <!-- 3. オプション -->
-    <div class="reserve-section">
+    <div class="reserve-section locked" id="section-options">
       <h2 class="reserve-section-title">
         <span class="reserve-section-number">3</span>
         オプション
       </h2>
-      
+      <div class="section-locked-message" id="locked-options">車両クラスを選択してください</div>
+      <div class="section-completed" id="completed-options"></div>
+      <div class="section-content hidden" id="content-options">
       <div class="option-group">
         <div class="option-group-title">免責補償</div>
         
@@ -611,16 +662,19 @@
           <div class="option-card-price">¥330/日</div>
         </div>
       </div>
+      </div>
     </div>
     
     <!-- 4. 決済方法 -->
-    <div class="reserve-section">
+    <div class="reserve-section locked" id="section-payment">
       <h2 class="reserve-section-title">
         <span class="reserve-section-number">4</span>
         決済方法
       </h2>
-      
-      <div class="payment-card selected" data-payment="card" onclick="selectPayment(this)">
+      <div class="section-locked-message" id="locked-payment">オプションを選択してください</div>
+      <div class="section-completed" id="completed-payment"></div>
+      <div class="section-content hidden" id="content-payment">
+      <div class="payment-card" data-payment="card" onclick="selectPayment(this)">
         <input type="radio" name="payment" value="card" checked>
         <div class="payment-card-info">
           <div class="payment-card-name">クレジットカード</div>
@@ -635,10 +689,11 @@
           <div class="payment-card-desc">現金またはクレジットカード</div>
         </div>
       </div>
+      </div>
     </div>
     
     <!-- 料金サマリー -->
-    <div class="price-summary">
+    <div class="price-summary" id="price-summary" style="display: none;">
       <div class="price-row">
         <span class="price-label">基本料金</span>
         <span class="price-value" id="summary-base">¥0</span>
@@ -679,7 +734,7 @@
       insurancePrice: 0,
       options: [],
       optionsPrice: 0,
-      payment: 'card'
+      payment: null
     };
     
     // 初期化
@@ -695,7 +750,77 @@
         // 復元処理（必要に応じて）
       }
       
-      updateSummary();
+      updateSections();
+    }
+    
+    // セクションのロック/アンロック制御
+    function updateSections() {
+      // セクション2: 車両クラス（レンタル期間が完了したら表示）
+      const periodComplete = state.days && state.startDate && state.startTime && state.endTime;
+      toggleSection('class', periodComplete);
+      if (periodComplete) {
+        const startDateObj = new Date(state.startDate);
+        document.getElementById('completed-period').textContent = 
+          `${state.days}日間 / ${startDateObj.getMonth()+1}月${startDateObj.getDate()}日 ${state.startTime} 〜`;
+        document.getElementById('completed-period').classList.add('show');
+      } else {
+        document.getElementById('completed-period').classList.remove('show');
+      }
+      
+      // セクション3: オプション（車両クラスが選択されたら表示）
+      const classComplete = state.vehicleClass;
+      toggleSection('options', classComplete);
+      if (classComplete) {
+        const classNames = { compact: 'コンパクト', standard: 'スタンダード', minivan: 'ミニバン' };
+        document.getElementById('completed-class').textContent = classNames[state.vehicleClass];
+        document.getElementById('completed-class').classList.add('show');
+      } else {
+        document.getElementById('completed-class').classList.remove('show');
+      }
+      
+      // セクション4: 決済方法（免責補償が選択されたら表示）
+      const optionsComplete = state.insurance !== null;
+      toggleSection('payment', optionsComplete);
+      if (optionsComplete) {
+        const insuranceNames = { none: '補償なし', standard: 'スタンダード補償', full: 'フル補償' };
+        let optText = insuranceNames[state.insurance];
+        if (state.options.length > 0) {
+          optText += ` + オプション${state.options.length}件`;
+        }
+        document.getElementById('completed-options').textContent = optText;
+        document.getElementById('completed-options').classList.add('show');
+      } else {
+        document.getElementById('completed-options').classList.remove('show');
+      }
+      
+      // 決済方法が選択されたら料金サマリー表示
+      if (state.payment) {
+        document.getElementById('price-summary').style.display = 'block';
+        const paymentNames = { card: 'クレジットカード', local: '現地払い' };
+        document.getElementById('completed-payment').textContent = paymentNames[state.payment];
+        document.getElementById('completed-payment').classList.add('show');
+        updateSummary();
+      } else {
+        document.getElementById('price-summary').style.display = 'none';
+        document.getElementById('completed-payment').classList.remove('show');
+      }
+    }
+    
+    // セクション表示切り替え
+    function toggleSection(name, unlock) {
+      const section = document.getElementById('section-' + name);
+      const content = document.getElementById('content-' + name);
+      const locked = document.getElementById('locked-' + name);
+      
+      if (unlock) {
+        section.classList.remove('locked');
+        content.classList.remove('hidden');
+        locked.classList.add('hidden');
+      } else {
+        section.classList.add('locked');
+        content.classList.add('hidden');
+        locked.classList.remove('hidden');
+      }
     }
     
     // 日数選択
@@ -705,7 +830,7 @@
         btn.classList.toggle('selected', btn.dataset.days == days);
       });
       updateReturn();
-      updateSummary();
+      checkPeriodComplete();
     }
     
     // 返却日更新
@@ -718,6 +843,14 @@
         state.startDate = startDate;
         state.endDate = document.getElementById('endDate').value;
       }
+      checkPeriodComplete();
+    }
+    
+    // 期間セクション完了チェック
+    function checkPeriodComplete() {
+      state.startTime = document.getElementById('startTime').value;
+      state.endTime = document.getElementById('endTime').value;
+      updateSections();
     }
     
     // 車両クラス選択
@@ -728,7 +861,7 @@
       el.classList.add('selected');
       state.vehicleClass = el.dataset.class;
       state.classPrice = parseInt(el.dataset.price);
-      updateSummary();
+      updateSections();
     }
     
     // 免責補償選択
@@ -741,7 +874,7 @@
       el.querySelector('input').checked = true;
       state.insurance = el.dataset.insurance;
       state.insurancePrice = parseInt(el.dataset.price);
-      updateSummary();
+      updateSections();
     }
     
     // オプション切り替え
@@ -760,7 +893,7 @@
       }
       
       state.optionsPrice = state.options.reduce((sum, o) => sum + o.price, 0);
-      updateSummary();
+      updateSections();
     }
     
     // 決済方法選択
@@ -772,6 +905,7 @@
       el.classList.add('selected');
       el.querySelector('input').checked = true;
       state.payment = el.dataset.payment;
+      updateSections();
     }
     
     // 料金更新
@@ -793,32 +927,39 @@
       // バリデーション
       if (!state.days) {
         alert('レンタル日数を選択してください');
+        document.getElementById('section-period').scrollIntoView({ behavior: 'smooth' });
         return;
       }
-      if (!document.getElementById('startDate').value) {
+      if (!state.startDate) {
         alert('受取日を選択してください');
+        document.getElementById('section-period').scrollIntoView({ behavior: 'smooth' });
         return;
       }
-      if (!document.getElementById('startTime').value) {
+      if (!state.startTime) {
         alert('受取時間を選択してください');
+        document.getElementById('section-period').scrollIntoView({ behavior: 'smooth' });
         return;
       }
-      if (!document.getElementById('endTime').value) {
+      if (!state.endTime) {
         alert('返却時間を選択してください');
+        document.getElementById('section-period').scrollIntoView({ behavior: 'smooth' });
         return;
       }
       if (!state.vehicleClass) {
         alert('車両クラスを選択してください');
+        document.getElementById('section-class').scrollIntoView({ behavior: 'smooth' });
         return;
       }
-      if (!state.insurance) {
+      if (state.insurance === null) {
         alert('免責補償を選択してください');
+        document.getElementById('section-options').scrollIntoView({ behavior: 'smooth' });
         return;
       }
-      
-      // 時間を取得
-      state.startTime = document.getElementById('startTime').value;
-      state.endTime = document.getElementById('endTime').value;
+      if (!state.payment) {
+        alert('決済方法を選択してください');
+        document.getElementById('section-payment').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
       
       // セッションに保存
       const days = state.days;
