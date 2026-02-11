@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ダッシュボード - 管理画面</title>
+  <link rel="stylesheet" href="common.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- サイドバー -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-logo">
+          TOKU-NORI
+          <small>管理画面</small>
+        </a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="index.html" class="nav-item active">
+            <span class="nav-item-icon">📊</span>
+            ダッシュボード
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">予約管理</div>
+          <a href="reservations.html" class="nav-item">
+            <span class="nav-item-icon">📅</span>
+            予約一覧
+          </a>
+          <a href="members.html" class="nav-item">
+            <span class="nav-item-icon">👥</span>
+            会員管理
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">車両・サービス</div>
+          <a href="classes.html" class="nav-item">
+            <span class="nav-item-icon">🚗</span>
+            車両クラス
+          </a>
+          <a href="vehicles.html" class="nav-item">
+            <span class="nav-item-icon">🔧</span>
+            車両・在庫
+          </a>
+          <a href="options.html" class="nav-item">
+            <span class="nav-item-icon">⚙️</span>
+            オプション
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">設定</div>
+          <a href="settings.html" class="nav-item">
+            <span class="nav-item-icon">🏪</span>
+            店舗設定
+          </a>
+          <a href="documents.html" class="nav-item">
+            <span class="nav-item-icon">📄</span>
+            法的文書
+          </a>
+        </div>
+        <div class="nav-section">
+          <a href="../login.html" class="nav-item">
+            <span class="nav-item-icon">↩️</span>
+            予約サイトへ
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="admin-main">
+      <div class="admin-header">
+        <div>
+          <h1 class="admin-title">ダッシュボード</h1>
+          <p class="admin-breadcrumb">概要</p>
+        </div>
+      </div>
+
+      <!-- 統計カード -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">24</div>
+          <div class="stat-label">本日の予約数</div>
+          <div class="stat-change positive">+12% 前週比</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">8</div>
+          <div class="stat-label">現在レンタル中</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">3</div>
+          <div class="stat-label">本日の返却予定</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">156</div>
+          <div class="stat-label">今月の売上件数</div>
+          <div class="stat-change positive">+8% 前月比</div>
+        </div>
+      </div>
+
+      <!-- 本日の予約 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">本日の予約</h2>
+          <a href="reservations.html" class="btn btn-sm btn-outline">すべて見る</a>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>予約番号</th>
+                <th>会員名</th>
+                <th>車両クラス</th>
+                <th>受取時間</th>
+                <th>返却予定</th>
+                <th>ステータス</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>#R2026021101</td>
+                <td>山田 太郎</td>
+                <td>コンパクト</td>
+                <td>10:00</td>
+                <td>02/13 18:00</td>
+                <td><span class="badge badge-info">受取待ち</span></td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-outline">詳細</button>
+                </td>
+              </tr>
+              <tr>
+                <td>#R2026021102</td>
+                <td>佐藤 花子</td>
+                <td>スタンダード</td>
+                <td>11:00</td>
+                <td>02/15 11:00</td>
+                <td><span class="badge badge-info">受取待ち</span></td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-outline">詳細</button>
+                </td>
+              </tr>
+              <tr>
+                <td>#R2026021103</td>
+                <td>鈴木 一郎</td>
+                <td>ミニバン</td>
+                <td>14:00</td>
+                <td>02/18 14:00</td>
+                <td><span class="badge badge-warning">確認中</span></td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-outline">詳細</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 本日の返却 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">本日の返却予定</h2>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>予約番号</th>
+                <th>会員名</th>
+                <th>車両</th>
+                <th>返却時間</th>
+                <th>ステータス</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>#R2026020801</td>
+                <td>田中 誠</td>
+                <td>コンパクト / 品川 あ 12-34</td>
+                <td>15:00</td>
+                <td><span class="badge badge-success">レンタル中</span></td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-success">返却処理</button>
+                  <button class="btn btn-sm btn-outline">延長</button>
+                </td>
+              </tr>
+              <tr>
+                <td>#R2026020902</td>
+                <td>高橋 美咲</td>
+                <td>スタンダード / 品川 い 56-78</td>
+                <td>18:00</td>
+                <td><span class="badge badge-success">レンタル中</span></td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-success">返却処理</button>
+                  <button class="btn btn-sm btn-outline">延長</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- アラート -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">アラート</h2>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-warning">
+            <span>⚠️</span>
+            <div>
+              <strong>メンテナンス予定</strong>
+              <p>車両「品川 う 90-12」は02/15からメンテナンス予定です。</p>
+            </div>
+          </div>
+          <div class="alert alert-info">
+            <span>ℹ️</span>
+            <div>
+              <strong>キャンセル申請</strong>
+              <p>2件のキャンセル申請が承認待ちです。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

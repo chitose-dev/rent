@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>オプション管理 - 管理画面</title>
+  <link rel="stylesheet" href="common.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- サイドバー -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-logo">
+          TOKU-NORI
+          <small>管理画面</small>
+        </a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="index.html" class="nav-item">
+            <span class="nav-item-icon">📊</span>
+            ダッシュボード
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">予約管理</div>
+          <a href="reservations.html" class="nav-item">
+            <span class="nav-item-icon">📅</span>
+            予約一覧
+          </a>
+          <a href="members.html" class="nav-item">
+            <span class="nav-item-icon">👥</span>
+            会員管理
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">車両・サービス</div>
+          <a href="classes.html" class="nav-item">
+            <span class="nav-item-icon">🚗</span>
+            車両クラス
+          </a>
+          <a href="vehicles.html" class="nav-item">
+            <span class="nav-item-icon">🔧</span>
+            車両・在庫
+          </a>
+          <a href="options.html" class="nav-item active">
+            <span class="nav-item-icon">⚙️</span>
+            オプション
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">設定</div>
+          <a href="settings.html" class="nav-item">
+            <span class="nav-item-icon">🏪</span>
+            店舗設定
+          </a>
+          <a href="documents.html" class="nav-item">
+            <span class="nav-item-icon">📄</span>
+            法的文書
+          </a>
+        </div>
+        <div class="nav-section">
+          <a href="../login.html" class="nav-item">
+            <span class="nav-item-icon">↩️</span>
+            予約サイトへ
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="admin-main">
+      <div class="admin-header">
+        <div>
+          <h1 class="admin-title">オプション管理</h1>
+          <p class="admin-breadcrumb"><a href="index.html">ダッシュボード</a> / オプション</p>
+        </div>
+      </div>
+
+      <!-- タブ -->
+      <div class="tabs">
+        <button class="tab active" onclick="showTab('insurance')">免責補償</button>
+        <button class="tab" onclick="showTab('options')">追加オプション</button>
+      </div>
+
+      <!-- 免責補償タブ -->
+      <div class="tab-content active" id="insurance-tab">
+        <div class="admin-card">
+          <div class="card-header">
+            <h2 class="card-title">免責補償プラン</h2>
+            <button class="btn btn-sm btn-primary" onclick="openModal('add-insurance-modal')">+ 新規プラン追加</button>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>プラン名</th>
+                  <th>説明</th>
+                  <th>料金（1日）</th>
+                  <th>表示順</th>
+                  <th>ステータス</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>加入しない</strong></td>
+                  <td>免責補償に加入しない場合、事故時に最大20万円の自己負担が発生します。</td>
+                  <td>0円</td>
+                  <td>1</td>
+                  <td><span class="badge badge-success">有効</span></td>
+                  <td class="actions">
+                    <button class="btn btn-sm btn-outline">編集</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>スタンダード補償</strong></td>
+                  <td>対物・車両の免責額を0円に。安心の基本プランです。</td>
+                  <td>1,100円</td>
+                  <td>2</td>
+                  <td><span class="badge badge-success">有効</span></td>
+                  <td class="actions">
+                    <button class="btn btn-sm btn-outline">編集</button>
+                    <button class="btn btn-sm btn-danger">削除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>フル補償</strong></td>
+                  <td>NOC（休業補償）も含む完全補償プラン。万が一の際も安心です。</td>
+                  <td>1,650円</td>
+                  <td>3</td>
+                  <td><span class="badge badge-success">有効</span></td>
+                  <td class="actions">
+                    <button class="btn btn-sm btn-outline">編集</button>
+                    <button class="btn btn-sm btn-danger">削除</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 追加オプションタブ -->
+      <div class="tab-content" id="options-tab">
+        <div class="admin-card">
+          <div class="card-header">
+            <h2 class="card-title">追加オプション</h2>
+            <button class="btn btn-sm btn-primary" onclick="openModal('add-option-modal')">+ 新規オプション追加</button>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>オプション名</th>
+                  <th>説明</th>
+                  <th>料金</th>
+                  <th>料金タイプ</th>
+                  <th>表示順</th>
+                  <th>ステータス</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>カーナビ</strong></td>
+                  <td>ポータブルカーナビ</td>
+                  <td>550円</td>
+                  <td>1日あたり</td>
+                  <td>1</td>
+                  <td><span class="badge badge-success">有効</span></td>
+                  <td class="actions">
+                    <button class="btn btn-sm btn-outline">編集</button>
+                    <button class="btn btn-sm btn-danger">削除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>ETC車載器</strong></td>
+                  <td>ETC車載器（ETCカードは含まれません）</td>
+                  <td>330円</td>
+                  <td>1日あたり</td>
+                  <td>2</td>
+                  <td><span class="badge badge-success">有効</span></td>
+                  <td class="actions">
+                    <button class="btn btn-sm btn-outline">編集</button>
+                    <button class="btn btn-sm btn-danger">削除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>チャイルドシート</strong></td>
+                  <td>1〜4歳向けチャイルドシート</td>
+                  <td>550円</td>
+                  <td>1日あたり</td>
+                  <td>3</td>
+                  <td><span class="badge badge-success">有効</span></td>
+                  <td class="actions">
+                    <button class="btn btn-sm btn-outline">編集</button>
+                    <button class="btn btn-sm btn-danger">削除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>ジュニアシート</strong></td>
+                  <td>4〜10歳向けジュニアシート</td>
+                  <td>330円</td>
+                  <td>1日あたり</td>
+                  <td>4</td>
+                  <td><span class="badge badge-success">有効</span></td>
+                  <td class="actions">
+                    <button class="btn btn-sm btn-outline">編集</button>
+                    <button class="btn btn-sm btn-danger">削除</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>スタッドレスタイヤ</strong></td>
+                  <td>冬季限定・スタッドレスタイヤ装着</td>
+                  <td>2,200円</td>
+                  <td>1回あたり</td>
+                  <td>5</td>
+                  <td><span class="badge badge-secondary">無効</span></td>
+                  <td class="actions">
+                    <button class="btn btn-sm btn-outline">編集</button>
+                    <button class="btn btn-sm btn-danger">削除</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 保存ボタン -->
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+        <button class="btn btn-primary btn-lg">変更を保存</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- 免責補償追加モーダル -->
+  <div class="modal-overlay" id="add-insurance-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">免責補償プラン追加</h3>
+        <button class="modal-close" onclick="closeModal('add-insurance-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">プラン名<span class="required">*</span></label>
+          <input type="text" class="form-input" placeholder="例: プレミアム補償">
+        </div>
+        <div class="form-group">
+          <label class="form-label">説明文<span class="required">*</span></label>
+          <textarea class="form-textarea" rows="3" placeholder="プランの説明を入力"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">料金（1日あたり）<span class="required">*</span></label>
+          <div class="form-inline">
+            <input type="number" class="form-input" style="width: 120px;" placeholder="0">
+            <span>円</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">表示順</label>
+            <input type="number" class="form-input" value="1" style="width: 80px;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ステータス</label>
+            <select class="form-select" style="width: 120px;">
+              <option value="active">有効</option>
+              <option value="inactive">無効</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('add-insurance-modal')">キャンセル</button>
+        <button class="btn btn-primary">追加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- オプション追加モーダル -->
+  <div class="modal-overlay" id="add-option-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">追加オプション追加</h3>
+        <button class="modal-close" onclick="closeModal('add-option-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">オプション名<span class="required">*</span></label>
+          <input type="text" class="form-input" placeholder="例: ベビーシート">
+        </div>
+        <div class="form-group">
+          <label class="form-label">説明文</label>
+          <textarea class="form-textarea" rows="2" placeholder="オプションの説明を入力"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">料金<span class="required">*</span></label>
+            <div class="form-inline">
+              <input type="number" class="form-input" style="width: 120px;" placeholder="0">
+              <span>円</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">料金タイプ</label>
+            <select class="form-select">
+              <option value="daily">1日あたり</option>
+              <option value="once">1回あたり</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">表示順</label>
+            <input type="number" class="form-input" value="1" style="width: 80px;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ステータス</label>
+            <select class="form-select" style="width: 120px;">
+              <option value="active">有効</option>
+              <option value="inactive">無効</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('add-option-modal')">キャンセル</button>
+        <button class="btn btn-primary">追加</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+    
+    function showTab(tabName) {
+      // タブボタンの状態を更新
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      // タブコンテンツの表示を切り替え
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      document.getElementById(tabName + '-tab').classList.add('active');
+    }
+  </script>
+</body>
+</html>

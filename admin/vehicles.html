@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>車両・在庫管理 - 管理画面</title>
+  <link rel="stylesheet" href="common.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- サイドバー -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-logo">
+          TOKU-NORI
+          <small>管理画面</small>
+        </a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="index.html" class="nav-item">
+            <span class="nav-item-icon">📊</span>
+            ダッシュボード
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">予約管理</div>
+          <a href="reservations.html" class="nav-item">
+            <span class="nav-item-icon">📅</span>
+            予約一覧
+          </a>
+          <a href="members.html" class="nav-item">
+            <span class="nav-item-icon">👥</span>
+            会員管理
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">車両・サービス</div>
+          <a href="classes.html" class="nav-item">
+            <span class="nav-item-icon">🚗</span>
+            車両クラス
+          </a>
+          <a href="vehicles.html" class="nav-item active">
+            <span class="nav-item-icon">🔧</span>
+            車両・在庫
+          </a>
+          <a href="options.html" class="nav-item">
+            <span class="nav-item-icon">⚙️</span>
+            オプション
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">設定</div>
+          <a href="settings.html" class="nav-item">
+            <span class="nav-item-icon">🏪</span>
+            店舗設定
+          </a>
+          <a href="documents.html" class="nav-item">
+            <span class="nav-item-icon">📄</span>
+            法的文書
+          </a>
+        </div>
+        <div class="nav-section">
+          <a href="../login.html" class="nav-item">
+            <span class="nav-item-icon">↩️</span>
+            予約サイトへ
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="admin-main">
+      <div class="admin-header">
+        <div>
+          <h1 class="admin-title">車両・在庫管理</h1>
+          <p class="admin-breadcrumb"><a href="index.html">ダッシュボード</a> / 車両・在庫</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('add-vehicle-modal')">+ 新規車両追加</button>
+      </div>
+
+      <!-- 在庫サマリー -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">10</div>
+          <div class="stat-label">総車両数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value text-success">6</div>
+          <div class="stat-label">貸出可能</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value text-warning">3</div>
+          <div class="stat-label">レンタル中</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value text-danger">1</div>
+          <div class="stat-label">メンテナンス中</div>
+        </div>
+      </div>
+
+      <!-- フィルター -->
+      <div class="admin-card">
+        <div class="card-body" style="padding: 12px 20px;">
+          <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+            <div class="form-group" style="margin: 0;">
+              <select class="form-select" style="width: 150px;">
+                <option value="">全てのクラス</option>
+                <option value="compact">コンパクト</option>
+                <option value="standard">スタンダード</option>
+                <option value="minivan">ミニバン</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <select class="form-select" style="width: 150px;">
+                <option value="">全てのステータス</option>
+                <option value="available">貸出可能</option>
+                <option value="rented">レンタル中</option>
+                <option value="maintenance">メンテナンス中</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin: 0;">
+              <input type="text" class="form-input" placeholder="ナンバーで検索" style="width: 180px;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 車両一覧 -->
+      <div class="admin-card">
+        <div class="card-body" style="padding: 0;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ナンバー</th>
+                <th>車種</th>
+                <th>クラス</th>
+                <th>ステータス</th>
+                <th>次回予約</th>
+                <th>メンテナンス</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>品川 あ 12-34</strong></td>
+                <td>ダイハツ ミライース</td>
+                <td>コンパクト</td>
+                <td><span class="badge badge-success">貸出可能</span></td>
+                <td>02/15 10:00〜</td>
+                <td>-</td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-outline">編集</button>
+                  <button class="btn btn-sm btn-warning" onclick="openModal('maintenance-modal')">メンテ設定</button>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>品川 あ 56-78</strong></td>
+                <td>ホンダ N-BOX</td>
+                <td>コンパクト</td>
+                <td><span class="badge badge-warning">レンタル中</span></td>
+                <td>-</td>
+                <td>-</td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-outline">編集</button>
+                  <button class="btn btn-sm btn-warning" onclick="openModal('maintenance-modal')">メンテ設定</button>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>品川 い 12-34</strong></td>
+                <td>トヨタ カローラ</td>
+                <td>スタンダード</td>
+                <td><span class="badge badge-success">貸出可能</span></td>
+                <td>02/14 11:00〜</td>
+                <td>-</td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-outline">編集</button>
+                  <button class="btn btn-sm btn-warning" onclick="openModal('maintenance-modal')">メンテ設定</button>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>品川 い 56-78</strong></td>
+                <td>日産 セレナ</td>
+                <td>ミニバン</td>
+                <td><span class="badge badge-danger">メンテナンス中</span></td>
+                <td>-</td>
+                <td>02/11〜02/13<br><small class="text-muted">定期点検</small></td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-outline">編集</button>
+                  <button class="btn btn-sm btn-success">メンテ解除</button>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>品川 う 90-12</strong></td>
+                <td>トヨタ アルファード</td>
+                <td>ミニバン</td>
+                <td><span class="badge badge-warning">レンタル中</span></td>
+                <td>-</td>
+                <td><span class="text-warning">02/15〜予定</span></td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-outline">編集</button>
+                  <button class="btn btn-sm btn-warning" onclick="openModal('maintenance-modal')">メンテ設定</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- クラス別在庫数 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">クラス別在庫状況</h2>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>クラス</th>
+                <th>総台数</th>
+                <th>貸出可能</th>
+                <th>レンタル中</th>
+                <th>メンテナンス中</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>コンパクト</td>
+                <td>5</td>
+                <td class="text-success">3</td>
+                <td class="text-warning">2</td>
+                <td class="text-danger">0</td>
+              </tr>
+              <tr>
+                <td>スタンダード</td>
+                <td>3</td>
+                <td class="text-success">2</td>
+                <td class="text-warning">1</td>
+                <td class="text-danger">0</td>
+              </tr>
+              <tr>
+                <td>ミニバン</td>
+                <td>2</td>
+                <td class="text-success">0</td>
+                <td class="text-warning">1</td>
+                <td class="text-danger">1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 新規車両追加モーダル -->
+  <div class="modal-overlay" id="add-vehicle-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">新規車両追加</h3>
+        <button class="modal-close" onclick="closeModal('add-vehicle-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">ナンバープレート<span class="required">*</span></label>
+          <input type="text" class="form-input" placeholder="例: 品川 あ 12-34">
+        </div>
+        <div class="form-group">
+          <label class="form-label">車種名<span class="required">*</span></label>
+          <input type="text" class="form-input" placeholder="例: トヨタ カローラ">
+        </div>
+        <div class="form-group">
+          <label class="form-label">車両クラス<span class="required">*</span></label>
+          <select class="form-select">
+            <option value="">選択してください</option>
+            <option value="compact">コンパクト</option>
+            <option value="standard">スタンダード</option>
+            <option value="minivan">ミニバン</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">初期ステータス</label>
+          <select class="form-select">
+            <option value="available">貸出可能</option>
+            <option value="maintenance">メンテナンス中</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">備考</label>
+          <textarea class="form-textarea" rows="2" placeholder="特記事項があれば入力"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('add-vehicle-modal')">キャンセル</button>
+        <button class="btn btn-primary">追加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- メンテナンス設定モーダル -->
+  <div class="modal-overlay" id="maintenance-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">メンテナンス設定</h3>
+        <button class="modal-close" onclick="closeModal('maintenance-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning">
+          <span>⚠️</span>
+          <div>メンテナンス期間中は、この車両への新規予約ができなくなります。既存の予約がある場合は先に対応が必要です。</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">対象車両</label>
+          <input type="text" class="form-input" value="品川 あ 12-34 / ダイハツ ミライース" disabled>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">メンテナンス開始日<span class="required">*</span></label>
+            <input type="date" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">メンテナンス終了日<span class="required">*</span></label>
+            <input type="date" class="form-input">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">メンテナンス理由</label>
+          <select class="form-select">
+            <option value="inspection">定期点検</option>
+            <option value="repair">修理</option>
+            <option value="cleaning">清掃・消毒</option>
+            <option value="tire">タイヤ交換</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">備考</label>
+          <textarea class="form-textarea" rows="2" placeholder="詳細があれば入力"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('maintenance-modal')">キャンセル</button>
+        <button class="btn btn-warning">メンテナンス設定</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+  </script>
+</body>
+</html>

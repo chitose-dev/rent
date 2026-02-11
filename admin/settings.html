@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>店舗設定 - 管理画面</title>
+  <link rel="stylesheet" href="common.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- サイドバー -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-logo">
+          TOKU-NORI
+          <small>管理画面</small>
+        </a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="index.html" class="nav-item">
+            <span class="nav-item-icon">📊</span>
+            ダッシュボード
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">予約管理</div>
+          <a href="reservations.html" class="nav-item">
+            <span class="nav-item-icon">📅</span>
+            予約一覧
+          </a>
+          <a href="members.html" class="nav-item">
+            <span class="nav-item-icon">👥</span>
+            会員管理
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">車両・サービス</div>
+          <a href="classes.html" class="nav-item">
+            <span class="nav-item-icon">🚗</span>
+            車両クラス
+          </a>
+          <a href="vehicles.html" class="nav-item">
+            <span class="nav-item-icon">🔧</span>
+            車両・在庫
+          </a>
+          <a href="options.html" class="nav-item">
+            <span class="nav-item-icon">⚙️</span>
+            オプション
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">設定</div>
+          <a href="settings.html" class="nav-item active">
+            <span class="nav-item-icon">🏪</span>
+            店舗設定
+          </a>
+          <a href="documents.html" class="nav-item">
+            <span class="nav-item-icon">📄</span>
+            法的文書
+          </a>
+        </div>
+        <div class="nav-section">
+          <a href="../login.html" class="nav-item">
+            <span class="nav-item-icon">↩️</span>
+            予約サイトへ
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="admin-main">
+      <div class="admin-header">
+        <div>
+          <h1 class="admin-title">店舗設定</h1>
+          <p class="admin-breadcrumb"><a href="index.html">ダッシュボード</a> / 店舗設定</p>
+        </div>
+      </div>
+
+      <!-- 基本情報 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">基本情報</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">店舗名<span class="required">*</span></label>
+            <input type="text" class="form-input" value="トクノリレンタカー 岩出店">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">電話番号</label>
+              <input type="tel" class="form-input" value="073-XXX-XXXX">
+            </div>
+            <div class="form-group">
+              <label class="form-label">メールアドレス</label>
+              <input type="email" class="form-input" value="tokunori@vipauto-iwade.com">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">住所</label>
+            <input type="text" class="form-input" value="和歌山県岩出市XXX">
+          </div>
+        </div>
+      </div>
+
+      <!-- 営業時間設定 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">営業時間設定</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">営業開始時間</label>
+              <input type="time" class="form-input" value="08:00">
+            </div>
+            <div class="form-group">
+              <label class="form-label">営業終了時間</label>
+              <input type="time" class="form-input" value="20:00">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">時間枠の区切り（分）</label>
+            <select class="form-select" style="width: 200px;">
+              <option value="15">15分</option>
+              <option value="30" selected>30分</option>
+              <option value="60">60分</option>
+            </select>
+            <p class="form-hint">受取・返却時間の選択肢の間隔を設定します</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">定休日</label>
+            <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+              <label class="form-check">
+                <input type="checkbox"> 日曜日
+              </label>
+              <label class="form-check">
+                <input type="checkbox"> 月曜日
+              </label>
+              <label class="form-check">
+                <input type="checkbox" checked> 火曜日
+              </label>
+              <label class="form-check">
+                <input type="checkbox"> 水曜日
+              </label>
+              <label class="form-check">
+                <input type="checkbox"> 木曜日
+              </label>
+              <label class="form-check">
+                <input type="checkbox"> 金曜日
+              </label>
+              <label class="form-check">
+                <input type="checkbox"> 土曜日
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 予約設定 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">予約設定</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">同時対応可能組数</label>
+            <input type="number" class="form-input" style="width: 100px;" value="3" min="1" max="10">
+            <p class="form-hint">同じ時間帯に受取・返却対応できる最大組数</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">予約受付開始日</label>
+            <div class="form-inline">
+              <input type="number" class="form-input" style="width: 80px;" value="1" min="0">
+              <span>日後から</span>
+            </div>
+            <p class="form-hint">当日予約を受け付ける場合は0を設定</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">予約受付終了日</label>
+            <div class="form-inline">
+              <input type="number" class="form-input" style="width: 80px;" value="90" min="1">
+              <span>日後まで</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- レンタル日数設定 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">レンタル日数設定</h2>
+          <button class="btn btn-sm btn-primary" onclick="addDaysOption()">+ 日数を追加</button>
+        </div>
+        <div class="card-body">
+          <p class="form-hint mb-2">予約時に選択可能なレンタル日数を設定します。</p>
+          <table class="admin-table" id="days-table">
+            <thead>
+              <tr>
+                <th>日数</th>
+                <th>表示名</th>
+                <th>表示順</th>
+                <th>有効</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="number" class="form-input" value="1" style="width: 80px;"></td>
+                <td><input type="text" class="form-input" value="1日" style="width: 120px;"></td>
+                <td><input type="number" class="form-input" value="1" style="width: 60px;"></td>
+                <td><input type="checkbox" checked></td>
+                <td><button class="btn btn-sm btn-danger">削除</button></td>
+              </tr>
+              <tr>
+                <td><input type="number" class="form-input" value="3" style="width: 80px;"></td>
+                <td><input type="text" class="form-input" value="3日" style="width: 120px;"></td>
+                <td><input type="number" class="form-input" value="2" style="width: 60px;"></td>
+                <td><input type="checkbox" checked></td>
+                <td><button class="btn btn-sm btn-danger">削除</button></td>
+              </tr>
+              <tr>
+                <td><input type="number" class="form-input" value="7" style="width: 80px;"></td>
+                <td><input type="text" class="form-input" value="1週間" style="width: 120px;"></td>
+                <td><input type="number" class="form-input" value="3" style="width: 60px;"></td>
+                <td><input type="checkbox" checked></td>
+                <td><button class="btn btn-sm btn-danger">削除</button></td>
+              </tr>
+              <tr>
+                <td><input type="number" class="form-input" value="14" style="width: 80px;"></td>
+                <td><input type="text" class="form-input" value="2週間" style="width: 120px;"></td>
+                <td><input type="number" class="form-input" value="4" style="width: 60px;"></td>
+                <td><input type="checkbox" checked></td>
+                <td><button class="btn btn-sm btn-danger">削除</button></td>
+              </tr>
+              <tr>
+                <td><input type="number" class="form-input" value="30" style="width: 80px;"></td>
+                <td><input type="text" class="form-input" value="1ヶ月" style="width: 120px;"></td>
+                <td><input type="number" class="form-input" value="5" style="width: 60px;"></td>
+                <td><input type="checkbox" checked></td>
+                <td><button class="btn btn-sm btn-danger">削除</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- キャンセルポリシー設定 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">キャンセル料設定</h2>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info">
+            <span>ℹ️</span>
+            <div>キャンセル料は利用開始日からの日数に基づいて計算されます。</div>
+          </div>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>期間</th>
+                <th>キャンセル料率</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>7日前まで</td>
+                <td><input type="number" class="form-input" value="0" style="width: 80px;" min="0" max="100">%</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>3日前〜6日前</td>
+                <td><input type="number" class="form-input" value="30" style="width: 80px;" min="0" max="100">%</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>前日〜2日前</td>
+                <td><input type="number" class="form-input" value="50" style="width: 80px;" min="0" max="100">%</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>当日</td>
+                <td><input type="number" class="form-input" value="100" style="width: 80px;" min="0" max="100">%</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 画像設定 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">画像設定</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">ロゴ画像（アイコン）</label>
+              <div style="display: flex; align-items: center; gap: 16px;">
+                <img src="../images/logo-icon.png" alt="ロゴ" style="width: 60px; height: 60px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px;">
+                <button class="btn btn-outline">変更</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">ロゴ画像（テキスト）</label>
+              <div style="display: flex; align-items: center; gap: 16px;">
+                <img src="../images/logo-text.png" alt="ロゴテキスト" style="height: 40px; object-fit: contain; border: 1px solid #ddd; border-radius: 4px; padding: 8px;">
+                <button class="btn btn-outline">変更</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 保存ボタン -->
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+        <button class="btn btn-secondary">キャンセル</button>
+        <button class="btn btn-primary btn-lg">設定を保存</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function addDaysOption() {
+      const tbody = document.querySelector('#days-table tbody');
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td><input type="number" class="form-input" value="" style="width: 80px;" placeholder="日数"></td>
+        <td><input type="text" class="form-input" value="" style="width: 120px;" placeholder="表示名"></td>
+        <td><input type="number" class="form-input" value="${tbody.children.length + 1}" style="width: 60px;"></td>
+        <td><input type="checkbox" checked></td>
+        <td><button class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">削除</button></td>
+      `;
+      tbody.appendChild(newRow);
+    }
+  </script>
+</body>
+</html>
