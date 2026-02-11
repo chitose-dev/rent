@@ -781,9 +781,13 @@ body {
     position: fixed;
     left: -260px;
     width: 260px;
-    height: 100vh;
+    height: 100%;
+    min-height: 100vh;
+    top: 0;
+    bottom: 0;
     z-index: 1000;
     transition: left 0.3s ease;
+    overflow-y: auto;
   }
   
   .admin-sidebar.active {
