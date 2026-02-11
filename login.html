@@ -18,10 +18,21 @@
     }
     
     .login-logo {
-      font-size: var(--font-xxl);
-      font-weight: bold;
-      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-md);
       margin-bottom: var(--spacing-md);
+    }
+    
+    .login-logo-icon {
+      height: 80px;
+      width: auto;
+    }
+    
+    .login-logo-text {
+      height: 56px;
+      width: auto;
     }
     
     .login-subtitle {
@@ -175,7 +186,10 @@
   <!-- メインコンテンツ -->
   <div class="login-container">
     <div class="login-header">
-      <div class="login-logo">トクノリレンタカー</div>
+      <div class="login-logo">
+        <img src="images/logo-icon.png" alt="TOKU-NORI" class="login-logo-icon">
+        <img src="images/logo-text.png" alt="TOKU-NORI レンタカー" class="login-logo-text">
+      </div>
       <p class="login-subtitle">レンタカー予約システム</p>
     </div>
 
