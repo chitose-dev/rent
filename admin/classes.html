@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>車両クラス管理 - 管理画面</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .price-item {
+      background: #f5f5f5;
+      padding: 12px;
+      border-radius: 6px;
+    }
+    .price-item label {
+      font-size: 12px;
+      color: #666;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .class-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .class-card-header {
+      background: #fafafa;
+      padding: 16px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 8px 8px 0 0;
+    }
+    .class-card-body {
+      padding: 16px;
+    }
+    .class-image {
+      width: 120px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: #eee;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- サイドバー -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-logo">
+          TOKU-NORI
+          <small>管理画面</small>
+        </a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="index.html" class="nav-item">
+            <span class="nav-item-icon">📊</span>
+            ダッシュボード
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">予約管理</div>
+          <a href="reservations.html" class="nav-item">
+            <span class="nav-item-icon">📅</span>
+            予約一覧
+          </a>
+          <a href="members.html" class="nav-item">
+            <span class="nav-item-icon">👥</span>
+            会員管理
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">車両・サービス</div>
+          <a href="classes.html" class="nav-item active">
+            <span class="nav-item-icon">🚗</span>
+            車両クラス
+          </a>
+          <a href="vehicles.html" class="nav-item">
+            <span class="nav-item-icon">🔧</span>
+            車両・在庫
+          </a>
+          <a href="options.html" class="nav-item">
+            <span class="nav-item-icon">⚙️</span>
+            オプション
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">設定</div>
+          <a href="settings.html" class="nav-item">
+            <span class="nav-item-icon">🏪</span>
+            店舗設定
+          </a>
+          <a href="documents.html" class="nav-item">
+            <span class="nav-item-icon">📄</span>
+            法的文書
+          </a>
+        </div>
+        <div class="nav-section">
+          <a href="../login.html" class="nav-item">
+            <span class="nav-item-icon">↩️</span>
+            予約サイトへ
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="admin-main">
+      <div class="admin-header">
+        <div>
+          <h1 class="admin-title">車両クラス管理</h1>
+          <p class="admin-breadcrumb"><a href="index.html">ダッシュボード</a> / 車両クラス</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('add-class-modal')">+ 新規クラス追加</button>
+      </div>
+
+      <div class="alert alert-info">
+        <span>ℹ️</span>
+        <div>車両クラスごとにレンタル日数別の料金を設定できます。日数設定は<a href="settings.html">店舗設定</a>で変更できます。</div>
+      </div>
+
+      <!-- 車両クラス一覧 -->
+      <div id="class-list">
+        <!-- コンパクト -->
+        <div class="class-card">
+          <div class="class-card-header">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div class="class-image" style="display: flex; align-items: center; justify-content: center; color: #999;">画像</div>
+              <div>
+                <h3 style="margin: 0; font-size: 18px;">コンパクト</h3>
+                <p style="margin: 4px 0 0; color: #666; font-size: 13px;">軽自動車・コンパクトカー</p>
+              </div>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline">編集</button>
+              <button class="btn btn-sm btn-danger">削除</button>
+            </div>
+          </div>
+          <div class="class-card-body">
+            <div class="form-group">
+              <label class="form-label">説明文</label>
+              <textarea class="form-textarea" rows="2">燃費の良い軽自動車・コンパクトカー。街乗りや近距離移動に最適です。</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">日数別料金設定</label>
+              <div class="price-grid">
+                <div class="price-item">
+                  <label>1日</label>
+                  <div class="form-inline">
+                    <input type="number" class="form-input" value="3000" style="width: 100px;">
+                    <span>円</span>
+                  </div>
+                </div>
+                <div class="price-item">
+                  <label>3日</label>
+                  <div class="form-inline">
+                    <input type="number" class="form-input" value="8000" style="width: 100px;">
+                    <span>円</span>
+                  </div>
+                </div>
+                <div class="price-item">
+                  <label>1週間</label>
+                  <div class="form-inline">
+                    <input type="number" class="form-input" value="15000" style="width: 100px;">
+                    <span>円</span>
+                  </div>
+                </div>
+                <div class="price-item">
+                  <label>2週間</label>
+                  <div class="form-inline">
+                    <input type="number" class="form-input" value="25000" style="width: 100px;">
+                    <span>円</span>
+                  </div>
+                </div>
+                <div class="price-item">
+                  <label>1ヶ月</label>
+                  <div class="form-inline">
+                    <input type="number" class="form-input" value="40000" style="width: 100px;">
+                    <span>円</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row" style="margin-top: 16px;">
+              <div class="form-group">
+                <label class="form-label">在庫数</label>
+                <input type="number" class="form-input" value="5" style="width: 80px;" disabled>
+                <p class="form-hint"><a href="vehicles.html">車両管理</a>で設定</p>
+              </div>
+              <div class="form-group">
+                <label class="form-label">表示順</label>
+                <input type="number" class="form-input" value="1" style="width: 80px;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">ステータス</label>
+                <select class="form-select" style="width: 150px;">
+                  <option value="active" selected>公開中</option>
+                  <option value="hidden">非公開</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- スタンダード -->
+        <div class="class-card">
+          <div class="class-card-header">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div class="class-image" style="display: flex; align-items: center; justify-content: center; color: #999;">画像</div>
+              <div>
+                <h3 style="margin: 0; font-size: 18px;">スタンダード</h3>
+                <p style="margin: 4px 0 0; color: #666; font-size: 13px;">普通乗用車</p>
+              </div>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline">編集</button>
+              <button class="btn btn-sm btn-danger">削除</button>
+            </div>
+          </div>
+          <div class="class-card-body">
+            <div class="form-group">
+              <label class="form-label">説明文</label>
+              <textarea class="form-textarea" rows="2">快適な乗り心地の普通乗用車。長距離ドライブや家族でのお出かけに。</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">日数別料金設定</label>
+              <div class="price-grid">
+                <div class="price-item">
+                  <label>1日</label>
+                  <div class="form-inline">
+                    <input type="number" class="form-input" value="5000" style="width: 100px;">
+                    <span>円</span>
+                  </div>
+                </div>
+                <div class="price-item">
+                  <label>3日</label>
+                  <div class="form-inline">
+                    <input type="number" class="form-input" value="13000" style="width: 100px;">
+                    <span>円</span>
+                  </div>
+                </div>
+                <div class="price-item">
+                  <label>1週間</label>
+                  <div class="form-inline">
+                    <input type="number" class="form-input" value="25000" style="width: 100px;">
+                    <span>円</span>
+                  </div>
+                </div>
+                <div class="price-item">
+                  <label>2週間</label>
+                  <div class="form-inline">
+                    <input type="number" class="form-input" value="45000" style="width: 100px;">
+                    <span>円</span>
+                  </div>
+                </div>
+                <div class="price-item">
+                  <label>1ヶ月</label>
+                  <div class="form-inline">
+                    <input type="number" class="form-input" value="70000" style="width: 100px;">
+                    <span>円</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row" style="margin-top: 16px;">
+              <div class="form-group">
+                <label class="form-label">在庫数</label>
+                <input type="number" class="form-input" value="3" style="width: 80px;" disabled>
+                <p class="form-hint"><a href="vehicles.html">車両管理</a>で設定</p>
+              </div>
+              <div class="form-group">
+                <label class="form-label">表示順</label>
+                <input type="number" class="form-input" value="2" style="width: 80px;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">ステータス</label>
+                <select class="form-select" style="width: 150px;">
+                  <option value="active" selected>公開中</option>
+                  <option value="hidden">非公開</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ミニバン -->
+        <div class="class-card">
+          <div class="class-card-header">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div class="class-image" style="display: flex; align-items: center; justify-content: center; color: #999;">画像</div>
+              <div>
+                <h3 style="margin: 0; font-size: 18px;">ミニバン</h3>
+                <p style="margin: 4px 0 0; color: #666; font-size: 13px;">7〜8人乗りミニバン</p>
+              </div>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline">編集</button>
+              <button class="btn btn-sm btn-danger">削除</button>
+            </div>
+          </div>
+          <div class="class-card-body">
+            <div class="form-group">
+              <label class="form-label">説明文</label>
+              <textarea class="form-textarea" rows="2">広々とした室内空間のミニバン。大人数での移動や荷物が多い旅行に最適です。</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">日数別料金設定</label>
+              <div class="price-grid">
+                <div class="price-item">
+                  <label>1日</label>
+                  <div class="form-inline">
+                    <input type="number" class="form-input" value="8000" style="width: 100px;">
+                    <span>円</span>
+                  </div>
+                </div>
+                <div class="price-item">
+                  <label>3日</label>
+                  <div class="form-inline">
+                    <input type="number" class="form-input" value="20000" style="width: 100px;">
+                    <span>円</span>
+                  </div>
+                </div>
+                <div class="price-item">
+                  <label>1週間</label>
+                  <div class="form-inline">
+                    <input type="number" class="form-input" value="40000" style="width: 100px;">
+                    <span>円</span>
+                  </div>
+                </div>
+                <div class="price-item">
+                  <label>2週間</label>
+                  <div class="form-inline">
+                    <input type="number" class="form-input" value="70000" style="width: 100px;">
+                    <span>円</span>
+                  </div>
+                </div>
+                <div class="price-item">
+                  <label>1ヶ月</label>
+                  <div class="form-inline">
+                    <input type="number" class="form-input" value="110000" style="width: 100px;">
+                    <span>円</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row" style="margin-top: 16px;">
+              <div class="form-group">
+                <label class="form-label">在庫数</label>
+                <input type="number" class="form-input" value="2" style="width: 80px;" disabled>
+                <p class="form-hint"><a href="vehicles.html">車両管理</a>で設定</p>
+              </div>
+              <div class="form-group">
+                <label class="form-label">表示順</label>
+                <input type="number" class="form-input" value="3" style="width: 80px;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">ステータス</label>
+                <select class="form-select" style="width: 150px;">
+                  <option value="active" selected>公開中</option>
+                  <option value="hidden">非公開</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 保存ボタン -->
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+        <button class="btn btn-primary btn-lg">変更を保存</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- 新規クラス追加モーダル -->
+  <div class="modal-overlay" id="add-class-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">新規車両クラス追加</h3>
+        <button class="modal-close" onclick="closeModal('add-class-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">クラス名<span class="required">*</span></label>
+          <input type="text" class="form-input" placeholder="例: プレミアム">
+        </div>
+        <div class="form-group">
+          <label class="form-label">サブタイトル</label>
+          <input type="text" class="form-input" placeholder="例: 高級セダン">
+        </div>
+        <div class="form-group">
+          <label class="form-label">説明文</label>
+          <textarea class="form-textarea" rows="3" placeholder="クラスの説明を入力"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">画像</label>
+          <input type="file" class="form-input" accept="image/*">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('add-class-modal')">キャンセル</button>
+        <button class="btn btn-primary">追加</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+  </script>
+</body>
+</html>

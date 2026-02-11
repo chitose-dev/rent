@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>法的文書管理 - 管理画面</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .document-editor {
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      tab-size: 2;
+      white-space: pre-wrap;
+    }
+    .preview-content {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .preview-content h1 { font-size: 24px; margin: 0 0 16px; }
+    .preview-content h2 { font-size: 20px; margin: 24px 0 12px; }
+    .preview-content h3 { font-size: 16px; margin: 20px 0 8px; }
+    .preview-content p { margin: 8px 0; }
+    .preview-content ul, .preview-content ol { margin: 8px 0; padding-left: 24px; }
+    .preview-content li { margin: 4px 0; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- サイドバー -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-logo">
+          TOKU-NORI
+          <small>管理画面</small>
+        </a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="index.html" class="nav-item">
+            <span class="nav-item-icon">📊</span>
+            ダッシュボード
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">予約管理</div>
+          <a href="reservations.html" class="nav-item">
+            <span class="nav-item-icon">📅</span>
+            予約一覧
+          </a>
+          <a href="members.html" class="nav-item">
+            <span class="nav-item-icon">👥</span>
+            会員管理
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">車両・サービス</div>
+          <a href="classes.html" class="nav-item">
+            <span class="nav-item-icon">🚗</span>
+            車両クラス
+          </a>
+          <a href="vehicles.html" class="nav-item">
+            <span class="nav-item-icon">🔧</span>
+            車両・在庫
+          </a>
+          <a href="options.html" class="nav-item">
+            <span class="nav-item-icon">⚙️</span>
+            オプション
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">設定</div>
+          <a href="settings.html" class="nav-item">
+            <span class="nav-item-icon">🏪</span>
+            店舗設定
+          </a>
+          <a href="documents.html" class="nav-item active">
+            <span class="nav-item-icon">📄</span>
+            法的文書
+          </a>
+        </div>
+        <div class="nav-section">
+          <a href="../login.html" class="nav-item">
+            <span class="nav-item-icon">↩️</span>
+            予約サイトへ
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="admin-main">
+      <div class="admin-header">
+        <div>
+          <h1 class="admin-title">法的文書管理</h1>
+          <p class="admin-breadcrumb"><a href="index.html">ダッシュボード</a> / 法的文書</p>
+        </div>
+      </div>
+
+      <div class="alert alert-info">
+        <span>ℹ️</span>
+        <div>各文書はMarkdown形式で記述できます。変更後は必ず「保存」してください。</div>
+      </div>
+
+      <!-- タブ -->
+      <div class="tabs">
+        <button class="tab active" onclick="showTab('terms')">利用規約</button>
+        <button class="tab" onclick="showTab('privacy')">プライバシーポリシー</button>
+        <button class="tab" onclick="showTab('cancel')">キャンセルポリシー</button>
+        <button class="tab" onclick="showTab('tokusho')">特定商取引法</button>
+      </div>
+
+      <!-- 利用規約タブ -->
+      <div class="tab-content active" id="terms-tab">
+        <div class="admin-card">
+          <div class="card-header">
+            <h2 class="card-title">利用規約</h2>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline" onclick="togglePreview('terms')">プレビュー</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">最終更新日</label>
+              <input type="date" class="form-input" value="2026-01-15" style="width: 180px;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">内容（Markdown形式）</label>
+              <textarea class="form-textarea document-editor" id="terms-editor" rows="20"># 利用規約
+
+## 第1条（適用）
+
+本規約は、トクノリレンタカー（以下「当店」）が提供するレンタカーサービス（以下「本サービス」）の利用条件を定めるものです。
+
+## 第2条（利用資格）
+
+本サービスをご利用いただけるのは、以下の条件を満たす方に限ります。
+
+- 有効な運転免許証を所持していること
+- 満18歳以上であること
+- 当店が定める会員登録を完了していること
+
+## 第3条（予約・キャンセル）
+
+1. 予約は当店ウェブサイトまたは電話にて承ります
+2. キャンセルは利用開始日の3日前まで無料です
+3. それ以降のキャンセルは所定のキャンセル料が発生します
+
+## 第4条（料金・支払い）
+
+1. 利用料金は予約時に表示された金額となります
+2. 支払いはクレジットカードまたは現地払いを選択できます
+3. 延長利用の場合は追加料金が発生します
+
+## 第5条（禁止事項）
+
+以下の行為は禁止されています。
+
+- 転貸または又貸し
+- 飲酒運転
+- 競技やテストへの使用
+- その他法令に違反する行為
+
+## 第6条（免責事項）
+
+当店は以下の場合について責任を負いません。
+
+- 天災その他不可抗力による損害
+- お客様の過失による損害
+- 予見不可能な事由による損害
+
+## 第7条（個人情報の取り扱い）
+
+個人情報の取り扱いについては、別途定めるプライバシーポリシーに従います。
+
+## 第8条（規約の変更）
+
+当店は、必要に応じて本規約を変更することがあります。変更後の規約は当店ウェブサイトに掲載した時点で効力を生じます。
+
+---
+
+制定日：2026年1月1日
+最終更新日：2026年1月15日
+トクノリレンタカー</textarea>
+            </div>
+            <div id="terms-preview" style="display: none;">
+              <label class="form-label">プレビュー</label>
+              <div class="preview-content" id="terms-preview-content"></div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary">利用規約を保存</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- プライバシーポリシータブ -->
+      <div class="tab-content" id="privacy-tab">
+        <div class="admin-card">
+          <div class="card-header">
+            <h2 class="card-title">プライバシーポリシー</h2>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline" onclick="togglePreview('privacy')">プレビュー</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">最終更新日</label>
+              <input type="date" class="form-input" value="2026-01-15" style="width: 180px;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">内容（Markdown形式）</label>
+              <textarea class="form-textarea document-editor" id="privacy-editor" rows="20"># プライバシーポリシー
+
+トクノリレンタカー（以下「当店」）は、お客様の個人情報の保護に努めています。
+
+## 1. 収集する情報
+
+当店は以下の情報を収集します。
+
+- 氏名、住所、電話番号、メールアドレス
+- 運転免許証情報
+- 決済に関する情報
+- サービス利用履歴
+
+## 2. 情報の利用目的
+
+収集した情報は以下の目的で利用します。
+
+- サービスの提供・運営
+- お客様へのご連絡
+- 利用規約違反への対応
+- サービスの改善
+
+## 3. 第三者への提供
+
+当店は、以下の場合を除き、個人情報を第三者に提供しません。
+
+- お客様の同意がある場合
+- 法令に基づく場合
+- 人の生命・身体・財産の保護に必要な場合
+
+## 4. 情報の管理
+
+当店は、個人情報の漏洩・滅失・毀損の防止のため、適切な安全管理措置を講じます。
+
+## 5. 開示・訂正・削除
+
+お客様は、ご自身の個人情報について、開示・訂正・削除を求めることができます。
+
+## 6. お問い合わせ
+
+個人情報に関するお問い合わせは、下記までご連絡ください。
+
+トクノリレンタカー
+メール：tokunori@vipauto-iwade.com
+
+---
+
+制定日：2026年1月1日
+最終更新日：2026年1月15日</textarea>
+            </div>
+            <div id="privacy-preview" style="display: none;">
+              <label class="form-label">プレビュー</label>
+              <div class="preview-content" id="privacy-preview-content"></div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary">プライバシーポリシーを保存</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- キャンセルポリシータブ -->
+      <div class="tab-content" id="cancel-tab">
+        <div class="admin-card">
+          <div class="card-header">
+            <h2 class="card-title">キャンセルポリシー</h2>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline" onclick="togglePreview('cancel')">プレビュー</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">最終更新日</label>
+              <input type="date" class="form-input" value="2026-01-15" style="width: 180px;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">内容（Markdown形式）</label>
+              <textarea class="form-textarea document-editor" id="cancel-editor" rows="15"># キャンセルポリシー
+
+## キャンセル料について
+
+ご予約のキャンセルには、以下のキャンセル料が発生します。
+
+| 期間 | キャンセル料 |
+|------|------------|
+| 7日前まで | 無料 |
+| 3〜6日前 | 基本料金の30% |
+| 前日〜2日前 | 基本料金の50% |
+| 当日・無断キャンセル | 基本料金の100% |
+
+## キャンセル方法
+
+- マイページから「キャンセル申請」を行ってください
+- キャンセル申請後、店舗にて確認のうえ承認いたします
+- 承認後、キャンセル料を差し引いた金額を返金いたします
+
+## 返金について
+
+- クレジットカード決済の場合：カード会社経由で返金
+- 現地払いの場合：キャンセル料を銀行振込でお支払いいただきます
+
+## 注意事項
+
+- 無断キャンセルが続く場合、今後のご利用をお断りする場合があります
+- 天候等による道路事情でのキャンセルは、状況に応じて対応いたします
+
+---
+
+最終更新日：2026年1月15日</textarea>
+            </div>
+            <div id="cancel-preview" style="display: none;">
+              <label class="form-label">プレビュー</label>
+              <div class="preview-content" id="cancel-preview-content"></div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary">キャンセルポリシーを保存</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 特定商取引法タブ -->
+      <div class="tab-content" id="tokusho-tab">
+        <div class="admin-card">
+          <div class="card-header">
+            <h2 class="card-title">特定商取引法に基づく表記</h2>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline" onclick="togglePreview('tokusho')">プレビュー</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">最終更新日</label>
+              <input type="date" class="form-input" value="2026-01-15" style="width: 180px;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">内容（Markdown形式）</label>
+              <textarea class="form-textarea document-editor" id="tokusho-editor" rows="20"># 特定商取引法に基づく表記
+
+## 事業者情報
+
+| 項目 | 内容 |
+|------|------|
+| 販売業者 | トクノリレンタカー |
+| 運営責任者 | （責任者名） |
+| 所在地 | 和歌山県岩出市XXX |
+| 電話番号 | 073-XXX-XXXX |
+| メールアドレス | tokunori@vipauto-iwade.com |
+
+## 販売価格
+
+各車両クラス・レンタル日数により異なります。詳細は予約画面にてご確認ください。
+
+## 支払方法
+
+- クレジットカード（VISA、MasterCard、JCB、AMEX）
+- 現地払い（現金、クレジットカード）
+
+## 支払時期
+
+- クレジットカード：予約確定時
+- 現地払い：ご来店時
+
+## サービス提供時期
+
+ご予約いただいた受取日時より、サービスを提供いたします。
+
+## キャンセル・返品について
+
+キャンセルポリシーに基づき、キャンセル料が発生する場合があります。詳細は「キャンセルポリシー」をご確認ください。
+
+## 特記事項
+
+- 表示価格は全て税込です
+- 燃料代はお客様のご負担となります
+- 延長料金は別途発生します
+
+---
+
+最終更新日：2026年1月15日</textarea>
+            </div>
+            <div id="tokusho-preview" style="display: none;">
+              <label class="form-label">プレビュー</label>
+              <div class="preview-content" id="tokusho-preview-content"></div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary">特定商取引法に基づく表記を保存</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    function showTab(tabName) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      document.getElementById(tabName + '-tab').classList.add('active');
+    }
+
+    function togglePreview(type) {
+      const preview = document.getElementById(type + '-preview');
+      const editor = document.getElementById(type + '-editor');
+      const content = document.getElementById(type + '-preview-content');
+      
+      if (preview.style.display === 'none') {
+        preview.style.display = 'block';
+        if (typeof marked !== 'undefined') {
+          content.innerHTML = marked.parse(editor.value);
+        } else {
+          content.innerHTML = '<p>プレビューを表示するにはmarked.jsが必要です</p>';
+        }
+      } else {
+        preview.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
