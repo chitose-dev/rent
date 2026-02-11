@@ -126,6 +126,7 @@
                   <td><span class="badge badge-success">アクティブ</span></td>
                   <td class="actions">
                     <button class="btn btn-sm btn-outline" onclick="openModal('member-detail-modal')">詳細</button>
+                    <button class="btn btn-sm btn-primary" onclick="openEmailModal('山田 太郎', 'yamada@example.com')">メール</button>
                     <button class="btn btn-sm btn-danger" onclick="openModal('blacklist-add-modal')">ブラックリスト</button>
                   </td>
                 </tr>
@@ -139,6 +140,7 @@
                   <td><span class="badge badge-success">アクティブ</span></td>
                   <td class="actions">
                     <button class="btn btn-sm btn-outline" onclick="openModal('member-detail-modal')">詳細</button>
+                    <button class="btn btn-sm btn-primary" onclick="openEmailModal('佐藤 花子', 'sato@example.com')">メール</button>
                     <button class="btn btn-sm btn-danger" onclick="openModal('blacklist-add-modal')">ブラックリスト</button>
                   </td>
                 </tr>
@@ -152,6 +154,7 @@
                   <td><span class="badge badge-success">アクティブ</span></td>
                   <td class="actions">
                     <button class="btn btn-sm btn-outline" onclick="openModal('member-detail-modal')">詳細</button>
+                    <button class="btn btn-sm btn-primary" onclick="openEmailModal('田中 誠', 'tanaka@example.com')">メール</button>
                     <button class="btn btn-sm btn-danger" onclick="openModal('blacklist-add-modal')">ブラックリスト</button>
                   </td>
                 </tr>
@@ -165,6 +168,7 @@
                   <td><span class="badge badge-secondary">非アクティブ</span></td>
                   <td class="actions">
                     <button class="btn btn-sm btn-outline" onclick="openModal('member-detail-modal')">詳細</button>
+                    <button class="btn btn-sm btn-primary" onclick="openEmailModal('鈴木 一郎', 'suzuki@example.com')">メール</button>
                     <button class="btn btn-sm btn-danger" onclick="openModal('blacklist-add-modal')">ブラックリスト</button>
                   </td>
                 </tr>
@@ -178,6 +182,7 @@
                   <td><span class="badge badge-success">アクティブ</span></td>
                   <td class="actions">
                     <button class="btn btn-sm btn-outline" onclick="openModal('member-detail-modal')">詳細</button>
+                    <button class="btn btn-sm btn-primary" onclick="openEmailModal('高橋 美咲', 'takahashi@example.com')">メール</button>
                     <button class="btn btn-sm btn-danger" onclick="openModal('blacklist-add-modal')">ブラックリスト</button>
                   </td>
                 </tr>
@@ -378,6 +383,51 @@
     </div>
   </div>
 
+  <!-- メール送信モーダル -->
+  <div class="modal-overlay" id="email-modal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title">メール送信</h3>
+        <button class="modal-close" onclick="closeModal('email-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">宛先</label>
+          <input type="text" class="form-input" id="email-to-name" disabled>
+          <input type="hidden" id="email-to-address">
+        </div>
+        <div class="form-group">
+          <label class="form-label">メールアドレス</label>
+          <input type="email" class="form-input" id="email-to-display" disabled>
+        </div>
+        <div class="form-group">
+          <label class="form-label">件名<span class="required">*</span></label>
+          <input type="text" class="form-input" id="email-subject" placeholder="メールの件名を入力">
+        </div>
+        <div class="form-group">
+          <label class="form-label">本文<span class="required">*</span></label>
+          <textarea class="form-textarea" id="email-body" rows="10" placeholder="メール本文を入力"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">署名</label>
+          <div class="alert alert-info" style="margin: 0;">
+            <small>
+              ───────────────────<br>
+              トクノリレンタカー<br>
+              TEL: 073-XXX-XXXX<br>
+              Email: tokunori@vipauto-iwade.com
+            </small>
+          </div>
+          <p class="form-hint">署名は自動的に本文の末尾に追加されます</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('email-modal')">キャンセル</button>
+        <button class="btn btn-primary" onclick="sendEmail()">送信</button>
+      </div>
+    </div>
+  </div>
+
   <script src="common.js"></script>
   <script>
     function openModal(id) {
@@ -392,6 +442,30 @@
       event.target.classList.add('active');
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
       document.getElementById(tabName + '-tab').classList.add('active');
+    }
+    
+    function openEmailModal(name, email) {
+      document.getElementById('email-to-name').value = name;
+      document.getElementById('email-to-address').value = email;
+      document.getElementById('email-to-display').value = email;
+      document.getElementById('email-subject').value = '';
+      document.getElementById('email-body').value = '';
+      openModal('email-modal');
+    }
+    
+    function sendEmail() {
+      const subject = document.getElementById('email-subject').value;
+      const body = document.getElementById('email-body').value;
+      const to = document.getElementById('email-to-display').value;
+      
+      if (!subject || !body) {
+        alert('件名と本文を入力してください');
+        return;
+      }
+      
+      // デモ: 実際はAPIで送信
+      alert('メールを送信しました: ' + to);
+      closeModal('email-modal');
     }
   </script>
 </body>
