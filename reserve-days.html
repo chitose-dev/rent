@@ -79,19 +79,33 @@
     
     @media (max-width: 768px) {
       .days-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
       }
       
       .days-card {
-        padding: var(--spacing-lg);
+        padding: 10px 6px;
       }
       
       .days-card-number {
-        font-size: var(--font-xxl);
+        font-size: 18px;
       }
       
       .days-card-label {
-        font-size: var(--font-md);
+        font-size: 11px;
+      }
+      
+      .days-card-note {
+        font-size: 10px;
+      }
+      
+      .selected-info {
+        padding: 10px;
+        font-size: 12px;
+      }
+      
+      .selected-info-row {
+        font-size: 12px;
       }
     }
   </style>

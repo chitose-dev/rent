@@ -8,44 +8,45 @@
   <style>
     .new-reservation-container {
       text-align: center;
-      padding: var(--spacing-xl);
+      padding: var(--spacing-lg);
       background-color: var(--bg-white);
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     
     .new-reservation-icon {
-      font-size: 80px;
-      margin-bottom: var(--spacing-lg);
+      font-size: 48px;
+      margin-bottom: var(--spacing-md);
     }
     
     .new-reservation-title {
-      font-size: var(--font-xxl);
+      font-size: var(--font-lg);
       font-weight: bold;
-      margin-bottom: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
       color: var(--text-dark);
     }
     
     .new-reservation-message {
       color: var(--text-light);
-      margin-bottom: var(--spacing-xl);
-      line-height: 1.8;
+      margin-bottom: var(--spacing-lg);
+      line-height: 1.6;
+      font-size: var(--font-sm);
     }
     
     .feature-list {
       text-align: left;
       max-width: 600px;
-      margin: 0 auto var(--spacing-xl);
+      margin: 0 auto var(--spacing-lg);
       background-color: var(--bg-light);
-      padding: var(--spacing-lg);
+      padding: var(--spacing-md);
       border-radius: 8px;
     }
     
     .feature-item {
       display: flex;
-      gap: var(--spacing-md);
-      margin-bottom: var(--spacing-md);
-      padding: var(--spacing-md);
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-sm);
+      padding: var(--spacing-sm);
       background-color: var(--bg-white);
       border-radius: 4px;
     }
@@ -55,19 +56,47 @@
     }
     
     .feature-icon {
-      font-size: var(--font-xl);
+      font-size: var(--font-md);
       flex-shrink: 0;
     }
     
     .feature-content h3 {
-      font-size: var(--font-md);
+      font-size: var(--font-sm);
       font-weight: bold;
-      margin-bottom: var(--spacing-xs);
+      margin-bottom: 2px;
     }
     
     .feature-content p {
-      font-size: var(--font-sm);
+      font-size: var(--font-xs);
       color: var(--text-light);
+    }
+    
+    @media (max-width: 768px) {
+      .new-reservation-container {
+        padding: var(--spacing-md);
+      }
+      .new-reservation-icon {
+        font-size: 32px;
+        margin-bottom: var(--spacing-sm);
+      }
+      .new-reservation-title {
+        font-size: 15px;
+      }
+      .new-reservation-message {
+        font-size: 12px;
+      }
+      .feature-list {
+        padding: var(--spacing-sm);
+      }
+      .feature-item {
+        padding: 8px;
+      }
+      .feature-content h3 {
+        font-size: 12px;
+      }
+      .feature-content p {
+        font-size: 11px;
+      }
     }
   </style>
 </head>
@@ -143,7 +172,7 @@
         </div>
       </div>
       
-      <button class="btn btn-primary" style="font-size: var(--font-lg); padding: var(--spacing-lg) var(--spacing-xl);" onclick="startReservation()">
+      <button class="btn btn-primary" onclick="startReservation()">
         予約を開始する
       </button>
     </div>
