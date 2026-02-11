@@ -120,6 +120,7 @@
       border-radius: 8px;
       padding: var(--spacing-md);
       margin-top: var(--spacing-md);
+      max-width: 400px;
     }
     
     .calendar-header {
@@ -742,14 +743,13 @@
     </div>
     
     <!-- 3. オプション -->
-    <div class="reserve-section locked" id="section-options">
+    <div class="reserve-section" id="section-options">
       <h2 class="reserve-section-title">
         <span class="reserve-section-number">3</span>
         オプション
       </h2>
-      <div class="section-locked-message" id="locked-options">車両クラスを選択してください</div>
       <div class="section-completed" id="completed-options"></div>
-      <div class="section-content hidden" id="content-options">
+      <div class="section-content" id="content-options">
       <div class="option-group">
         <div class="option-group-title">免責補償</div>
         
@@ -824,14 +824,13 @@
     </div>
     
     <!-- 4. 決済方法 -->
-    <div class="reserve-section locked" id="section-payment">
+    <div class="reserve-section" id="section-payment">
       <h2 class="reserve-section-title">
         <span class="reserve-section-number">4</span>
         決済方法
       </h2>
-      <div class="section-locked-message" id="locked-payment">オプションを選択してください</div>
       <div class="section-completed" id="completed-payment"></div>
-      <div class="section-content hidden" id="content-payment">
+      <div class="section-content" id="content-payment">
       <div class="payment-card" data-payment="card" onclick="selectPayment(this)">
         <input type="radio" name="payment" value="card" checked>
         <div class="payment-card-info">
@@ -898,6 +897,8 @@
     // カレンダー用
     let currentCalendarDate = new Date();
     let selectedStartDate = null;
+    let selectedEndDate = null;
+    let selectingEnd = false; // true = 終了日選択中
     
     // 初期化
     function init() {
@@ -913,21 +914,21 @@
     // セクションのロック/アンロック制御
     function updateSections() {
       // セクション2: 車両クラス（レンタル期間が完了したら表示）
-      const periodComplete = state.days && state.startDate && state.startTime && state.endTime;
+      const periodComplete = state.startDate && state.endDate && state.startTime && state.endTime;
       toggleSection('class', periodComplete);
       if (periodComplete) {
         const startDateObj = new Date(state.startDate);
+        const endDateObj = new Date(state.endDate);
+        const days = Math.ceil((endDateObj - startDateObj) / (1000 * 60 * 60 * 24)) + 1;
         document.getElementById('completed-period').textContent = 
-          `${state.days}日間 / ${startDateObj.getMonth()+1}月${startDateObj.getDate()}日 ${state.startTime} 〜`;
+          `${days}日間 / ${startDateObj.getMonth()+1}月${startDateObj.getDate()}日 ${state.startTime} 〜 ${endDateObj.getMonth()+1}月${endDateObj.getDate()}日 ${state.endTime}`;
         document.getElementById('completed-period').classList.add('show');
       } else {
         document.getElementById('completed-period').classList.remove('show');
       }
       
-      // セクション3: オプション（車両クラスが選択されたら表示）
-      const classComplete = state.vehicleClass;
-      toggleSection('options', classComplete);
-      if (classComplete) {
+      // 車両クラス選択済みの表示
+      if (state.vehicleClass) {
         const classNames = { compact: 'コンパクト', standard: 'スタンダード', minivan: 'ミニバン' };
         document.getElementById('completed-class').textContent = classNames[state.vehicleClass];
         document.getElementById('completed-class').classList.add('show');
@@ -935,10 +936,8 @@
         document.getElementById('completed-class').classList.remove('show');
       }
       
-      // セクション4: 決済方法（免責補償が選択されたら表示）
-      const optionsComplete = state.insurance !== null;
-      toggleSection('payment', optionsComplete);
-      if (optionsComplete) {
+      // オプション選択済みの表示
+      if (state.insurance !== null) {
         const insuranceNames = { none: '補償なし', standard: 'スタンダード補償', full: 'フル補償' };
         let optText = insuranceNames[state.insurance];
         if (state.options.length > 0) {
@@ -950,16 +949,21 @@
         document.getElementById('completed-options').classList.remove('show');
       }
       
-      // 決済方法が選択されたら料金サマリー表示
+      // 決済方法選択済みの表示 + 料金サマリー
       if (state.payment) {
-        document.getElementById('price-summary').style.display = 'block';
         const paymentNames = { card: 'クレジットカード', local: '現地払い' };
         document.getElementById('completed-payment').textContent = paymentNames[state.payment];
         document.getElementById('completed-payment').classList.add('show');
+      } else {
+        document.getElementById('completed-payment').classList.remove('show');
+      }
+      
+      // 料金サマリーは車両クラスと日程が決まったら表示
+      if (state.vehicleClass && state.startDate && state.endDate) {
+        document.getElementById('price-summary').style.display = 'block';
         updateSummary();
       } else {
         document.getElementById('price-summary').style.display = 'none';
-        document.getElementById('completed-payment').classList.remove('show');
       }
     }
     
@@ -980,7 +984,7 @@
       }
     }
     
-    // 日数選択
+    // 日数選択（プリセット）
     function selectDays(days) {
       state.days = days;
       document.querySelectorAll('.days-btn').forEach(btn => {
@@ -989,13 +993,17 @@
       
       // カレンダーを表示
       document.getElementById('calendarSection').style.display = 'block';
-      renderCalendar();
       
-      // 既に日付が選択されていたら再計算
-      if (selectedStartDate) {
-        updateDateInfo();
-        renderCalendar();
-      }
+      // リセット
+      selectedStartDate = null;
+      selectedEndDate = null;
+      selectingEnd = false;
+      state.startDate = null;
+      state.endDate = null;
+      document.getElementById('dateInfoBox').style.display = 'none';
+      document.getElementById('timeSection').style.display = 'none';
+      
+      renderCalendar();
     }
     
     // カレンダー描画
@@ -1004,7 +1012,13 @@
       const month = currentCalendarDate.getMonth();
       
       // ヘッダー更新
-      document.getElementById('calendarMonth').textContent = `${year}年${month + 1}月`;
+      let headerText = `${year}年${month + 1}月`;
+      if (!selectedStartDate) {
+        headerText += ' - 開始日を選択';
+      } else if (!selectedEndDate) {
+        headerText += ' - 終了日を選択';
+      }
+      document.getElementById('calendarMonth').textContent = headerText;
       
       // 月の最初の日と最後の日
       const firstDay = new Date(year, month, 1);
@@ -1025,6 +1039,13 @@
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
+      // 最大終了日（開始日 + 日数プリセット - 1）
+      let maxEndDate = null;
+      if (selectedStartDate && state.days) {
+        maxEndDate = new Date(selectedStartDate);
+        maxEndDate.setDate(maxEndDate.getDate() + state.days - 1);
+      }
+      
       // 日付セル
       for (let day = 1; day <= lastDay.getDate(); day++) {
         const date = new Date(year, month, day);
@@ -1037,23 +1058,43 @@
         if (dayOfWeek === 0) dayCell.classList.add('sunday');
         if (dayOfWeek === 6) dayCell.classList.add('saturday');
         
-        // 過去の日付は選択不可
+        // 選択可否判定
+        let isDisabled = false;
+        
         if (date <= today) {
+          // 過去の日付
+          isDisabled = true;
+        } else if (selectingEnd && selectedStartDate) {
+          // 終了日選択中: 開始日より前、または最大終了日より後は選択不可
+          if (date < selectedStartDate || (maxEndDate && date > maxEndDate)) {
+            isDisabled = true;
+          }
+        }
+        
+        if (isDisabled) {
           dayCell.classList.add('disabled');
         } else {
           dayCell.onclick = () => selectDate(date);
         }
         
-        // 選択中の日付
+        // 開始日
         if (selectedStartDate && date.toDateString() === selectedStartDate.toDateString()) {
           dayCell.classList.add('selected');
         }
         
-        // レンタル期間内の日付
-        if (selectedStartDate && state.days) {
-          const endDate = new Date(selectedStartDate);
-          endDate.setDate(endDate.getDate() + state.days - 1);
-          if (date > selectedStartDate && date <= endDate) {
+        // 終了日
+        if (selectedEndDate && date.toDateString() === selectedEndDate.toDateString()) {
+          dayCell.classList.add('selected');
+        }
+        
+        // 期間内の日付
+        if (selectedStartDate && selectedEndDate) {
+          if (date > selectedStartDate && date < selectedEndDate) {
+            dayCell.classList.add('in-range');
+          }
+        } else if (selectedStartDate && maxEndDate && !selectedEndDate) {
+          // 選択可能範囲をハイライト
+          if (date > selectedStartDate && date <= maxEndDate) {
             dayCell.classList.add('in-range');
           }
         }
@@ -1084,15 +1125,33 @@
       document.getElementById('nextMonthBtn').disabled = nextMonth > maxDate;
     }
     
-    // 日付選択
+    // 日付選択（2回タップ方式）
     function selectDate(date) {
-      selectedStartDate = date;
-      state.startDate = formatDate(date);
+      if (!selectingEnd) {
+        // 1回目: 開始日選択
+        selectedStartDate = date;
+        selectedEndDate = null;
+        selectingEnd = true;
+        state.startDate = formatDate(date);
+        state.endDate = null;
+        document.getElementById('timeSection').style.display = 'none';
+      } else {
+        // 2回目: 終了日選択
+        selectedEndDate = date;
+        selectingEnd = false;
+        state.endDate = formatDate(date);
+        
+        // 実際の日数を計算
+        const diffTime = date - selectedStartDate;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        state.days = diffDays;
+        
+        // 時間選択を表示
+        document.getElementById('timeSection').style.display = 'block';
+      }
+      
       updateDateInfo();
       renderCalendar();
-      
-      // 時間選択を表示
-      document.getElementById('timeSection').style.display = 'block';
     }
     
     // 日付フォーマット
@@ -1105,16 +1164,38 @@
     
     // 日付情報更新
     function updateDateInfo() {
-      if (!selectedStartDate || !state.days) return;
-      
-      const endDate = new Date(selectedStartDate);
-      endDate.setDate(endDate.getDate() + state.days - 1);
-      state.endDate = formatDate(endDate);
-      
       const formatJP = (d) => `${d.getMonth()+1}月${d.getDate()}日`;
-      document.getElementById('infoStartDate').textContent = formatJP(selectedStartDate);
-      document.getElementById('infoEndDate').textContent = formatJP(endDate);
-      document.getElementById('dateInfoBox').style.display = 'block';
+      
+      if (selectedStartDate) {
+        document.getElementById('infoStartDate').textContent = formatJP(selectedStartDate);
+      } else {
+        document.getElementById('infoStartDate').textContent = '-';
+      }
+      
+      if (selectedEndDate) {
+        document.getElementById('infoEndDate').textContent = formatJP(selectedEndDate);
+        const diffDays = Math.ceil((selectedEndDate - selectedStartDate) / (1000 * 60 * 60 * 24)) + 1;
+        document.getElementById('dateInfoBox').innerHTML = `
+          <div class="date-info-row">
+            <span>開始日:</span>
+            <strong>${formatJP(selectedStartDate)}</strong>
+          </div>
+          <div class="date-info-row">
+            <span>終了日:</span>
+            <strong>${formatJP(selectedEndDate)}</strong>
+          </div>
+          <div class="date-info-row">
+            <span>レンタル日数:</span>
+            <strong>${diffDays}日間</strong>
+          </div>
+        `;
+      } else {
+        document.getElementById('infoEndDate').textContent = '-';
+      }
+      
+      if (selectedStartDate) {
+        document.getElementById('dateInfoBox').style.display = 'block';
+      }
     }
     
     // 期間セクション完了チェック
@@ -1181,7 +1262,13 @@
     
     // 料金更新
     function updateSummary() {
-      const days = state.days || 1;
+      let days = 1;
+      if (state.startDate && state.endDate) {
+        const start = new Date(state.startDate);
+        const end = new Date(state.endDate);
+        days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      }
+      
       const basePrice = state.classPrice * days;
       const insuranceTotal = state.insurancePrice * days;
       const optionsTotal = state.optionsPrice * days;
