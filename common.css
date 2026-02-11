@@ -85,7 +85,7 @@ textarea {
 .header {
   background-color: var(--bg-white);
   border-bottom: 2px solid var(--primary-color);
-  padding: var(--spacing-sm);
+  padding: var(--spacing-md);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -111,22 +111,22 @@ textarea {
 }
 
 .header-logo-icon {
-  height: 80px;
+  height: 40px;
   width: auto;
 }
 
 .header-logo-text {
-  height: 56px;
+  height: 28px;
   width: auto;
 }
 
 @media (max-width: 768px) {
   .header-logo-icon {
-    height: 64px;
+    height: 32px;
   }
   
   .header-logo-text {
-    height: 44px;
+    height: 22px;
   }
 }
 
