@@ -63,6 +63,87 @@
       margin-bottom: var(--spacing-sm);
     }
     
+    /* モーダル */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: var(--bg-white);
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-lg);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .modal-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--text-light);
+    }
+    
+    .modal-body {
+      padding: var(--spacing-lg);
+    }
+    
+    .modal-footer {
+      display: flex;
+      gap: var(--spacing-md);
+      padding: var(--spacing-lg);
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .modal-footer .btn {
+      flex: 1;
+    }
+    
+    .form-group {
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .form-label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .form-input, .form-select {
+      width: 100%;
+      padding: var(--spacing-md);
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      font-size: var(--font-md);
+    }
+    
     @media (max-width: 768px) {
       .detail-row {
         flex-direction: column;
@@ -71,6 +152,10 @@
       
       .detail-value {
         text-align: left;
+      }
+      
+      .modal-footer {
+        flex-direction: column;
       }
     }
   </style>
@@ -135,12 +220,81 @@
         <span class="detail-value" id="detailPickup">-</span>
       </div>
       <div class="detail-row">
-        <span class="detail-label">返却日時</span>
+        <span class="detail-label">返却期限</span>
         <span class="detail-value" id="detailReturn">-</span>
       </div>
       <div class="detail-row">
         <span class="detail-label">受取場所</span>
         <span class="detail-value">店舗受付</span>
+      </div>
+    </div>
+    
+    <!-- 返却予定日時入力 -->
+    <div class="detail-section" id="returnPlanSection">
+      <div class="detail-title">返却予定の入力</div>
+      <p style="color: var(--text-light); margin-bottom: var(--spacing-md); font-size: var(--font-sm);">
+        返却は営業時間内であればいつでも可能です。返却予定日時を入力してください。
+      </p>
+      <div class="detail-row">
+        <span class="detail-label">返却予定日時</span>
+        <span class="detail-value" id="detailPlannedReturn">未入力</span>
+      </div>
+      <div style="margin-top: var(--spacing-md);">
+        <button class="btn btn-secondary" onclick="openReturnPlanModal()">返却予定を入力・変更</button>
+      </div>
+    </div>
+    
+    <!-- 返却予定入力モーダル -->
+    <div class="modal-overlay" id="returnPlanModal">
+      <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+          <h3 class="modal-title">返却予定日時の入力</h3>
+          <button class="modal-close" onclick="closeReturnPlanModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <p style="color: var(--text-light); margin-bottom: var(--spacing-md); font-size: var(--font-sm);">
+            返却期限内で返却予定の日時を入力してください。
+          </p>
+          <div class="form-group">
+            <label class="form-label">返却予定日</label>
+            <input type="date" class="form-input" id="plannedReturnDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">返却予定時間</label>
+            <select class="form-select" id="plannedReturnTime">
+              <option value="">選択してください</option>
+              <option value="08:00">08:00</option>
+              <option value="08:30">08:30</option>
+              <option value="09:00">09:00</option>
+              <option value="09:30">09:30</option>
+              <option value="10:00">10:00</option>
+              <option value="10:30">10:30</option>
+              <option value="11:00">11:00</option>
+              <option value="11:30">11:30</option>
+              <option value="12:00">12:00</option>
+              <option value="12:30">12:30</option>
+              <option value="13:00">13:00</option>
+              <option value="13:30">13:30</option>
+              <option value="14:00">14:00</option>
+              <option value="14:30">14:30</option>
+              <option value="15:00">15:00</option>
+              <option value="15:30">15:30</option>
+              <option value="16:00">16:00</option>
+              <option value="16:30">16:30</option>
+              <option value="17:00">17:00</option>
+              <option value="17:30">17:30</option>
+              <option value="18:00">18:00</option>
+              <option value="18:30">18:30</option>
+              <option value="19:00">19:00</option>
+              <option value="19:30">19:30</option>
+              <option value="20:00">20:00</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeReturnPlanModal()">キャンセル</button>
+          <button class="btn btn-primary" onclick="saveReturnPlan()">保存</button>
+        </div>
       </div>
     </div>
 
@@ -217,10 +371,19 @@
       document.getElementById('detailDays').textContent = data.planLabel;
       
       // 日時情報
+      const pickupDate = new Date(data.startDate);
+      const returnDate = new Date(data.endDate);
       document.getElementById('detailPickup').textContent = 
-        Utils.formatDateTimeJP(new Date(data.pickupDateTime));
+        `${pickupDate.getFullYear()}年${pickupDate.getMonth()+1}月${pickupDate.getDate()}日 ${data.startTime || ''}`;
       document.getElementById('detailReturn').textContent = 
-        Utils.formatDateTimeJP(new Date(data.returnDateTime));
+        `${returnDate.getFullYear()}年${returnDate.getMonth()+1}月${returnDate.getDate()}日まで（営業時間内）`;
+      
+      // 返却予定表示
+      if (data.plannedReturnDate && data.plannedReturnTime) {
+        const plannedDate = new Date(data.plannedReturnDate);
+        document.getElementById('detailPlannedReturn').textContent = 
+          `${plannedDate.getFullYear()}年${plannedDate.getMonth()+1}月${plannedDate.getDate()}日 ${data.plannedReturnTime}`;
+      }
       
       // 料金情報
       const paymentText = data.paymentMethod === 'card' ? 'クレジットカード' : '現地払い';
@@ -249,6 +412,58 @@
       }
     }
 
+    // 返却予定モーダルを開く
+    function openReturnPlanModal() {
+      const data = ReservationStorage.get();
+      
+      // 日付の範囲を設定
+      const startDate = new Date(data.startDate);
+      const endDate = new Date(data.endDate);
+      const dateInput = document.getElementById('plannedReturnDate');
+      dateInput.min = data.startDate;
+      dateInput.max = data.endDate;
+      
+      // 既存の値があれば設定
+      if (data.plannedReturnDate) {
+        dateInput.value = data.plannedReturnDate;
+      }
+      if (data.plannedReturnTime) {
+        document.getElementById('plannedReturnTime').value = data.plannedReturnTime;
+      }
+      
+      document.getElementById('returnPlanModal').classList.add('active');
+    }
+    
+    // 返却予定モーダルを閉じる
+    function closeReturnPlanModal() {
+      document.getElementById('returnPlanModal').classList.remove('active');
+    }
+    
+    // 返却予定を保存
+    function saveReturnPlan() {
+      const date = document.getElementById('plannedReturnDate').value;
+      const time = document.getElementById('plannedReturnTime').value;
+      
+      if (!date || !time) {
+        alert('返却予定日時を選択してください');
+        return;
+      }
+      
+      // 保存
+      ReservationStorage.save({
+        plannedReturnDate: date,
+        plannedReturnTime: time
+      });
+      
+      // 表示更新
+      const dateObj = new Date(date);
+      document.getElementById('detailPlannedReturn').textContent = 
+        `${dateObj.getFullYear()}年${dateObj.getMonth()+1}月${dateObj.getDate()}日 ${time}`;
+      
+      closeReturnPlanModal();
+      alert('返却予定を保存しました');
+    }
+    
     // 初期化
     displayDetail();
   </script>
