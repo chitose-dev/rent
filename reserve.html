@@ -636,76 +636,48 @@
             <strong id="infoStartDate">-</strong>
           </div>
           <div class="date-info-row">
-            <span>返却日:</span>
+            <span>返却期限:</span>
             <strong id="infoEndDate">-</strong>
+          </div>
+          <div class="date-info-row">
+            <span>レンタル日数:</span>
+            <strong id="infoDays">-</strong>
           </div>
         </div>
         
-        <!-- 時間選択（日付選択後に表示） -->
+        <!-- 受取時間選択（日付選択後に表示） -->
         <div id="timeSection" style="display: none;">
-          <div class="time-row">
-            <div class="form-group">
-              <label class="form-label">受取時間</label>
-              <select class="form-select" id="startTime" onchange="checkPeriodComplete()">
-                <option value="">選択してください</option>
-                <option value="08:00">08:00</option>
-                <option value="08:30">08:30</option>
-                <option value="09:00">09:00</option>
-                <option value="09:30">09:30</option>
-                <option value="10:00">10:00</option>
-                <option value="10:30">10:30</option>
-                <option value="11:00">11:00</option>
-                <option value="11:30">11:30</option>
-                <option value="12:00">12:00</option>
-                <option value="12:30">12:30</option>
-                <option value="13:00">13:00</option>
-                <option value="13:30">13:30</option>
-                <option value="14:00">14:00</option>
-                <option value="14:30">14:30</option>
-                <option value="15:00">15:00</option>
-                <option value="15:30">15:30</option>
-                <option value="16:00">16:00</option>
-                <option value="16:30">16:30</option>
-                <option value="17:00">17:00</option>
-                <option value="17:30">17:30</option>
-                <option value="18:00">18:00</option>
-                <option value="18:30">18:30</option>
-                <option value="19:00">19:00</option>
-                <option value="19:30">19:30</option>
-                <option value="20:00">20:00</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">返却時間</label>
-              <select class="form-select" id="endTime" onchange="checkPeriodComplete()">
-                <option value="">選択してください</option>
-                <option value="08:00">08:00</option>
-                <option value="08:30">08:30</option>
-                <option value="09:00">09:00</option>
-                <option value="09:30">09:30</option>
-                <option value="10:00">10:00</option>
-                <option value="10:30">10:30</option>
-                <option value="11:00">11:00</option>
-                <option value="11:30">11:30</option>
-                <option value="12:00">12:00</option>
-                <option value="12:30">12:30</option>
-                <option value="13:00">13:00</option>
-                <option value="13:30">13:30</option>
-                <option value="14:00">14:00</option>
-                <option value="14:30">14:30</option>
-                <option value="15:00">15:00</option>
-                <option value="15:30">15:30</option>
-                <option value="16:00">16:00</option>
-                <option value="16:30">16:30</option>
-                <option value="17:00">17:00</option>
-                <option value="17:30">17:30</option>
-                <option value="18:00">18:00</option>
-                <option value="18:30">18:30</option>
-                <option value="19:00">19:00</option>
-                <option value="19:30">19:30</option>
-                <option value="20:00">20:00</option>
-              </select>
-            </div>
+          <div class="form-group">
+            <label class="form-label">受取時間</label>
+            <select class="form-select" id="startTime" onchange="checkPeriodComplete()">
+              <option value="">選択してください</option>
+              <option value="08:00">08:00</option>
+              <option value="08:30">08:30</option>
+              <option value="09:00">09:00</option>
+              <option value="09:30">09:30</option>
+              <option value="10:00">10:00</option>
+              <option value="10:30">10:30</option>
+              <option value="11:00">11:00</option>
+              <option value="11:30">11:30</option>
+              <option value="12:00">12:00</option>
+              <option value="12:30">12:30</option>
+              <option value="13:00">13:00</option>
+              <option value="13:30">13:30</option>
+              <option value="14:00">14:00</option>
+              <option value="14:30">14:30</option>
+              <option value="15:00">15:00</option>
+              <option value="15:30">15:30</option>
+              <option value="16:00">16:00</option>
+              <option value="16:30">16:30</option>
+              <option value="17:00">17:00</option>
+              <option value="17:30">17:30</option>
+              <option value="18:00">18:00</option>
+              <option value="18:30">18:30</option>
+              <option value="19:00">19:00</option>
+              <option value="19:30">19:30</option>
+              <option value="20:00">20:00</option>
+            </select>
+            <p class="form-hint">返却は営業時間内であればいつでも可能です</p>
           </div>
         </div>
       </div>
@@ -729,7 +701,7 @@
             <div class="class-card-name">コンパクト</div>
             <div class="class-card-desc">軽自動車・コンパクトカー</div>
           </div>
-          <div class="class-card-price" id="price-compact">¥3,000/日</div>
+          <div class="class-card-price" id="price-compact"></div>
         </div>
         
         <div class="class-card" data-class="standard" data-price="5000" onclick="selectClass(this)">
@@ -738,7 +710,7 @@
             <div class="class-card-name">スタンダード</div>
             <div class="class-card-desc">普通乗用車</div>
           </div>
-          <div class="class-card-price" id="price-standard">¥5,000/日</div>
+          <div class="class-card-price" id="price-standard"></div>
         </div>
         
         <div class="class-card" data-class="minivan" data-price="8000" onclick="selectClass(this)">
@@ -747,7 +719,7 @@
             <div class="class-card-name">ミニバン</div>
             <div class="class-card-desc">7〜8人乗りミニバン</div>
           </div>
-          <div class="class-card-price" id="price-minivan">¥8,000/日</div>
+          <div class="class-card-price" id="price-minivan"></div>
         </div>
       </div>
       </div>
@@ -894,8 +866,7 @@
       days: null,
       startDate: null,
       startTime: null,
-      endDate: null,
-      endTime: null,
+      endDate: null, // 自動計算
       vehicleClass: null,
       classPrice: 0,
       insurance: null,
@@ -908,8 +879,6 @@
     // カレンダー用
     let currentCalendarDate = new Date();
     let selectedStartDate = null;
-    let selectedEndDate = null;
-    let selectingEnd = false; // true = 終了日選択中
     
     // 初期化
     function init() {
@@ -925,15 +894,16 @@
     // セクションのロック/アンロック制御
     function updateSections() {
       // セクション2: 車両クラス（レンタル期間が完了したら表示）
-      const periodComplete = state.startDate && state.endDate && state.startTime && state.endTime;
+      const periodComplete = state.days && state.startDate && state.startTime;
       toggleSection('class', periodComplete);
       if (periodComplete) {
         const startDateObj = new Date(state.startDate);
         const endDateObj = new Date(state.endDate);
-        const days = Math.ceil((endDateObj - startDateObj) / (1000 * 60 * 60 * 24)) + 1;
         document.getElementById('completed-period').textContent = 
-          `${days}日間 / ${startDateObj.getMonth()+1}月${startDateObj.getDate()}日 ${state.startTime} 〜 ${endDateObj.getMonth()+1}月${endDateObj.getDate()}日 ${state.endTime}`;
+          `${state.days}日間 / ${startDateObj.getMonth()+1}月${startDateObj.getDate()}日 ${state.startTime}受取 〜 ${endDateObj.getMonth()+1}月${endDateObj.getDate()}日まで`;
         document.getElementById('completed-period').classList.add('show');
+        // 車両クラスの料金を更新
+        updateClassPrices();
       } else {
         document.getElementById('completed-period').classList.remove('show');
       }
@@ -995,7 +965,7 @@
       }
     }
     
-    // 日数選択（プリセット）
+    // 日数選択（プラン選択）
     function selectDays(days) {
       state.days = days;
       document.querySelectorAll('.days-btn').forEach(btn => {
@@ -1005,16 +975,23 @@
       // カレンダーを表示
       document.getElementById('calendarSection').style.display = 'block';
       
-      // リセット
-      selectedStartDate = null;
-      selectedEndDate = null;
-      selectingEnd = false;
-      state.startDate = null;
-      state.endDate = null;
-      document.getElementById('dateInfoBox').style.display = 'none';
-      document.getElementById('timeSection').style.display = 'none';
+      // 既に開始日が選択されていたら返却日を再計算
+      if (selectedStartDate) {
+        calculateEndDate();
+        updateDateInfo();
+      }
       
       renderCalendar();
+      updateSections();
+    }
+    
+    // 返却日を自動計算
+    function calculateEndDate() {
+      if (selectedStartDate && state.days) {
+        const endDate = new Date(selectedStartDate);
+        endDate.setDate(endDate.getDate() + state.days - 1);
+        state.endDate = formatDate(endDate);
+      }
     }
     
     // カレンダー描画
@@ -1028,10 +1005,8 @@
       // ガイドメッセージ更新
       if (!selectedStartDate) {
         document.getElementById('calendarGuide').textContent = '受取希望の日付を選択してください';
-      } else if (!selectedEndDate) {
-        document.getElementById('calendarGuide').textContent = '返却希望の日付を選択してください。プラン途中でも料金は変わりません。';
       } else {
-        document.getElementById('calendarGuide').textContent = '日程が選択されました';
+        document.getElementById('calendarGuide').textContent = '日程が選択されました。返却期限は自動計算されます。';
       }
       
       // 月の最初の日と最後の日
@@ -1053,11 +1028,11 @@
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
-      // 最大終了日（開始日 + 日数プリセット - 1）
-      let maxEndDate = null;
+      // 返却期限日（開始日 + 日数 - 1）
+      let endDate = null;
       if (selectedStartDate && state.days) {
-        maxEndDate = new Date(selectedStartDate);
-        maxEndDate.setDate(maxEndDate.getDate() + state.days - 1);
+        endDate = new Date(selectedStartDate);
+        endDate.setDate(endDate.getDate() + state.days - 1);
       }
       
       // 日付セル
@@ -1072,20 +1047,8 @@
         if (dayOfWeek === 0) dayCell.classList.add('sunday');
         if (dayOfWeek === 6) dayCell.classList.add('saturday');
         
-        // 選択可否判定
-        let isDisabled = false;
-        
+        // 過去の日付は選択不可
         if (date <= today) {
-          // 過去の日付
-          isDisabled = true;
-        } else if (selectingEnd && selectedStartDate) {
-          // 終了日選択中: 開始日より前、または最大終了日より後は選択不可
-          if (date < selectedStartDate || (maxEndDate && date > maxEndDate)) {
-            isDisabled = true;
-          }
-        }
-        
-        if (isDisabled) {
           dayCell.classList.add('disabled');
         } else {
           dayCell.onclick = () => selectDate(date);
@@ -1096,19 +1059,14 @@
           dayCell.classList.add('selected');
         }
         
-        // 終了日
-        if (selectedEndDate && date.toDateString() === selectedEndDate.toDateString()) {
+        // 返却期限日
+        if (endDate && date.toDateString() === endDate.toDateString()) {
           dayCell.classList.add('selected');
         }
         
-        // 期間内の日付
-        if (selectedStartDate && selectedEndDate) {
-          if (date > selectedStartDate && date < selectedEndDate) {
-            dayCell.classList.add('in-range');
-          }
-        } else if (selectedStartDate && maxEndDate && !selectedEndDate) {
-          // 選択可能範囲をハイライト
-          if (date > selectedStartDate && date <= maxEndDate) {
+        // レンタル期間内の日付
+        if (selectedStartDate && endDate) {
+          if (date > selectedStartDate && date < endDate) {
             dayCell.classList.add('in-range');
           }
         }
@@ -1139,56 +1097,20 @@
       document.getElementById('nextMonthBtn').disabled = nextMonth > maxDate;
     }
     
-    // 日付選択（2回タップ方式）
+    // 日付選択（1回タップで開始日選択、返却日は自動計算）
     function selectDate(date) {
-      if (!selectingEnd) {
-        // 1回目: 開始日選択
-        selectedStartDate = date;
-        selectedEndDate = null;
-        selectingEnd = true;
-        state.startDate = formatDate(date);
-        state.endDate = null;
-        document.getElementById('timeSection').style.display = 'none';
-      } else {
-        // 2回目: 終了日選択
-        selectedEndDate = date;
-        selectingEnd = false;
-        state.endDate = formatDate(date);
-        
-        // 実際の日数を計算
-        const diffTime = date - selectedStartDate;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-        state.days = diffDays;
-        
-        // より短いプランに自動変更
-        autoSelectPlan(diffDays);
-        
-        // 時間選択を表示
-        document.getElementById('timeSection').style.display = 'block';
-      }
+      selectedStartDate = date;
+      state.startDate = formatDate(date);
+      
+      // 返却期限を自動計算
+      calculateEndDate();
+      
+      // 時間選択を表示
+      document.getElementById('timeSection').style.display = 'block';
       
       updateDateInfo();
       renderCalendar();
       updateSections();
-    }
-    
-    // より短いプランに自動変更
-    function autoSelectPlan(days) {
-      const plans = [1, 2, 3, 7];
-      let bestPlan = plans[plans.length - 1]; // デフォルトは最大
-      
-      // 選択日数以上の最小プランを選択
-      for (const plan of plans) {
-        if (plan >= days) {
-          bestPlan = plan;
-          break;
-        }
-      }
-      
-      // ボタンの選択状態を更新
-      document.querySelectorAll('.days-btn').forEach(btn => {
-        btn.classList.toggle('selected', parseInt(btn.dataset.days) === bestPlan);
-      });
     }
     
     // 日付フォーマット
@@ -1203,43 +1125,33 @@
     function updateDateInfo() {
       const formatJP = (d) => `${d.getMonth()+1}月${d.getDate()}日`;
       
-      if (selectedStartDate) {
+      if (selectedStartDate && state.days) {
+        const endDate = new Date(selectedStartDate);
+        endDate.setDate(endDate.getDate() + state.days - 1);
+        
         document.getElementById('infoStartDate').textContent = formatJP(selectedStartDate);
+        document.getElementById('infoEndDate').textContent = formatJP(endDate);
+        document.getElementById('infoDays').textContent = `${state.days}日間`;
+        document.getElementById('dateInfoBox').style.display = 'block';
       } else {
         document.getElementById('infoStartDate').textContent = '-';
-      }
-      
-      if (selectedEndDate) {
-        document.getElementById('infoEndDate').textContent = formatJP(selectedEndDate);
-        const diffDays = Math.ceil((selectedEndDate - selectedStartDate) / (1000 * 60 * 60 * 24)) + 1;
-        document.getElementById('dateInfoBox').innerHTML = `
-          <div class="date-info-row">
-            <span>開始日:</span>
-            <strong>${formatJP(selectedStartDate)}</strong>
-          </div>
-          <div class="date-info-row">
-            <span>終了日:</span>
-            <strong>${formatJP(selectedEndDate)}</strong>
-          </div>
-          <div class="date-info-row">
-            <span>レンタル日数:</span>
-            <strong>${diffDays}日間</strong>
-          </div>
-        `;
-      } else {
         document.getElementById('infoEndDate').textContent = '-';
-      }
-      
-      if (selectedStartDate) {
-        document.getElementById('dateInfoBox').style.display = 'block';
+        document.getElementById('infoDays').textContent = '-';
       }
     }
     
     // 期間セクション完了チェック
     function checkPeriodComplete() {
       state.startTime = document.getElementById('startTime').value;
-      state.endTime = document.getElementById('endTime').value;
       updateSections();
+    }
+    
+    // 車両クラスの料金表示を更新（プラン合計金額）
+    function updateClassPrices() {
+      const days = state.days || 1;
+      document.getElementById('price-compact').textContent = `${days}日間: ¥${(3000 * days).toLocaleString()}（税込）`;
+      document.getElementById('price-standard').textContent = `${days}日間: ¥${(5000 * days).toLocaleString()}（税込）`;
+      document.getElementById('price-minivan').textContent = `${days}日間: ¥${(8000 * days).toLocaleString()}（税込）`;
     }
     
     // 車両クラス選択
@@ -1299,12 +1211,7 @@
     
     // 料金更新
     function updateSummary() {
-      let days = 1;
-      if (state.startDate && state.endDate) {
-        const start = new Date(state.startDate);
-        const end = new Date(state.endDate);
-        days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-      }
+      const days = state.days || 1;
       
       const basePrice = state.classPrice * days;
       const insuranceTotal = state.insurancePrice * days;
@@ -1332,11 +1239,6 @@
       }
       if (!state.startTime) {
         alert('受取時間を選択してください');
-        document.getElementById('section-period').scrollIntoView({ behavior: 'smooth' });
-        return;
-      }
-      if (!state.endTime) {
-        alert('返却時間を選択してください');
         document.getElementById('section-period').scrollIntoView({ behavior: 'smooth' });
         return;
       }
@@ -1368,7 +1270,6 @@
         startDate: state.startDate,
         startTime: state.startTime,
         endDate: state.endDate,
-        endTime: state.endTime,
         vehicleClass: state.vehicleClass,
         vehicleClassName: classNames[state.vehicleClass],
         classPrice: state.classPrice,
