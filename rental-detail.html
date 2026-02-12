@@ -342,8 +342,6 @@
         return;
       }
       
-      const carClass = Utils.getCarClass(data.carClassId);
-      
       // ステータス表示
       let statusText = '予約確定';
       let statusClass = 'status-confirmed';
@@ -367,7 +365,7 @@
         data.reservationDate ? Utils.formatDateTimeJP(new Date(data.reservationDate)) : '-';
       
       // 車両情報
-      document.getElementById('detailCarClass').textContent = carClass.name;
+      document.getElementById('detailCarClass').textContent = data.vehicleClassName;
       document.getElementById('detailDays').textContent = data.planLabel;
       
       // 日時情報
@@ -386,9 +384,8 @@
       }
       
       // 料金情報
-      const paymentText = data.paymentMethod === 'card' ? 'クレジットカード' : '現地払い';
-      document.getElementById('detailPayment').textContent = paymentText;
-      document.getElementById('detailPrice').textContent = Utils.formatPrice(data.planPrice);
+      document.getElementById('detailPayment').textContent = data.paymentName;
+      document.getElementById('detailPrice').textContent = `¥${data.totalPrice.toLocaleString()}`;
     }
 
     // キャンセル申請
