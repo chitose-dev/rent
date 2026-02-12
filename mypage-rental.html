@@ -90,6 +90,107 @@
       flex: 1;
     }
     
+    .return-plan-row {
+      background-color: var(--primary-light);
+      padding: var(--spacing-md);
+      border-radius: 6px;
+      margin-top: var(--spacing-md);
+    }
+    
+    .return-plan-label {
+      font-size: var(--font-sm);
+      color: var(--text-light);
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .return-plan-value {
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    /* モーダル */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: var(--bg-white);
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-lg);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .modal-title {
+      font-size: var(--font-lg);
+      font-weight: bold;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--text-light);
+    }
+    
+    .modal-body {
+      padding: var(--spacing-lg);
+    }
+    
+    .modal-footer {
+      display: flex;
+      gap: var(--spacing-md);
+      padding: var(--spacing-lg);
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .modal-footer .btn {
+      flex: 1;
+    }
+    
+    .form-group {
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .form-label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .form-input, .form-select {
+      width: 100%;
+      padding: var(--spacing-md);
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      font-size: var(--font-md);
+    }
+    
     @media (max-width: 768px) {
       .rental-card-header {
         flex-direction: column;
@@ -107,6 +208,10 @@
       }
       
       .rental-card-actions {
+        flex-direction: column;
+      }
+      
+      .modal-footer {
         flex-direction: column;
       }
     }
@@ -166,6 +271,60 @@
 
       <!-- 予約カード一覧 -->
       <div id="rentalList"></div>
+    </div>
+    
+    <!-- 返却予定入力モーダル -->
+    <div class="modal-overlay" id="returnPlanModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">返却予定日時の入力</h3>
+          <button class="modal-close" onclick="closeReturnPlanModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <p style="color: var(--text-light); margin-bottom: var(--spacing-md); font-size: var(--font-sm);">
+            返却期限内で返却予定の日時を入力してください。
+          </p>
+          <div class="form-group">
+            <label class="form-label">返却予定日</label>
+            <input type="date" class="form-input" id="plannedReturnDate">
+          </div>
+          <div class="form-group">
+            <label class="form-label">返却予定時間</label>
+            <select class="form-select" id="plannedReturnTime">
+              <option value="">選択してください</option>
+              <option value="08:00">08:00</option>
+              <option value="08:30">08:30</option>
+              <option value="09:00">09:00</option>
+              <option value="09:30">09:30</option>
+              <option value="10:00">10:00</option>
+              <option value="10:30">10:30</option>
+              <option value="11:00">11:00</option>
+              <option value="11:30">11:30</option>
+              <option value="12:00">12:00</option>
+              <option value="12:30">12:30</option>
+              <option value="13:00">13:00</option>
+              <option value="13:30">13:30</option>
+              <option value="14:00">14:00</option>
+              <option value="14:30">14:30</option>
+              <option value="15:00">15:00</option>
+              <option value="15:30">15:30</option>
+              <option value="16:00">16:00</option>
+              <option value="16:30">16:30</option>
+              <option value="17:00">17:00</option>
+              <option value="17:30">17:30</option>
+              <option value="18:00">18:00</option>
+              <option value="18:30">18:30</option>
+              <option value="19:00">19:00</option>
+              <option value="19:30">19:30</option>
+              <option value="20:00">20:00</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeReturnPlanModal()">キャンセル</button>
+          <button class="btn btn-primary" onclick="saveReturnPlan()">保存</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -249,6 +408,13 @@
       const pickupText = `${startDateObj.getFullYear()}年${startDateObj.getMonth()+1}月${startDateObj.getDate()}日 ${data.startTime}`;
       const returnText = `${endDateObj.getFullYear()}年${endDateObj.getMonth()+1}月${endDateObj.getDate()}日まで`;
       
+      // 返却予定の表示
+      let plannedReturnText = '未入力';
+      if (data.plannedReturnDate && data.plannedReturnTime) {
+        const plannedDate = new Date(data.plannedReturnDate);
+        plannedReturnText = `${plannedDate.getMonth()+1}月${plannedDate.getDate()}日 ${data.plannedReturnTime}`;
+      }
+      
       const card = document.createElement('div');
       card.className = 'rental-card';
       card.innerHTML = `
@@ -277,6 +443,17 @@
           <div class="rental-info-row">
             <span class="rental-info-label">料金</span>
             <span class="rental-info-value">¥${data.totalPrice.toLocaleString()}</span>
+          </div>
+          
+          <!-- 返却予定 -->
+          <div class="return-plan-row">
+            <div class="return-plan-label">返却予定</div>
+            <div class="return-plan-value">
+              <span id="plannedReturnDisplay">${plannedReturnText}</span>
+              <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openReturnPlanModal()">
+                ${data.plannedReturnDate ? '変更' : '入力'}
+              </button>
+            </div>
           </div>
         </div>
         
@@ -324,6 +501,58 @@
         ReservationStorage.clear();
         window.location.href = 'login.html';
       }
+    }
+    
+    // 返却予定モーダルを開く
+    function openReturnPlanModal() {
+      const data = ReservationStorage.get();
+      
+      // 日付の範囲を設定
+      const dateInput = document.getElementById('plannedReturnDate');
+      dateInput.min = data.startDate;
+      dateInput.max = data.endDate;
+      
+      // 既存の値があれば設定
+      if (data.plannedReturnDate) {
+        dateInput.value = data.plannedReturnDate;
+      }
+      if (data.plannedReturnTime) {
+        document.getElementById('plannedReturnTime').value = data.plannedReturnTime;
+      }
+      
+      document.getElementById('returnPlanModal').classList.add('active');
+    }
+    
+    // 返却予定モーダルを閉じる
+    function closeReturnPlanModal() {
+      document.getElementById('returnPlanModal').classList.remove('active');
+    }
+    
+    // 返却予定を保存
+    function saveReturnPlan() {
+      const date = document.getElementById('plannedReturnDate').value;
+      const time = document.getElementById('plannedReturnTime').value;
+      
+      if (!date || !time) {
+        alert('返却予定日時を選択してください');
+        return;
+      }
+      
+      // 保存
+      ReservationStorage.save({
+        plannedReturnDate: date,
+        plannedReturnTime: time
+      });
+      
+      // 表示更新
+      const dateObj = new Date(date);
+      document.getElementById('plannedReturnDisplay').textContent = 
+        `${dateObj.getMonth()+1}月${dateObj.getDate()}日 ${time}`;
+      
+      closeReturnPlanModal();
+      
+      // カードを再描画
+      displayRentalStatus();
     }
 
     // 初期化
