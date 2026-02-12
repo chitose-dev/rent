@@ -208,7 +208,6 @@
     // 予約カード描画
     function renderRentalCard(data) {
       const container = document.getElementById('rentalList');
-      const carClass = Utils.getCarClass(data.carClassId);
       
       // ステータス判定（簡易版）
       let status = 'confirmed';
@@ -226,8 +225,8 @@
       } else {
         // 時系列でステータスを判定
         const now = new Date();
-        const pickupDate = new Date(data.pickupDateTime);
-        const returnDate = new Date(data.returnDateTime);
+        const pickupDate = new Date(data.startDate + 'T' + data.startTime);
+        const returnDate = new Date(data.endDate + 'T23:59:59');
         
         if (now < pickupDate) {
           status = 'pending';
@@ -244,15 +243,17 @@
         }
       }
       
-      const paymentText = data.paymentMethod === 'card' 
-        ? 'クレジットカード' 
-        : '現地払い';
+      // 日付フォーマット
+      const startDateObj = new Date(data.startDate);
+      const endDateObj = new Date(data.endDate);
+      const pickupText = `${startDateObj.getFullYear()}年${startDateObj.getMonth()+1}月${startDateObj.getDate()}日 ${data.startTime}`;
+      const returnText = `${endDateObj.getFullYear()}年${endDateObj.getMonth()+1}月${endDateObj.getDate()}日まで`;
       
       const card = document.createElement('div');
       card.className = 'rental-card';
       card.innerHTML = `
         <div class="rental-card-header">
-          <h2 class="rental-card-title">${carClass.name}</h2>
+          <h2 class="rental-card-title">${data.vehicleClassName}</h2>
           <span class="status-badge ${statusClass}">${statusText}</span>
         </div>
         
@@ -263,19 +264,19 @@
           </div>
           <div class="rental-info-row">
             <span class="rental-info-label">受取日時</span>
-            <span class="rental-info-value">${Utils.formatDateTimeJP(new Date(data.pickupDateTime))}</span>
+            <span class="rental-info-value">${pickupText}</span>
           </div>
           <div class="rental-info-row">
-            <span class="rental-info-label">返却日時</span>
-            <span class="rental-info-value">${Utils.formatDateTimeJP(new Date(data.returnDateTime))}</span>
+            <span class="rental-info-label">返却期限</span>
+            <span class="rental-info-value">${returnText}</span>
           </div>
           <div class="rental-info-row">
             <span class="rental-info-label">決済方法</span>
-            <span class="rental-info-value">${paymentText}</span>
+            <span class="rental-info-value">${data.paymentName}</span>
           </div>
           <div class="rental-info-row">
             <span class="rental-info-label">料金</span>
-            <span class="rental-info-value">${Utils.formatPrice(data.planPrice)}</span>
+            <span class="rental-info-value">¥${data.totalPrice.toLocaleString()}</span>
           </div>
         </div>
         
