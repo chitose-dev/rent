@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>システム設定 - 管理画面</title>
+  <link rel="stylesheet" href="common.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- サイドバー -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-logo">
+          予約管理
+          <small>管理画面</small></a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="index.html" class="nav-item">ダッシュボード</a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">予約管理</div>
+          <a href="reservations.html" class="nav-item">予約一覧</a>
+          <a href="members.html" class="nav-item">会員管理</a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">車両・サービス</div>
+          <a href="classes.html" class="nav-item">車両クラス</a>
+          <a href="pricing.html" class="nav-item">料金設定</a>
+          <a href="vehicles.html" class="nav-item">車両・在庫</a>
+          <a href="options.html" class="nav-item">オプション</a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">設定</div>
+          <a href="settings.html" class="nav-item">店舗設定</a>
+          <a href="system-settings.html" class="nav-item active">システム設定</a>
+          <a href="documents.html" class="nav-item">法的文書</a>
+        </div>
+        <div class="nav-section">
+          <a href="../login.html" class="nav-item">予約サイトへ</a>
+          <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
+        </div>
+        <div class="nav-section nav-section-bottom">
+          <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="admin-main">
+      <div class="admin-header">
+        <div>
+          <h1 class="admin-title">システム設定</h1>
+          <p class="admin-breadcrumb"><a href="index.html">ダッシュボード</a> / システム設定</p>
+        </div>
+      </div>
+
+      <!-- 注意事項 -->
+      <div class="alert alert-warning" style="margin-bottom: 24px;">
+        <span>⚠️</span>
+        <div>
+          <strong>重要:</strong> API KeyやSecretは機密情報です。入力内容は暗号化して保存されますが、取り扱いには十分注意してください。
+          <br>空欄で保存すると、その項目は更新されません（既存の値が維持されます）。
+        </div>
+      </div>
+
+      <!-- API URL設定 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">API接続設定</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">バックエンドAPI URL<span class="required">*</span></label>
+            <input type="url" class="form-input" id="apiUrl" placeholder="https://your-api.run.app">
+            <p class="form-hint">Cloud RunなどにデプロイしたバックエンドAPIのURL</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">フロントエンドURL</label>
+            <input type="url" class="form-input" id="frontendUrl" placeholder="https://your-site.github.io/rent">
+            <p class="form-hint">CORS設定に使用されます（GitHub PagesのURL等）</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stripe設定 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">Stripe決済設定</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">Stripe Secret Key</label>
+            <div class="input-with-status">
+              <input type="password" class="form-input" id="stripeSecretKey" placeholder="sk_live_...または新しいキーを入力">
+              <span class="current-value" id="stripeSecretKeyStatus"></span>
+            </div>
+            <p class="form-hint">Stripeダッシュボードの「開発者」→「APIキー」から取得</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Stripe Webhook Secret</label>
+            <div class="input-with-status">
+              <input type="password" class="form-input" id="stripeWebhookSecret" placeholder="whsec_...または新しいキーを入力">
+              <span class="current-value" id="stripeWebhookSecretStatus"></span>
+            </div>
+            <p class="form-hint">Webhook設定時に表示される署名シークレット</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- メール設定 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">メール送信設定（Resend）</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">Resend API Key</label>
+            <div class="input-with-status">
+              <input type="password" class="form-input" id="resendApiKey" placeholder="re_...または新しいキーを入力">
+              <span class="current-value" id="resendApiKeyStatus"></span>
+            </div>
+            <p class="form-hint">Resendダッシュボードから取得したAPIキー</p>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">送信元メールアドレス</label>
+              <input type="email" class="form-input" id="emailFrom" placeholder="noreply@yourdomain.com">
+              <p class="form-hint">予約確認メール等の送信元</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label">管理者メールアドレス</label>
+              <input type="email" class="form-input" id="adminEmail" placeholder="admin@yourdomain.com">
+              <p class="form-hint">通知の送信先</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- セキュリティ設定 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">セキュリティ設定</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">JWT Secret</label>
+            <div class="input-with-status">
+              <input type="password" class="form-input" id="jwtSecret" placeholder="32文字以上の安全な文字列">
+              <span class="current-value" id="jwtSecretStatus"></span>
+            </div>
+            <p class="form-hint">認証トークンの署名に使用する秘密鍵（32文字以上推奨）</p>
+            <button type="button" class="btn btn-sm btn-outline" onclick="generateJwtSecret()">ランダム生成</button>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">アクセストークン有効期限</label>
+              <input type="text" class="form-input" id="jwtExpiresIn" placeholder="1h">
+              <p class="form-hint">例: 1h, 30m, 7d</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label">リフレッシュトークン有効期限</label>
+              <input type="text" class="form-input" id="refreshTokenExpiresIn" placeholder="30d">
+              <p class="form-hint">例: 30d, 90d</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 保存ボタン -->
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+        <button class="btn btn-secondary" onclick="loadSettings()">リセット</button>
+        <button class="btn btn-primary btn-lg" onclick="saveSettings()" id="saveBtn">設定を保存</button>
+      </div>
+    </main>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    // API URLをローカルストレージから取得（GitHub Pagesでも動作するように）
+    const API_URL = localStorage.getItem('apiUrl') || '';
+
+    // JWT Secret生成
+    function generateJwtSecret() {
+      const array = new Uint8Array(48);
+      crypto.getRandomValues(array);
+      const secret = Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+      document.getElementById('jwtSecret').value = secret;
+      document.getElementById('jwtSecret').type = 'text';
+    }
+
+    // 設定を読み込む
+    async function loadSettings() {
+      const apiUrl = document.getElementById('apiUrl').value || localStorage.getItem('apiUrl');
+      
+      if (!apiUrl) {
+        console.log('API URLが設定されていません');
+        return;
+      }
+
+      try {
+        const token = sessionStorage.getItem('adminToken');
+        const response = await fetch(`${apiUrl}/v1/admin/settings/system`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('設定の取得に失敗しました');
+        }
+
+        const settings = await response.json();
+
+        // フォームに反映（マスクされた値を表示）
+        document.getElementById('apiUrl').value = apiUrl;
+        document.getElementById('frontendUrl').value = settings.frontendUrl || '';
+        document.getElementById('emailFrom').value = settings.emailFrom || '';
+        document.getElementById('adminEmail').value = settings.adminEmail || '';
+        document.getElementById('jwtExpiresIn').value = settings.jwtExpiresIn || '1h';
+        document.getElementById('refreshTokenExpiresIn').value = settings.refreshTokenExpiresIn || '30d';
+
+        // マスクされた値をステータス表示
+        setStatus('stripeSecretKey', settings.stripeSecretKey);
+        setStatus('stripeWebhookSecret', settings.stripeWebhookSecret);
+        setStatus('resendApiKey', settings.resendApiKey);
+        setStatus('jwtSecret', settings.jwtSecret);
+
+      } catch (error) {
+        console.error('設定読み込みエラー:', error);
+      }
+    }
+
+    function setStatus(id, maskedValue) {
+      const statusEl = document.getElementById(id + 'Status');
+      if (maskedValue && maskedValue !== '***' && maskedValue !== '') {
+        statusEl.textContent = `現在: ${maskedValue}`;
+        statusEl.style.color = '#10b981';
+      } else {
+        statusEl.textContent = '未設定';
+        statusEl.style.color = '#f59e0b';
+      }
+    }
+
+    // 設定を保存
+    async function saveSettings() {
+      const apiUrl = document.getElementById('apiUrl').value;
+      
+      if (!apiUrl) {
+        alert('API URLを入力してください');
+        return;
+      }
+
+      // API URLをローカルストレージに保存
+      localStorage.setItem('apiUrl', apiUrl);
+
+      const settings = {
+        frontendUrl: document.getElementById('frontendUrl').value || undefined,
+        stripeSecretKey: document.getElementById('stripeSecretKey').value || undefined,
+        stripeWebhookSecret: document.getElementById('stripeWebhookSecret').value || undefined,
+        resendApiKey: document.getElementById('resendApiKey').value || undefined,
+        emailFrom: document.getElementById('emailFrom').value || undefined,
+        adminEmail: document.getElementById('adminEmail').value || undefined,
+        jwtSecret: document.getElementById('jwtSecret').value || undefined,
+        jwtExpiresIn: document.getElementById('jwtExpiresIn').value || undefined,
+        refreshTokenExpiresIn: document.getElementById('refreshTokenExpiresIn').value || undefined,
+      };
+
+      // undefined以外のフィールドのみ送信
+      const filteredSettings = Object.fromEntries(
+        Object.entries(settings).filter(([_, v]) => v !== undefined && v !== '')
+      );
+
+      if (Object.keys(filteredSettings).length === 0) {
+        alert('更新する項目がありません');
+        return;
+      }
+
+      const saveBtn = document.getElementById('saveBtn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = '保存中...';
+
+      try {
+        const token = sessionStorage.getItem('adminToken');
+        const response = await fetch(`${apiUrl}/v1/admin/settings/system`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(filteredSettings)
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || '保存に失敗しました');
+        }
+
+        alert('設定を保存しました');
+        
+        // 入力フィールドをクリア（セキュリティのため）
+        document.getElementById('stripeSecretKey').value = '';
+        document.getElementById('stripeWebhookSecret').value = '';
+        document.getElementById('resendApiKey').value = '';
+        document.getElementById('jwtSecret').value = '';
+
+        // 設定を再読み込み
+        await loadSettings();
+
+      } catch (error) {
+        console.error('保存エラー:', error);
+        alert('エラー: ' + error.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '設定を保存';
+      }
+    }
+
+    // ページ読み込み時
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedApiUrl = localStorage.getItem('apiUrl');
+      if (savedApiUrl) {
+        document.getElementById('apiUrl').value = savedApiUrl;
+        loadSettings();
+      }
+    });
+  </script>
+
+  <style>
+    .input-with-status {
+      position: relative;
+    }
+    .current-value {
+      display: block;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</body>
+</html>
