@@ -176,10 +176,11 @@
     </main>
   </div>
 
+  <script src="../config.js"></script>
   <script src="common.js"></script>
   <script>
-    // API URLをローカルストレージから取得（GitHub Pagesでも動作するように）
-    const API_URL = localStorage.getItem('apiUrl') || '';
+    // config.jsから取得、またはローカルストレージから（開発用）
+    const CURRENT_API_URL = API_BASE_URL || localStorage.getItem('apiUrl') || '';
 
     // JWT Secret生成
     function generateJwtSecret() {
@@ -192,7 +193,7 @@
 
     // 設定を読み込む
     async function loadSettings() {
-      const apiUrl = document.getElementById('apiUrl').value || localStorage.getItem('apiUrl');
+      const apiUrl = document.getElementById('apiUrl').value || CURRENT_API_URL;
       
       if (!apiUrl) {
         console.log('API URLが設定されていません');
@@ -200,7 +201,7 @@
       }
 
       try {
-        const token = sessionStorage.getItem('adminToken');
+        const token = sessionStorage.getItem('authToken');
         const response = await fetch(`${apiUrl}/v1/admin/settings/system`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -283,7 +284,7 @@
       saveBtn.textContent = '保存中...';
 
       try {
-        const token = sessionStorage.getItem('adminToken');
+        const token = sessionStorage.getItem('authToken');
         const response = await fetch(`${apiUrl}/v1/admin/settings/system`, {
           method: 'PUT',
           headers: {
@@ -320,9 +321,10 @@
 
     // ページ読み込み時
     document.addEventListener('DOMContentLoaded', function() {
-      const savedApiUrl = localStorage.getItem('apiUrl');
-      if (savedApiUrl) {
-        document.getElementById('apiUrl').value = savedApiUrl;
+      // config.jsから取得したURLを優先、なければlocalStorageから
+      const apiUrl = CURRENT_API_URL || localStorage.getItem('apiUrl');
+      if (apiUrl) {
+        document.getElementById('apiUrl').value = apiUrl;
         loadSettings();
       }
     });
