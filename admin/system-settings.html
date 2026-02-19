@@ -193,30 +193,11 @@
 
     // 設定を読み込む
     async function loadSettings() {
-      const apiUrl = document.getElementById('apiUrl').value || CURRENT_API_URL;
-      
-      if (!apiUrl) {
-        console.log('API URLが設定されていません');
-        return;
-      }
-
       try {
-        const token = sessionStorage.getItem('authToken');
-        const response = await fetch(`${apiUrl}/v1/admin/settings/system`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('設定の取得に失敗しました');
-        }
-
-        const settings = await response.json();
+        const settings = await API.get('/v1/admin/settings/system');
 
         // フォームに反映（マスクされた値を表示）
-        document.getElementById('apiUrl').value = apiUrl;
+        document.getElementById('apiUrl').value = API_BASE_URL;
         document.getElementById('frontendUrl').value = settings.frontendUrl || '';
         document.getElementById('emailFrom').value = settings.emailFrom || '';
         document.getElementById('adminEmail').value = settings.adminEmail || '';
@@ -284,22 +265,7 @@
       saveBtn.textContent = '保存中...';
 
       try {
-        const token = sessionStorage.getItem('authToken');
-        console.log('Auth token:', token ? token.substring(0, 50) + '...' : 'NULL');
-        const response = await fetch(`${apiUrl}/v1/admin/settings/system`, {
-          method: 'PUT',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(filteredSettings)
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.message || '保存に失敗しました');
-        }
-
+        await API.put('/v1/admin/settings/system', filteredSettings);
         alert('設定を保存しました');
         
         // 入力フィールドをクリア（セキュリティのため）
