@@ -32,11 +32,11 @@ const ReservationStorage = {
 };
 
 // ========================================
-// 設定値（将来は管理画面から取得）
+// 設定値（APIから取得）
 // ========================================
 
 const AppConfig = {
-  // 営業時間
+  // 営業時間（デフォルト値、APIから取得で上書き）
   openTime: '09:00',
   closeTime: '18:00',
   timeStepMinutes: 15,
@@ -44,69 +44,118 @@ const AppConfig = {
   // 予約可能期間
   maxFutureMonths: 6,
   
-  // 車両クラスマスタ（将来はAPIから取得）
-  carClasses: [
-    {
-      id: 'class-001',
-      name: '軽自動車クラス',
-      description: '街乗りに最適なコンパクトカー',
-      notes: '4人乗り / オートマ / ナビ付き',
-      imageUrl: null
-    },
-    {
-      id: 'class-002',
-      name: 'コンパクトクラス',
-      description: '小回りが利いて運転しやすい',
-      notes: '5人乗り / オートマ / ナビ付き',
-      imageUrl: null
-    },
-    {
-      id: 'class-003',
-      name: 'スタンダードクラス',
-      description: '広々快適な定番セダン',
-      notes: '5人乗り / オートマ / ナビ・ETC付き',
-      imageUrl: null
-    },
-    {
-      id: 'class-004',
-      name: 'ミニバンクラス',
-      description: '大人数・荷物多めにおすすめ',
-      notes: '7-8人乗り / オートマ / ナビ・ETC付き',
-      imageUrl: null
+  // マスターデータ（APIから取得）
+  carClasses: [],
+  pricingPlans: [],
+  options: [],
+  insurancePlans: [],
+  
+  // 予約不可日
+  disabledDates: [],
+  
+  // データ読み込み状態
+  _loaded: false,
+  
+  // APIからマスターデータを読み込む
+  async loadMasterData() {
+    if (this._loaded) return;
+    
+    try {
+      // 並列でAPIを呼び出し
+      const [carClassesRes, optionsRes, insuranceRes] = await Promise.all([
+        API.get('/v1/car-classes'),
+        API.get('/v1/options'),
+        API.get('/v1/insurance-plans')
+      ]);
+      
+      this.carClasses = carClassesRes.data || [];
+      this.options = optionsRes.data || [];
+      this.insurancePlans = insuranceRes.data || [];
+      
+      // 各車両クラスの料金プランを取得
+      const pricingPromises = this.carClasses.map(async (carClass) => {
+        try {
+          const res = await API.get(`/v1/car-classes/${carClass.id}/pricing`);
+          return (res.data || []).map(plan => ({
+            ...plan,
+            carClassId: carClass.id
+          }));
+        } catch (e) {
+          console.warn(`Failed to load pricing for ${carClass.id}:`, e);
+          return [];
+        }
+      });
+      
+      const allPricing = await Promise.all(pricingPromises);
+      this.pricingPlans = allPricing.flat();
+      
+      // 重複排除（同じcarClassId + daysの組み合わせは1つだけ残す）
+      const seen = new Set();
+      this.pricingPlans = this.pricingPlans.filter(plan => {
+        const key = `${plan.carClassId}-${plan.days}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      
+      // オプションの重複排除（同じ名前は1つだけ残す）
+      const seenOptions = new Set();
+      this.options = this.options.filter(opt => {
+        if (seenOptions.has(opt.name)) return false;
+        seenOptions.add(opt.name);
+        return true;
+      });
+      
+      this._loaded = true;
+      console.log('Master data loaded:', {
+        carClasses: this.carClasses.length,
+        pricingPlans: this.pricingPlans.length,
+        options: this.options.length,
+        insurancePlans: this.insurancePlans.length
+      });
+    } catch (error) {
+      console.error('Failed to load master data:', error);
+      // フォールバック: ローカルのデフォルト値を使用
+      this._loadFallbackData();
     }
-  ],
+  },
   
-  // 料金表（将来はAPIから取得）
-  pricingPlans: [
-    // 軽自動車クラス
-    { carClassId: 'class-001', days: 1, price: 4000, label: '1日' },
-    { carClassId: 'class-001', days: 2, price: 7500, label: '2日' },
-    { carClassId: 'class-001', days: 3, price: 10500, label: '3日' },
-    { carClassId: 'class-001', days: 7, price: 22000, label: '1週間' },
-    
-    // コンパクトクラス
-    { carClassId: 'class-002', days: 1, price: 5000, label: '1日' },
-    { carClassId: 'class-002', days: 2, price: 9500, label: '2日' },
-    { carClassId: 'class-002', days: 3, price: 13500, label: '3日' },
-    { carClassId: 'class-002', days: 7, price: 28000, label: '1週間' },
-    
-    // スタンダードクラス
-    { carClassId: 'class-003', days: 1, price: 6500, label: '1日' },
-    { carClassId: 'class-003', days: 2, price: 12500, label: '2日' },
-    { carClassId: 'class-003', days: 3, price: 18000, label: '3日' },
-    { carClassId: 'class-003', days: 7, price: 38000, label: '1週間' },
-    
-    // ミニバンクラス
-    { carClassId: 'class-004', days: 1, price: 8500, label: '1日' },
-    { carClassId: 'class-004', days: 2, price: 16500, label: '2日' },
-    { carClassId: 'class-004', days: 3, price: 24000, label: '3日' },
-    { carClassId: 'class-004', days: 7, price: 52000, label: '1週間' }
-  ],
-  
-  // 予約不可日（将来はAPIから取得）
-  disabledDates: [
-    // 例: '2026-02-15', '2026-03-20'
-  ]
+  // フォールバックデータ（API失敗時）
+  _loadFallbackData() {
+    this.carClasses = [
+      { id: 'class-kei', name: '軽自動車クラス', description: '街乗りに最適なコンパクトカー', notes: '4人乗り / オートマ / ナビ付き', imageUrl: null },
+      { id: 'class-compact', name: 'コンパクトクラス', description: '小回りが利いて運転しやすい', notes: '5人乗り / オートマ / ナビ付き', imageUrl: null },
+      { id: 'class-standard', name: 'スタンダードクラス', description: '広々快適な定番セダン', notes: '5人乗り / オートマ / ナビ・ETC付き', imageUrl: null },
+      { id: 'class-minivan', name: 'ミニバンクラス', description: '大人数・荷物多めにおすすめ', notes: '7-8人乗り / オートマ / ナビ・ETC付き', imageUrl: null }
+    ];
+    this.pricingPlans = [
+      { carClassId: 'class-kei', days: 1, price: 4000, label: '1日' },
+      { carClassId: 'class-kei', days: 3, price: 10500, label: '3日' },
+      { carClassId: 'class-kei', days: 7, price: 22000, label: '1週間' },
+      { carClassId: 'class-compact', days: 1, price: 5000, label: '1日' },
+      { carClassId: 'class-compact', days: 3, price: 13500, label: '3日' },
+      { carClassId: 'class-compact', days: 7, price: 28000, label: '1週間' },
+      { carClassId: 'class-standard', days: 1, price: 6500, label: '1日' },
+      { carClassId: 'class-standard', days: 3, price: 18000, label: '3日' },
+      { carClassId: 'class-standard', days: 7, price: 38000, label: '1週間' },
+      { carClassId: 'class-minivan', days: 1, price: 8500, label: '1日' },
+      { carClassId: 'class-minivan', days: 3, price: 24000, label: '3日' },
+      { carClassId: 'class-minivan', days: 7, price: 52000, label: '1週間' }
+    ];
+    this.options = [
+      { id: 'opt-child', name: 'チャイルドシート', description: '0〜4歳向け', pricePerDay: 500, maxQuantity: 2 },
+      { id: 'opt-junior', name: 'ジュニアシート', description: '4〜10歳向け', pricePerDay: 500, maxQuantity: 2 },
+      { id: 'opt-snow', name: 'スタッドレスタイヤ', description: '冬季限定', pricePerDay: 1000, maxQuantity: 1 },
+      { id: 'opt-carrier', name: 'キャリア', description: '屋根に取り付け', pricePerDay: 800, maxQuantity: 1 }
+    ];
+    this.insurancePlans = [
+      { id: 'none', name: '補償なし', description: '基本補償なし、全額自己負担', pricePerDay: 0, deductible: null },
+      { id: 'standard', name: 'スタンダード補償', description: '対人・対物・車両保険付き', pricePerDay: 1100, deductible: 50000 },
+      { id: 'premium', name: 'プレミアム補償', description: 'フル補償 + NOC + ロードサービス', pricePerDay: 2200, deductible: 0 }
+    ];
+    this._loaded = true;
+    console.log('Using fallback master data');
+  }
 };
 
 // ========================================

@@ -366,8 +366,12 @@
     }
 
     // 初期化
-    loadReservationData();
-    renderCarClasses();
+    async function init() {
+      await AppConfig.loadMasterData();
+      loadReservationData();
+      renderCarClasses();
+    }
+    init();
   </script>
 </body>
 </html>

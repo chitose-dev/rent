@@ -343,67 +343,12 @@
     </div>
   </div>
 
+  <script src="config.js"></script>
   <script src="common.js"></script>
   <script>
-    // オプションデータ
-    const InsuranceOptions = [
-      {
-        id: 'insurance-standard',
-        name: '免責補償制度（CDW）',
-        pricePerDay: 1100,
-        description: '事故時の車両・対物免責額（5万円）が免除されます。',
-        details: [
-          '車両免責額 5万円 → 0円',
-          '対物免責額 5万円 → 0円',
-          '営業補償（NOC）は含まれません'
-        ],
-        recommended: true
-      },
-      {
-        id: 'insurance-full',
-        name: 'フルカバー補償（CDW+NOC）',
-        pricePerDay: 1650,
-        description: '免責補償に加え、営業補償（NOC）も免除されます。',
-        details: [
-          '車両免責額 5万円 → 0円',
-          '対物免責額 5万円 → 0円',
-          '営業補償（自走可能時2万円）→ 0円',
-          '営業補償（自走不可時5万円）→ 0円'
-        ],
-        recommended: false
-      }
-    ];
-    
-    const AdditionalOptions = [
-      {
-        id: 'option-childseat',
-        name: 'チャイルドシート',
-        pricePerDay: 550,
-        description: '乳幼児用のチャイルドシートをご用意します。',
-        details: ['対象年齢: 0〜4歳', '体重: 18kg以下']
-      },
-      {
-        id: 'option-juniorseat',
-        name: 'ジュニアシート',
-        pricePerDay: 330,
-        description: 'お子様用のジュニアシートをご用意します。',
-        details: ['対象年齢: 4〜10歳', '体重: 15〜36kg']
-      },
-      {
-        id: 'option-snowchain',
-        name: 'スノーチェーン',
-        pricePerDay: 1100,
-        description: '冬季の雪道走行に備えてスノーチェーンをご用意します。',
-        details: ['車両クラスに合ったサイズをご用意', '装着方法のご説明付き']
-      },
-      {
-        id: 'option-etc',
-        name: 'ETCカード',
-        pricePerDay: 330,
-        description: '高速道路のETCレーンをスムーズに通過できます。',
-        details: ['利用料金は返却時に精算', 'ETC車載器は標準装備']
-      }
-    ];
+    // APIから取得したオプションデータを使用
+    let InsuranceOptions = [];
+    let AdditionalOptions = [];
     
     let selectedInsurance = null;
     let selectedOptions = [];
@@ -681,10 +626,40 @@
     }
 
     // 初期化
-    loadReservationData();
-    renderInsuranceOptions();
-    renderAdditionalOptions();
-    updateTotal();
+    async function init() {
+      await AppConfig.loadMasterData();
+      
+      // APIから取得したデータを使用
+      InsuranceOptions = AppConfig.insurancePlans.filter(p => p.id !== 'none').map(p => ({
+        id: p.id,
+        name: p.name,
+        pricePerDay: p.pricePerDay,
+        description: p.description,
+        details: p.coverageDetails ? [
+          p.coverageDetails.personalLiability ? `対人補償: ${p.coverageDetails.personalLiability}` : null,
+          p.coverageDetails.propertyDamage ? `対物補償: ${p.coverageDetails.propertyDamage}` : null,
+          p.coverageDetails.vehicleDamage ? `車両補償: ${p.coverageDetails.vehicleDamage}` : null,
+          p.coverageDetails.nocCoverage ? 'NOC補償: あり' : null,
+          p.coverageDetails.roadService ? 'ロードサービス: あり' : null,
+          p.deductible !== null ? `免責金額: ${Utils.formatPrice(p.deductible)}` : '免責金額: 0円'
+        ].filter(Boolean) : [],
+        recommended: p.id === 'standard'
+      }));
+      
+      AdditionalOptions = AppConfig.options.map(o => ({
+        id: o.id,
+        name: o.name,
+        pricePerDay: o.pricePerDay,
+        description: o.description,
+        details: o.maxQuantity > 1 ? [`最大数量: ${o.maxQuantity}個`] : []
+      }));
+      
+      loadReservationData();
+      renderInsuranceOptions();
+      renderAdditionalOptions();
+      updateTotal();
+    }
+    init();
   </script>
 </body>
 </html>
