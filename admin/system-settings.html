@@ -285,6 +285,7 @@
 
       try {
         const token = sessionStorage.getItem('authToken');
+        console.log('Auth token:', token ? token.substring(0, 50) + '...' : 'NULL');
         const response = await fetch(`${apiUrl}/v1/admin/settings/system`, {
           method: 'PUT',
           headers: {

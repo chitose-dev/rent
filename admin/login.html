@@ -125,6 +125,7 @@
       
       try {
         const response = await API.post('/v1/admin/auth/login', { email, password });
+        console.log('Login response:', response);
         
         if (response.data && response.data.token) {
           sessionStorage.setItem('adminLoggedIn', 'true');
