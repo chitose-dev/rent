@@ -113,20 +113,32 @@
       </form>
     </div>
   </div>
+  <script src="../config.js"></script>
   <script>
-    // デモ用: 実際にはバックエンドで認証
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const id = document.getElementById('adminId').value;
+      const errorEl = document.getElementById('errorMessage');
+      errorEl.classList.remove('show');
+      
+      const email = document.getElementById('adminId').value;
       const password = document.getElementById('adminPassword').value;
       
-      // デモ用認証（実際はAPIで検証）
-      if (id && password) {
-        sessionStorage.setItem('adminLoggedIn', 'true');
-        sessionStorage.setItem('adminId', id);
-        window.location.href = 'index.html';
-      } else {
-        document.getElementById('errorMessage').classList.add('show');
+      try {
+        const response = await API.post('/v1/admin/auth/login', { email, password });
+        
+        if (response.data && response.data.token) {
+          sessionStorage.setItem('adminLoggedIn', 'true');
+          sessionStorage.setItem('authToken', response.data.token);
+          sessionStorage.setItem('adminId', response.data.admin?.id || email);
+          sessionStorage.setItem('adminName', response.data.admin?.name || email);
+          window.location.href = 'index.html';
+        } else {
+          throw new Error('Invalid response');
+        }
+      } catch (error) {
+        console.error('Login failed:', error);
+        errorEl.textContent = error.message || 'IDまたはパスワードが正しくありません';
+        errorEl.classList.add('show');
       }
     });
 
