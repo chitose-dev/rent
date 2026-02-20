@@ -38,8 +38,7 @@
           <a href="documents.html" class="nav-item">法的文書</a>
         </div>
         <div class="nav-section">
-          <a href="../login.html" class="nav-item">予約サイトへ</a>
-          <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
+          <a href="../reserve-class.html" class="nav-item">予約サイトへ</a>
         </div>
         <div class="nav-section nav-section-bottom">
           <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
@@ -54,434 +53,399 @@
           <h1 class="admin-title">予約管理</h1>
           <p class="admin-breadcrumb"><a href="index.html">ダッシュボード</a> / 予約一覧</p>
         </div>
-        <button class="btn btn-primary" onclick="openModal('add-reservation-modal')">+ 手動で予約追加</button>
       </div>
 
       <!-- タブ -->
       <div class="tabs">
-        <button class="tab active" onclick="showTab('all')">すべて</button>
-        <button class="tab" onclick="showTab('pending')">確認待ち <span class="badge badge-warning" style="margin-left: 4px;">2</span></button>
-        <button class="tab" onclick="showTab('active')">レンタル中</button>
-        <button class="tab" onclick="showTab('cancel')">キャンセル申請 <span class="badge badge-danger" style="margin-left: 4px;">1</span></button>
+        <button class="tab active" data-status="">すべて</button>
+        <button class="tab" data-status="confirmed">受取待ち</button>
+        <button class="tab" data-status="picked_up">レンタル中</button>
+        <button class="tab" data-status="cancel_requested">キャンセル申請</button>
       </div>
 
-      <!-- フィルター -->
+      <!-- 予約一覧 -->
       <div class="admin-card">
-        <div class="card-body" style="padding: 12px 20px;">
-          <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
-            <div class="form-group" style="margin: 0;">
-              <input type="date" class="form-input" style="width: 150px;">
-            </div>
-            <span>〜</span>
-            <div class="form-group" style="margin: 0;">
-              <input type="date" class="form-input" style="width: 150px;">
-            </div>
-            <div class="form-group" style="margin: 0;">
-              <select class="form-select" style="width: 150px;">
-                <option value="">全てのクラス</option>
-                <option value="compact">コンパクト</option>
-                <option value="standard">スタンダード</option>
-                <option value="minivan">ミニバン</option>
-              </select>
-            </div>
-            <div class="form-group" style="margin: 0;">
-              <input type="text" class="form-input" placeholder="予約番号・氏名で検索" style="width: 200px;">
-            </div>
-            <button class="btn btn-primary btn-sm">検索</button>
-          </div>
+        <div class="card-body" style="padding: 0;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>予約番号</th>
+                <th>会員</th>
+                <th>車両クラス</th>
+                <th>期間</th>
+                <th>金額</th>
+                <th>決済</th>
+                <th>ステータス</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="reservations-tbody">
+              <tr>
+                <td colspan="8" style="text-align: center; padding: 40px;">
+                  読み込み中...
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <!-- すべての予約 -->
-      <div class="tab-content active" id="all-tab">
-        <div class="admin-card">
-          <div class="card-body" style="padding: 0;">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>予約番号</th>
-                  <th>会員</th>
-                  <th>車両クラス</th>
-                  <th>期間</th>
-                  <th>金額</th>
-                  <th>決済</th>
-                  <th>ステータス</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>#R2026021101</strong></td>
-                  <td>山田 太郎<br><small class="text-muted">yamada@example.com</small></td>
-                  <td>コンパクト</td>
-                  <td>02/11 10:00<br>〜02/13 18:00</td>
-                  <td>¥8,800</td>
-                  <td><span class="badge badge-info">カード</span></td>
-                  <td><span class="badge badge-info">受取待ち</span></td>
-                  <td class="actions">
-                    <button class="btn btn-sm btn-outline" onclick="openModal('detail-modal')">詳細</button>
-                    <button class="btn btn-sm btn-success">受取処理</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>#R2026020801</strong></td>
-                  <td>田中 誠<br><small class="text-muted">tanaka@example.com</small></td>
-                  <td>コンパクト</td>
-                  <td>02/08 10:00<br>〜02/11 15:00</td>
-                  <td>¥12,100</td>
-                  <td><span class="badge badge-secondary">現地払い</span></td>
-                  <td><span class="badge badge-success">レンタル中</span></td>
-                  <td class="actions">
-                    <button class="btn btn-sm btn-outline" onclick="openModal('detail-modal')">詳細</button>
-                    <button class="btn btn-sm btn-warning" onclick="openModal('extend-modal')">延長</button>
-                    <button class="btn btn-sm btn-success">返却処理</button>
-                  </td>
-                </tr>
-                <tr style="background-color: #FFF3E0;">
-                  <td><strong>#R2026021102</strong></td>
-                  <td>佐藤 花子<br><small class="text-muted">sato@example.com</small></td>
-                  <td>スタンダード</td>
-                  <td>02/11 11:00<br>〜02/15 11:00</td>
-                  <td>¥22,000</td>
-                  <td><span class="badge badge-info">カード</span></td>
-                  <td><span class="badge badge-warning">確認待ち</span></td>
-                  <td class="actions">
-                    <button class="btn btn-sm btn-outline" onclick="openModal('detail-modal')">詳細</button>
-                    <button class="btn btn-sm btn-success">承認</button>
-                    <button class="btn btn-sm btn-danger">却下</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>#R2026020702</strong></td>
-                  <td>高橋 美咲<br><small class="text-muted">takahashi@example.com</small></td>
-                  <td>スタンダード</td>
-                  <td>02/07 14:00<br>〜02/10 14:00</td>
-                  <td>¥16,500</td>
-                  <td><span class="badge badge-info">カード</span></td>
-                  <td><span class="badge badge-secondary">完了</span></td>
-                  <td class="actions">
-                    <button class="btn btn-sm btn-outline" onclick="openModal('detail-modal')">詳細</button>
-                  </td>
-                </tr>
-                <tr style="background-color: #FFEBEE;">
-                  <td><strong>#R2026021501</strong></td>
-                  <td>伊藤 健太<br><small class="text-muted">ito@example.com</small></td>
-                  <td>ミニバン</td>
-                  <td>02/15 10:00<br>〜02/18 10:00</td>
-                  <td>¥26,400</td>
-                  <td><span class="badge badge-info">カード</span></td>
-                  <td><span class="badge badge-danger">キャンセル申請</span></td>
-                  <td class="actions">
-                    <button class="btn btn-sm btn-outline" onclick="openModal('detail-modal')">詳細</button>
-                    <button class="btn btn-sm btn-success">承認</button>
-                    <button class="btn btn-sm btn-danger">却下</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- 確認待ちタブ -->
-      <div class="tab-content" id="pending-tab">
-        <div class="admin-card">
-          <div class="card-body">
-            <p class="text-muted">確認待ちの予約がここに表示されます。</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- レンタル中タブ -->
-      <div class="tab-content" id="active-tab">
-        <div class="admin-card">
-          <div class="card-body">
-            <p class="text-muted">レンタル中の予約がここに表示されます。</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- キャンセル申請タブ -->
-      <div class="tab-content" id="cancel-tab">
-        <div class="admin-card">
-          <div class="card-body">
-            <p class="text-muted">キャンセル申請中の予約がここに表示されます。</p>
-          </div>
-        </div>
-      </div>
+      <!-- ページネーション -->
+      <div id="pagination" style="display: flex; justify-content: center; gap: 8px; margin-top: 16px;"></div>
     </main>
   </div>
 
-  <!-- 予約詳細モーダル -->
-  <div class="modal-overlay" id="detail-modal">
-    <div class="modal" style="max-width: 700px;">
+  <!-- 詳細モーダル -->
+  <div class="modal" id="detail-modal">
+    <div class="modal-content" style="max-width: 600px;">
       <div class="modal-header">
-        <h3 class="modal-title">予約詳細 #R2026021101</h3>
+        <h3>予約詳細</h3>
         <button class="modal-close" onclick="closeModal('detail-modal')">&times;</button>
       </div>
-      <div class="modal-body">
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">ステータス</label>
-            <span class="badge badge-info">受取待ち</span>
-          </div>
-          <div class="form-group">
-            <label class="form-label">予約日時</label>
-            <p>2026/02/10 15:32</p>
-          </div>
-        </div>
-        <hr style="margin: 16px 0; border: none; border-top: 1px solid #e0e0e0;">
-        <h4 style="font-size: 14px; margin-bottom: 12px;">会員情報</h4>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">氏名</label>
-            <p>山田 太郎</p>
-          </div>
-          <div class="form-group">
-            <label class="form-label">メールアドレス</label>
-            <p>yamada@example.com</p>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">電話番号</label>
-          <p>090-1234-5678</p>
-        </div>
-        <hr style="margin: 16px 0; border: none; border-top: 1px solid #e0e0e0;">
-        <h4 style="font-size: 14px; margin-bottom: 12px;">予約内容</h4>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">車両クラス</label>
-            <p>コンパクト</p>
-          </div>
-          <div class="form-group">
-            <label class="form-label">レンタル日数</label>
-            <p>3日</p>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">受取日時</label>
-            <p>2026/02/11 10:00</p>
-          </div>
-          <div class="form-group">
-            <label class="form-label">返却日時</label>
-            <p>2026/02/13 18:00</p>
-          </div>
-        </div>
-        <hr style="margin: 16px 0; border: none; border-top: 1px solid #e0e0e0;">
-        <h4 style="font-size: 14px; margin-bottom: 12px;">料金明細</h4>
-        <table class="admin-table">
-          <tbody>
-            <tr>
-              <td>基本料金（コンパクト 3日）</td>
-              <td style="text-align: right;">¥8,000</td>
-            </tr>
-            <tr>
-              <td>スタンダード補償 × 3日</td>
-              <td style="text-align: right;">¥3,300</td>
-            </tr>
-            <tr>
-              <td>ETC車載器 × 3日</td>
-              <td style="text-align: right;">¥990</td>
-            </tr>
-            <tr style="font-weight: bold;">
-              <td>合計</td>
-              <td style="text-align: right;">¥12,290</td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="form-group" style="margin-top: 16px;">
-          <label class="form-label">決済方法</label>
-          <p><span class="badge badge-info">クレジットカード</span> 決済済み</p>
-        </div>
+      <div class="modal-body" id="detail-modal-body">
+        読み込み中...
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('detail-modal')">閉じる</button>
-        <button class="btn btn-warning" onclick="closeModal('detail-modal'); openModal('extend-modal')">延長</button>
-        <button class="btn btn-success">受取処理</button>
       </div>
     </div>
   </div>
 
   <!-- 延長モーダル -->
-  <div class="modal-overlay" id="extend-modal">
-    <div class="modal">
+  <div class="modal" id="extend-modal">
+    <div class="modal-content" style="max-width: 500px;">
       <div class="modal-header">
-        <h3 class="modal-title">レンタル期間延長</h3>
+        <h3>レンタル期間延長</h3>
         <button class="modal-close" onclick="closeModal('extend-modal')">&times;</button>
       </div>
       <div class="modal-body">
-        <div class="alert alert-info">
-          <span></span>
-          <div>延長処理を行うと、追加料金が発生します。現地払いまたは別途決済が必要です。</div>
+        <div style="background: #e3f2fd; padding: 12px; border-radius: 4px; margin-bottom: 16px;">
+          延長処理を行うと、追加料金が発生します。
         </div>
         <div class="form-group">
           <label class="form-label">予約番号</label>
-          <input type="text" class="form-input" value="#R2026020801" disabled>
+          <input type="text" class="form-input" id="extend-reservation-id" disabled>
         </div>
         <div class="form-group">
-          <label class="form-label">会員</label>
-          <input type="text" class="form-input" value="田中 誠" disabled>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">現在の返却予定</label>
-            <input type="text" class="form-input" value="2026/02/11 15:00" disabled>
-          </div>
-          <div class="form-group">
-            <label class="form-label">新しい返却日時<span class="required">*</span></label>
-            <input type="datetime-local" class="form-input" value="2026-02-13T15:00">
-          </div>
+          <label class="form-label">現在の返却予定</label>
+          <input type="text" class="form-input" id="extend-current-return" disabled>
         </div>
         <div class="form-group">
-          <label class="form-label">延長日数</label>
-          <input type="text" class="form-input" value="2日" disabled>
+          <label class="form-label">新しい返却日時<span style="color:red;">*</span></label>
+          <input type="datetime-local" class="form-input" id="extend-new-return">
         </div>
-        <hr style="margin: 16px 0; border: none; border-top: 1px solid #e0e0e0;">
-        <h4 style="font-size: 14px; margin-bottom: 12px;">追加料金</h4>
-        <table class="admin-table">
-          <tbody>
-            <tr>
-              <td>基本料金（コンパクト 2日分）</td>
-              <td style="text-align: right;">¥6,000</td>
-            </tr>
-            <tr>
-              <td>スタンダード補償 × 2日</td>
-              <td style="text-align: right;">¥2,200</td>
-            </tr>
-            <tr>
-              <td>ETC車載器 × 2日</td>
-              <td style="text-align: right;">¥660</td>
-            </tr>
-            <tr style="font-weight: bold; background-color: #FFF3E0;">
-              <td>追加料金合計</td>
-              <td style="text-align: right;">¥8,860</td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="form-group" style="margin-top: 16px;">
+        <div class="form-group">
           <label class="form-label">追加決済方法</label>
-          <select class="form-select">
-            <option value="cash">現地払い（現金）</option>
-            <option value="card_local">現地払い（カード）</option>
-            <option value="card_online">オンラインカード決済</option>
+          <select class="form-select" id="extend-payment-method">
+            <option value="onsite">現地払い</option>
+            <option value="card">カード決済（決済URLを発行）</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">備考</label>
-          <textarea class="form-textarea" rows="2" placeholder="延長理由など"></textarea>
+          <textarea class="form-textarea" id="extend-notes" rows="2" placeholder="延長理由など"></textarea>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('extend-modal')">キャンセル</button>
-        <button class="btn btn-warning">延長を確定</button>
+        <button class="btn btn-warning" onclick="processExtend()">延長を確定</button>
       </div>
     </div>
   </div>
 
-  <!-- 手動予約追加モーダル -->
-  <div class="modal-overlay" id="add-reservation-modal">
-    <div class="modal" style="max-width: 700px;">
-      <div class="modal-header">
-        <h3 class="modal-title">手動で予約追加</h3>
-        <button class="modal-close" onclick="closeModal('add-reservation-modal')">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="alert alert-info">
-          <span></span>
-          <div>電話等で受け付けた予約を手動で登録できます。</div>
-        </div>
-        <h4 style="font-size: 14px; margin-bottom: 12px;">会員情報</h4>
-        <div class="form-group">
-          <label class="form-label">会員検索</label>
-          <div class="form-inline">
-            <input type="text" class="form-input" placeholder="メールアドレスまたは電話番号">
-            <button class="btn btn-outline">検索</button>
-          </div>
-          <p class="form-hint">既存会員を検索するか、下記に直接入力してください</p>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">氏名<span class="required">*</span></label>
-            <input type="text" class="form-input" placeholder="山田 太郎">
-          </div>
-          <div class="form-group">
-            <label class="form-label">電話番号<span class="required">*</span></label>
-            <input type="tel" class="form-input" placeholder="090-1234-5678">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">メールアドレス</label>
-          <input type="email" class="form-input" placeholder="example@email.com">
-        </div>
-        <hr style="margin: 16px 0; border: none; border-top: 1px solid #e0e0e0;">
-        <h4 style="font-size: 14px; margin-bottom: 12px;">予約内容</h4>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">車両クラス<span class="required">*</span></label>
-            <select class="form-select">
-              <option value="">選択してください</option>
-              <option value="compact">コンパクト</option>
-              <option value="standard">スタンダード</option>
-              <option value="minivan">ミニバン</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">レンタル日数<span class="required">*</span></label>
-            <select class="form-select">
-              <option value="">選択してください</option>
-              <option value="1">1日</option>
-              <option value="3">3日</option>
-              <option value="7">1週間</option>
-              <option value="14">2週間</option>
-              <option value="30">1ヶ月</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">受取日時<span class="required">*</span></label>
-            <input type="datetime-local" class="form-input">
-          </div>
-          <div class="form-group">
-            <label class="form-label">返却日時<span class="required">*</span></label>
-            <input type="datetime-local" class="form-input">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">決済方法</label>
-          <select class="form-select">
-            <option value="cash">現地払い</option>
-            <option value="card">クレジットカード（後日決済リンク送信）</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">備考</label>
-          <textarea class="form-textarea" rows="2" placeholder="特記事項があれば入力"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('add-reservation-modal')">キャンセル</button>
-        <button class="btn btn-primary">予約を登録</button>
-      </div>
-    </div>
-  </div>
-
+  <script src="../config.js"></script>
   <script src="common.js"></script>
   <script>
+    let currentStatus = '';
+    let currentPage = 1;
+
+    // ステータスラベル
+    const statusLabels = {
+      pending_payment: { text: '決済待ち', class: 'badge-warning' },
+      confirmed: { text: '受取待ち', class: 'badge-info' },
+      picked_up: { text: 'レンタル中', class: 'badge-success' },
+      returned: { text: '返却済み', class: 'badge-secondary' },
+      cancel_requested: { text: 'キャンセル申請', class: 'badge-danger' },
+      cancelled: { text: 'キャンセル済', class: 'badge-secondary' },
+      no_show: { text: '無断キャンセル', class: 'badge-danger' },
+    };
+
+    // 日時フォーマット
+    function formatDateTime(isoString) {
+      if (!isoString) return '-';
+      const d = new Date(isoString);
+      return `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+
+    // 金額フォーマット
+    function formatPrice(price) {
+      return `¥${price.toLocaleString()}`;
+    }
+
+    // 予約一覧を取得
+    async function loadReservations() {
+      const tbody = document.getElementById('reservations-tbody');
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;">読み込み中...</td></tr>';
+
+      try {
+        let url = `/v1/admin/reservations?page=${currentPage}&limit=20`;
+        if (currentStatus) {
+          url += `&status=${currentStatus}`;
+        }
+        
+        const result = await API.get(url);
+        const reservations = result.data || [];
+        
+        if (reservations.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;">予約がありません</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = reservations.map(r => {
+          const status = statusLabels[r.status] || { text: r.status, class: 'badge-secondary' };
+          const actions = getActionButtons(r);
+          
+          return `
+            <tr>
+              <td><strong>${r.id}</strong></td>
+              <td>${r.userName || '-'}<br><small class="text-muted">${r.userEmail || ''}</small></td>
+              <td>${r.carClassName || '-'}</td>
+              <td>${formatDateTime(r.pickupAt)}<br>〜${formatDateTime(r.returnAt)}</td>
+              <td>${formatPrice(r.totalPrice || 0)}</td>
+              <td><span class="badge ${r.paymentMethod === 'card' ? 'badge-info' : 'badge-secondary'}">${r.paymentMethod === 'card' ? 'カード' : '現地払い'}</span></td>
+              <td><span class="badge ${status.class}">${status.text}</span></td>
+              <td class="actions">${actions}</td>
+            </tr>
+          `;
+        }).join('');
+
+        // ページネーション
+        if (result.pagination) {
+          renderPagination(result.pagination);
+        }
+      } catch (error) {
+        console.error('予約取得エラー:', error);
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:#c00;">エラー: ${error.message}</td></tr>`;
+      }
+    }
+
+    // アクションボタン生成
+    function getActionButtons(reservation) {
+      const buttons = [`<button class="btn btn-sm btn-outline" onclick="showDetail('${reservation.id}')">詳細</button>`];
+      
+      switch (reservation.status) {
+        case 'confirmed':
+          buttons.push(`<button class="btn btn-sm btn-success" onclick="processPickup('${reservation.id}')">受取処理</button>`);
+          break;
+        case 'picked_up':
+          buttons.push(`<button class="btn btn-sm btn-warning" onclick="openExtendModal('${reservation.id}')">延長</button>`);
+          buttons.push(`<button class="btn btn-sm btn-success" onclick="processReturn('${reservation.id}')">返却処理</button>`);
+          break;
+        case 'cancel_requested':
+          buttons.push(`<button class="btn btn-sm btn-success" onclick="approveCancel('${reservation.id}')">承認</button>`);
+          buttons.push(`<button class="btn btn-sm btn-danger" onclick="rejectCancel('${reservation.id}')">却下</button>`);
+          break;
+      }
+      
+      return buttons.join(' ');
+    }
+
+    // ページネーション描画
+    function renderPagination(pagination) {
+      const container = document.getElementById('pagination');
+      if (pagination.totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+      
+      let html = '';
+      for (let i = 1; i <= pagination.totalPages; i++) {
+        html += `<button class="btn btn-sm ${i === pagination.page ? 'btn-primary' : 'btn-outline'}" onclick="goToPage(${i})">${i}</button>`;
+      }
+      container.innerHTML = html;
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      loadReservations();
+    }
+
+    // 詳細表示
+    async function showDetail(id) {
+      openModal('detail-modal');
+      const body = document.getElementById('detail-modal-body');
+      body.innerHTML = '読み込み中...';
+      
+      try {
+        const r = await API.get(`/v1/admin/reservations/${id}`);
+        const status = statusLabels[r.status] || { text: r.status, class: 'badge-secondary' };
+        
+        body.innerHTML = `
+          <table style="width:100%;border-collapse:collapse;">
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;width:120px;">予約番号</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.id}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">ステータス</th><td style="padding:8px;border-bottom:1px solid #eee;"><span class="badge ${status.class}">${status.text}</span></td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">会員名</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.userName || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">メール</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.userEmail || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">電話番号</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.userPhone || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">車両クラス</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.carClassName || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">車両</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.vehicleLicensePlate || '未割当'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">受取日時</th><td style="padding:8px;border-bottom:1px solid #eee;">${new Date(r.pickupAt).toLocaleString('ja-JP')}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">返却日時</th><td style="padding:8px;border-bottom:1px solid #eee;">${new Date(r.returnAt).toLocaleString('ja-JP')}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">金額</th><td style="padding:8px;border-bottom:1px solid #eee;">${formatPrice(r.totalPrice || 0)}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">決済方法</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.paymentMethod === 'card' ? 'カード' : '現地払い'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">保険</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.insuranceType || '-'}</td></tr>
+          </table>
+        `;
+      } catch (error) {
+        body.innerHTML = `<p style="color:#c00;">エラー: ${error.message}</p>`;
+      }
+    }
+
+    // 受取処理
+    async function processPickup(id) {
+      if (!confirm('受取処理を実行しますか？')) return;
+      
+      try {
+        await API.put(`/v1/admin/reservations/${id}/pickup`, { notes: '' });
+        alert('受取処理が完了しました');
+        loadReservations();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    // 返却処理
+    async function processReturn(id) {
+      if (!confirm('返却処理を実行しますか？')) return;
+      
+      try {
+        await API.put(`/v1/admin/reservations/${id}/return`, { 
+          actualReturnAt: new Date().toISOString(),
+          notes: '' 
+        });
+        alert('返却処理が完了しました');
+        loadReservations();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    // キャンセル承認
+    async function approveCancel(id) {
+      if (!confirm('キャンセルを承認しますか？返金処理も実行されます。')) return;
+      
+      try {
+        await API.put(`/v1/admin/reservations/${id}/cancel/approve`, { 
+          notes: '管理者により承認' 
+        });
+        alert('キャンセルを承認しました');
+        loadReservations();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    // キャンセル却下
+    async function rejectCancel(id) {
+      const reason = prompt('却下理由を入力してください:');
+      if (!reason) return;
+      
+      try {
+        await API.put(`/v1/admin/reservations/${id}/cancel/reject`, { reason });
+        alert('キャンセルを却下しました');
+        loadReservations();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    // 延長モーダルを開く
+    let currentExtendReservationId = null;
+    async function openExtendModal(id) {
+      currentExtendReservationId = id;
+      openModal('extend-modal');
+      
+      try {
+        const r = await API.get(`/v1/admin/reservations/${id}`);
+        document.getElementById('extend-reservation-id').value = r.id;
+        const returnAt = new Date(r.returnAt);
+        document.getElementById('extend-current-return').value = returnAt.toLocaleString('ja-JP');
+        
+        // 新しい返却日時のデフォルト値を現在の返却日時+1日に設定
+        const defaultNewReturn = new Date(returnAt);
+        defaultNewReturn.setDate(defaultNewReturn.getDate() + 1);
+        document.getElementById('extend-new-return').value = defaultNewReturn.toISOString().slice(0, 16);
+        document.getElementById('extend-notes').value = '';
+      } catch (error) {
+        alert('エラー: ' + error.message);
+        closeModal('extend-modal');
+      }
+    }
+
+    // 延長処理実行
+    async function processExtend() {
+      if (!currentExtendReservationId) return;
+      
+      const newReturnAt = document.getElementById('extend-new-return').value;
+      const paymentMethod = document.getElementById('extend-payment-method').value;
+      const notes = document.getElementById('extend-notes').value;
+      
+      if (!newReturnAt) {
+        alert('新しい返却日時を入力してください');
+        return;
+      }
+      
+      if (!confirm('延長処理を実行しますか？')) return;
+      
+      try {
+        const result = await API.put(`/v1/admin/reservations/${currentExtendReservationId}/extend`, {
+          newReturnAt: new Date(newReturnAt).toISOString(),
+          paymentMethod,
+          notes
+        });
+        
+        closeModal('extend-modal');
+        
+        if (result.stripeCheckoutUrl) {
+          // カード決済の場合、決済URLを表示
+          const copyUrl = confirm(
+            `延長処理を受け付けました。\n\n追加料金: ¥${result.additionalPrice.toLocaleString()}\n\n決済URLをコピーしてお客様に送信してください。\n\n「OK」でURLをコピーします。`
+          );
+          if (copyUrl) {
+            await navigator.clipboard.writeText(result.stripeCheckoutUrl);
+            alert('決済URLをコピーしました');
+          }
+        } else {
+          alert(`延長処理が完了しました。\n追加料金: ¥${result.additionalPrice.toLocaleString()}`);
+        }
+        
+        loadReservations();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    // モーダル
     function openModal(id) {
       document.getElementById(id).classList.add('active');
     }
     function closeModal(id) {
       document.getElementById(id).classList.remove('active');
     }
-    
-    function showTab(tabName) {
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      event.target.classList.add('active');
-      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-      document.getElementById(tabName + '-tab').classList.add('active');
-    }
+
+    // タブ切り替え
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentStatus = tab.dataset.status;
+        currentPage = 1;
+        loadReservations();
+      });
+    });
+
+    // 初期化
+    document.addEventListener('DOMContentLoaded', loadReservations);
   </script>
 </body>
 </html>
