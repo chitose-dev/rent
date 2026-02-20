@@ -8,17 +8,12 @@
 </head>
 <body>
   <div class="admin-layout">
-    <!-- サイドバー -->
     <aside class="admin-sidebar">
       <div class="sidebar-header">
-        <a href="index.html" class="sidebar-logo">
-          予約管理
-          <small>管理画面</small></a>
+        <a href="index.html" class="sidebar-logo">予約管理<small>管理画面</small></a>
       </div>
       <nav class="sidebar-nav">
-        <div class="nav-section">
-          <a href="index.html" class="nav-item">ダッシュボード</a>
-        </div>
+        <div class="nav-section"><a href="index.html" class="nav-item">ダッシュボード</a></div>
         <div class="nav-section">
           <div class="nav-section-title">予約管理</div>
           <a href="reservations.html" class="nav-item">予約一覧</a>
@@ -35,11 +30,6 @@
           <div class="nav-section-title">設定</div>
           <a href="settings.html" class="nav-item">店舗設定</a>
           <a href="system-settings.html" class="nav-item">システム設定</a>
-          <a href="documents.html" class="nav-item">法的文書</a>
-        </div>
-        <div class="nav-section">
-          <a href="../login.html" class="nav-item">予約サイトへ</a>
-          <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
         </div>
         <div class="nav-section nav-section-bottom">
           <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
@@ -47,7 +37,6 @@
       </nav>
     </aside>
 
-    <!-- メインコンテンツ -->
     <main class="admin-main">
       <div class="admin-header">
         <div>
@@ -56,418 +45,178 @@
         </div>
       </div>
 
-      <!-- タブ -->
-      <div class="tabs">
-        <button class="tab active" onclick="showTab('members')">会員一覧</button>
-        <button class="tab" onclick="showTab('blacklist')">ブラックリスト <span class="badge badge-danger" style="margin-left: 4px;">2</span></button>
-      </div>
-
-      <!-- 会員一覧タブ -->
-      <div class="tab-content active" id="members-tab">
-        <!-- 統計 -->
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-value">156</div>
-            <div class="stat-label">総会員数</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value">12</div>
-            <div class="stat-label">今月の新規登録</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value">89</div>
-            <div class="stat-label">アクティブ会員</div>
-            <div class="stat-change text-muted">過去3ヶ月以内に利用</div>
-          </div>
-        </div>
-
-        <!-- フィルター -->
-        <div class="admin-card">
-          <div class="card-body" style="padding: 12px 20px;">
-            <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
-              <div class="form-group" style="margin: 0;">
-                <input type="text" class="form-input" placeholder="氏名・メール・電話で検索" style="width: 250px;">
-              </div>
-              <div class="form-group" style="margin: 0;">
-                <select class="form-select" style="width: 150px;">
-                  <option value="">すべての会員</option>
-                  <option value="active">アクティブ</option>
-                  <option value="inactive">非アクティブ</option>
-                </select>
-              </div>
-              <button class="btn btn-primary btn-sm">検索</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 会員リスト -->
-        <div class="admin-card">
-          <div class="card-body" style="padding: 0;">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>会員ID</th>
-                  <th>氏名</th>
-                  <th>連絡先</th>
-                  <th>登録日</th>
-                  <th>利用回数</th>
-                  <th>最終利用</th>
-                  <th>ステータス</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>#M0001</td>
-                  <td><strong>山田 太郎</strong></td>
-                  <td>yamada@example.com<br><small class="text-muted">090-1234-5678</small></td>
-                  <td>2025/08/15</td>
-                  <td>5回</td>
-                  <td>2026/02/11</td>
-                  <td><span class="badge badge-success">アクティブ</span></td>
-                  <td class="actions">
-                    <button class="btn btn-sm btn-outline" onclick="openModal('member-detail-modal')">詳細</button>
-                    <button class="btn btn-sm btn-primary" onclick="openEmailModal('山田 太郎', 'yamada@example.com')">メール</button>
-                    <button class="btn btn-sm btn-danger" onclick="openModal('blacklist-add-modal')">ブラックリスト</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>#M0002</td>
-                  <td><strong>佐藤 花子</strong></td>
-                  <td>sato@example.com<br><small class="text-muted">080-2345-6789</small></td>
-                  <td>2025/09/20</td>
-                  <td>3回</td>
-                  <td>2026/02/08</td>
-                  <td><span class="badge badge-success">アクティブ</span></td>
-                  <td class="actions">
-                    <button class="btn btn-sm btn-outline" onclick="openModal('member-detail-modal')">詳細</button>
-                    <button class="btn btn-sm btn-primary" onclick="openEmailModal('佐藤 花子', 'sato@example.com')">メール</button>
-                    <button class="btn btn-sm btn-danger" onclick="openModal('blacklist-add-modal')">ブラックリスト</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>#M0003</td>
-                  <td><strong>田中 誠</strong></td>
-                  <td>tanaka@example.com<br><small class="text-muted">070-3456-7890</small></td>
-                  <td>2025/10/05</td>
-                  <td>8回</td>
-                  <td>2026/02/10</td>
-                  <td><span class="badge badge-success">アクティブ</span></td>
-                  <td class="actions">
-                    <button class="btn btn-sm btn-outline" onclick="openModal('member-detail-modal')">詳細</button>
-                    <button class="btn btn-sm btn-primary" onclick="openEmailModal('田中 誠', 'tanaka@example.com')">メール</button>
-                    <button class="btn btn-sm btn-danger" onclick="openModal('blacklist-add-modal')">ブラックリスト</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>#M0004</td>
-                  <td><strong>鈴木 一郎</strong></td>
-                  <td>suzuki@example.com<br><small class="text-muted">090-4567-8901</small></td>
-                  <td>2025/11/12</td>
-                  <td>1回</td>
-                  <td>2025/11/15</td>
-                  <td><span class="badge badge-secondary">非アクティブ</span></td>
-                  <td class="actions">
-                    <button class="btn btn-sm btn-outline" onclick="openModal('member-detail-modal')">詳細</button>
-                    <button class="btn btn-sm btn-primary" onclick="openEmailModal('鈴木 一郎', 'suzuki@example.com')">メール</button>
-                    <button class="btn btn-sm btn-danger" onclick="openModal('blacklist-add-modal')">ブラックリスト</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>#M0005</td>
-                  <td><strong>高橋 美咲</strong></td>
-                  <td>takahashi@example.com<br><small class="text-muted">080-5678-9012</small></td>
-                  <td>2025/12/01</td>
-                  <td>2回</td>
-                  <td>2026/01/20</td>
-                  <td><span class="badge badge-success">アクティブ</span></td>
-                  <td class="actions">
-                    <button class="btn btn-sm btn-outline" onclick="openModal('member-detail-modal')">詳細</button>
-                    <button class="btn btn-sm btn-primary" onclick="openEmailModal('高橋 美咲', 'takahashi@example.com')">メール</button>
-                    <button class="btn btn-sm btn-danger" onclick="openModal('blacklist-add-modal')">ブラックリスト</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+      <!-- 検索 -->
+      <div class="admin-card" style="margin-bottom: 16px;">
+        <div class="card-body" style="padding: 12px 20px;">
+          <div style="display: flex; gap: 16px; align-items: center;">
+            <input type="text" id="search-input" class="form-input" placeholder="名前・メール・電話番号で検索" style="width: 300px;">
+            <select id="status-filter" class="form-select" style="width: 150px;">
+              <option value="">全てのステータス</option>
+              <option value="active">有効</option>
+              <option value="suspended">停止中</option>
+            </select>
+            <button class="btn btn-primary btn-sm" onclick="loadMembers()">検索</button>
           </div>
         </div>
       </div>
 
-      <!-- ブラックリストタブ -->
-      <div class="tab-content" id="blacklist-tab">
-        <div class="alert alert-warning">
-          <span></span>
-          <div>ブラックリストに登録された会員は、新規予約ができなくなります。既存の予約は影響を受けません。</div>
-        </div>
-
-        <div class="admin-card">
-          <div class="card-header">
-            <h2 class="card-title">ブラックリスト</h2>
-            <button class="btn btn-sm btn-danger" onclick="openModal('blacklist-add-modal')">+ ブラックリストに追加</button>
-          </div>
-          <div class="card-body" style="padding: 0;">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>会員ID</th>
-                  <th>氏名</th>
-                  <th>連絡先</th>
-                  <th>登録日</th>
-                  <th>理由</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>#M0015</td>
-                  <td><strong>悪田 太郎</strong></td>
-                  <td>akuta@example.com<br><small class="text-muted">090-9999-9999</small></td>
-                  <td>2026/01/15</td>
-                  <td>
-                    <span class="badge badge-danger">未払い</span>
-                    <p class="text-muted" style="margin: 4px 0 0; font-size: 12px;">2回連続でキャンセル料未払い</p>
-                  </td>
-                  <td class="actions">
-                    <button class="btn btn-sm btn-outline" onclick="openModal('member-detail-modal')">詳細</button>
-                    <button class="btn btn-sm btn-success">解除</button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>#M0023</td>
-                  <td><strong>問題 次郎</strong></td>
-                  <td>mondai@example.com<br><small class="text-muted">080-8888-8888</small></td>
-                  <td>2026/02/01</td>
-                  <td>
-                    <span class="badge badge-danger">規約違反</span>
-                    <p class="text-muted" style="margin: 4px 0 0; font-size: 12px;">車両の無断転貸</p>
-                  </td>
-                  <td class="actions">
-                    <button class="btn btn-sm btn-outline" onclick="openModal('member-detail-modal')">詳細</button>
-                    <button class="btn btn-sm btn-success">解除</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      <!-- 会員一覧 -->
+      <div class="admin-card">
+        <div class="card-body" style="padding: 0;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>会員ID</th>
+                <th>氏名</th>
+                <th>メール</th>
+                <th>電話番号</th>
+                <th>予約数</th>
+                <th>ステータス</th>
+                <th>登録日</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="members-tbody">
+              <tr><td colspan="8" style="text-align:center;padding:40px;">読み込み中...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
+      <div id="pagination" style="display:flex;justify-content:center;gap:8px;margin-top:16px;"></div>
     </main>
   </div>
 
-  <!-- 会員詳細モーダル -->
-  <div class="modal-overlay" id="member-detail-modal">
-    <div class="modal" style="max-width: 700px;">
+  <!-- 詳細モーダル -->
+  <div class="modal" id="detail-modal">
+    <div class="modal-content" style="max-width:600px;">
       <div class="modal-header">
-        <h3 class="modal-title">会員詳細 #M0001</h3>
-        <button class="modal-close" onclick="closeModal('member-detail-modal')">&times;</button>
+        <h3>会員詳細</h3>
+        <button class="modal-close" onclick="closeModal('detail-modal')">&times;</button>
       </div>
-      <div class="modal-body">
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">氏名</label>
-            <p>山田 太郎</p>
-          </div>
-          <div class="form-group">
-            <label class="form-label">フリガナ</label>
-            <p>ヤマダ タロウ</p>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">メールアドレス</label>
-            <p>yamada@example.com</p>
-          </div>
-          <div class="form-group">
-            <label class="form-label">電話番号</label>
-            <p>090-1234-5678</p>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">住所</label>
-          <p>〒640-0001 和歌山県和歌山市XXX</p>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">生年月日</label>
-            <p>1985/04/15</p>
-          </div>
-          <div class="form-group">
-            <label class="form-label">運転免許証番号</label>
-            <p>123456789012</p>
-          </div>
-        </div>
-        <hr style="margin: 16px 0; border: none; border-top: 1px solid #e0e0e0;">
-        <h4 style="font-size: 14px; margin-bottom: 12px;">利用履歴</h4>
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>予約番号</th>
-              <th>期間</th>
-              <th>クラス</th>
-              <th>金額</th>
-              <th>ステータス</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>#R2026021101</td>
-              <td>02/11〜02/13</td>
-              <td>コンパクト</td>
-              <td>¥8,800</td>
-              <td><span class="badge badge-info">受取待ち</span></td>
-            </tr>
-            <tr>
-              <td>#R2026012001</td>
-              <td>01/20〜01/22</td>
-              <td>スタンダード</td>
-              <td>¥15,400</td>
-              <td><span class="badge badge-secondary">完了</span></td>
-            </tr>
-            <tr>
-              <td>#R2025122001</td>
-              <td>12/20〜12/25</td>
-              <td>コンパクト</td>
-              <td>¥18,000</td>
-              <td><span class="badge badge-secondary">完了</span></td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="form-group" style="margin-top: 16px;">
-          <label class="form-label">管理メモ</label>
-          <textarea class="form-textarea" rows="2" placeholder="会員に関するメモを入力">リピーター。特に問題なし。</textarea>
-        </div>
-      </div>
+      <div class="modal-body" id="detail-modal-body">読み込み中...</div>
       <div class="modal-footer">
-        <button class="btn btn-danger" onclick="closeModal('member-detail-modal'); openModal('blacklist-add-modal')">ブラックリストに追加</button>
-        <button class="btn btn-secondary" onclick="closeModal('member-detail-modal')">閉じる</button>
-        <button class="btn btn-primary">メモを保存</button>
+        <button class="btn btn-secondary" onclick="closeModal('detail-modal')">閉じる</button>
       </div>
     </div>
   </div>
 
-  <!-- ブラックリスト追加モーダル -->
-  <div class="modal-overlay" id="blacklist-add-modal">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 class="modal-title">ブラックリストに追加</h3>
-        <button class="modal-close" onclick="closeModal('blacklist-add-modal')">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="alert alert-danger">
-          <span></span>
-          <div>ブラックリストに登録すると、この会員は新規予約ができなくなります。</div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">対象会員</label>
-          <input type="text" class="form-input" value="山田 太郎 (#M0001)" disabled>
-        </div>
-        <div class="form-group">
-          <label class="form-label">理由<span class="required">*</span></label>
-          <select class="form-select">
-            <option value="">選択してください</option>
-            <option value="unpaid">未払い</option>
-            <option value="noshow">無断キャンセル</option>
-            <option value="damage">車両損傷</option>
-            <option value="violation">規約違反</option>
-            <option value="other">その他</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">詳細<span class="required">*</span></label>
-          <textarea class="form-textarea" rows="3" placeholder="登録理由の詳細を入力"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('blacklist-add-modal')">キャンセル</button>
-        <button class="btn btn-danger">ブラックリストに追加</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- メール送信モーダル -->
-  <div class="modal-overlay" id="email-modal">
-    <div class="modal" style="max-width: 600px;">
-      <div class="modal-header">
-        <h3 class="modal-title">メール送信</h3>
-        <button class="modal-close" onclick="closeModal('email-modal')">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">宛先</label>
-          <input type="text" class="form-input" id="email-to-name" disabled>
-          <input type="hidden" id="email-to-address">
-        </div>
-        <div class="form-group">
-          <label class="form-label">メールアドレス</label>
-          <input type="email" class="form-input" id="email-to-display" disabled>
-        </div>
-        <div class="form-group">
-          <label class="form-label">件名<span class="required">*</span></label>
-          <input type="text" class="form-input" id="email-subject" placeholder="メールの件名を入力">
-        </div>
-        <div class="form-group">
-          <label class="form-label">本文<span class="required">*</span></label>
-          <textarea class="form-textarea" id="email-body" rows="10" placeholder="メール本文を入力"></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">署名</label>
-          <div class="alert alert-info" style="margin: 0;">
-            <small>
-              ───────────────────<br>
-              トクノリレンタカー<br>
-              TEL: 073-XXX-XXXX<br>
-              Email: tokunori@vipauto-iwade.com
-            </small>
-          </div>
-          <p class="form-hint">署名は自動的に本文の末尾に追加されます</p>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('email-modal')">キャンセル</button>
-        <button class="btn btn-primary" onclick="sendEmail()">送信</button>
-      </div>
-    </div>
-  </div>
-
+  <script src="../config.js"></script>
   <script src="common.js"></script>
   <script>
-    function openModal(id) {
-      document.getElementById(id).classList.add('active');
+    let currentPage = 1;
+
+    function formatDate(isoString) {
+      if (!isoString) return '-';
+      return new Date(isoString).toLocaleDateString('ja-JP');
     }
-    function closeModal(id) {
-      document.getElementById(id).classList.remove('active');
-    }
-    
-    function showTab(tabName) {
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      event.target.classList.add('active');
-      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-      document.getElementById(tabName + '-tab').classList.add('active');
-    }
-    
-    function openEmailModal(name, email) {
-      document.getElementById('email-to-name').value = name;
-      document.getElementById('email-to-address').value = email;
-      document.getElementById('email-to-display').value = email;
-      document.getElementById('email-subject').value = '';
-      document.getElementById('email-body').value = '';
-      openModal('email-modal');
-    }
-    
-    function sendEmail() {
-      const subject = document.getElementById('email-subject').value;
-      const body = document.getElementById('email-body').value;
-      const to = document.getElementById('email-to-display').value;
-      
-      if (!subject || !body) {
-        alert('件名と本文を入力してください');
-        return;
+
+    async function loadMembers() {
+      const tbody = document.getElementById('members-tbody');
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;">読み込み中...</td></tr>';
+
+      try {
+        const search = document.getElementById('search-input').value;
+        const status = document.getElementById('status-filter').value;
+        let url = `/v1/admin/members?page=${currentPage}&limit=20`;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+        if (status) url += `&status=${status}`;
+
+        const result = await API.get(url);
+        const members = result.data || [];
+
+        if (members.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;">会員がいません</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = members.map(m => `
+          <tr>
+            <td><small>${m.id}</small></td>
+            <td><strong>${m.name || '-'}</strong></td>
+            <td>${m.email}</td>
+            <td>${m.phone || '-'}</td>
+            <td>${m.totalReservations || 0}件</td>
+            <td><span class="badge ${m.status === 'active' ? 'badge-success' : 'badge-danger'}">${m.status === 'active' ? '有効' : '停止'}</span></td>
+            <td>${formatDate(m.createdAt)}</td>
+            <td class="actions">
+              <button class="btn btn-sm btn-outline" onclick="showDetail('${m.id}')">詳細</button>
+              ${m.status === 'active' 
+                ? `<button class="btn btn-sm btn-danger" onclick="suspendMember('${m.id}')">停止</button>`
+                : `<button class="btn btn-sm btn-success" onclick="unsuspendMember('${m.id}')">解除</button>`
+              }
+            </td>
+          </tr>
+        `).join('');
+
+        if (result.pagination) renderPagination(result.pagination);
+      } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:#c00;">エラー: ${error.message}</td></tr>`;
       }
-      
-      // デモ: 実際はAPIで送信
-      alert('メールを送信しました: ' + to);
-      closeModal('email-modal');
     }
+
+    function renderPagination(p) {
+      const container = document.getElementById('pagination');
+      if (p.totalPages <= 1) { container.innerHTML = ''; return; }
+      let html = '';
+      for (let i = 1; i <= p.totalPages; i++) {
+        html += `<button class="btn btn-sm ${i === p.page ? 'btn-primary' : 'btn-outline'}" onclick="goToPage(${i})">${i}</button>`;
+      }
+      container.innerHTML = html;
+    }
+
+    function goToPage(page) { currentPage = page; loadMembers(); }
+
+    async function showDetail(id) {
+      openModal('detail-modal');
+      const body = document.getElementById('detail-modal-body');
+      body.innerHTML = '読み込み中...';
+      try {
+        const m = await API.get(`/v1/admin/members/${id}`);
+        body.innerHTML = `
+          <table style="width:100%;border-collapse:collapse;">
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;width:120px;">ID</th><td style="padding:8px;border-bottom:1px solid #eee;">${m.id}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">氏名</th><td style="padding:8px;border-bottom:1px solid #eee;">${m.name || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">メール</th><td style="padding:8px;border-bottom:1px solid #eee;">${m.email}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">電話番号</th><td style="padding:8px;border-bottom:1px solid #eee;">${m.phone || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">ステータス</th><td style="padding:8px;border-bottom:1px solid #eee;">${m.status}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">予約数</th><td style="padding:8px;border-bottom:1px solid #eee;">${m.totalReservations || 0}件</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">利用金額</th><td style="padding:8px;border-bottom:1px solid #eee;">¥${(m.totalSpent || 0).toLocaleString()}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">登録日</th><td style="padding:8px;border-bottom:1px solid #eee;">${formatDate(m.createdAt)}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">最終ログイン</th><td style="padding:8px;border-bottom:1px solid #eee;">${formatDate(m.lastLoginAt)}</td></tr>
+          </table>
+        `;
+      } catch (error) {
+        body.innerHTML = `<p style="color:#c00;">エラー: ${error.message}</p>`;
+      }
+    }
+
+    async function suspendMember(id) {
+      const reason = prompt('停止理由を入力してください:');
+      if (!reason) return;
+      try {
+        await API.put(`/v1/admin/members/${id}/suspend`, { reason });
+        alert('会員を停止しました');
+        loadMembers();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    async function unsuspendMember(id) {
+      if (!confirm('停止を解除しますか？')) return;
+      try {
+        await API.delete(`/v1/admin/members/${id}/suspend`);
+        alert('停止を解除しました');
+        loadMembers();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    document.addEventListener('DOMContentLoaded', loadMembers);
   </script>
 </body>
 </html>

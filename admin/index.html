@@ -8,17 +8,12 @@
 </head>
 <body>
   <div class="admin-layout">
-    <!-- サイドバー -->
     <aside class="admin-sidebar">
       <div class="sidebar-header">
-        <a href="index.html" class="sidebar-logo">
-          予約管理
-          <small>管理画面</small></a>
+        <a href="index.html" class="sidebar-logo">予約管理<small>管理画面</small></a>
       </div>
       <nav class="sidebar-nav">
-        <div class="nav-section">
-          <a href="index.html" class="nav-item active">ダッシュボード</a>
-        </div>
+        <div class="nav-section"><a href="index.html" class="nav-item active">ダッシュボード</a></div>
         <div class="nav-section">
           <div class="nav-section-title">予約管理</div>
           <a href="reservations.html" class="nav-item">予約一覧</a>
@@ -35,11 +30,6 @@
           <div class="nav-section-title">設定</div>
           <a href="settings.html" class="nav-item">店舗設定</a>
           <a href="system-settings.html" class="nav-item">システム設定</a>
-          <a href="documents.html" class="nav-item">法的文書</a>
-        </div>
-        <div class="nav-section">
-          <a href="../login.html" class="nav-item">予約サイトへ</a>
-          <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
         </div>
         <div class="nav-section nav-section-bottom">
           <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
@@ -47,38 +37,43 @@
       </nav>
     </aside>
 
-    <!-- メインコンテンツ -->
     <main class="admin-main">
       <div class="admin-header">
         <div>
           <h1 class="admin-title">ダッシュボード</h1>
-          <p class="admin-breadcrumb">概要</p>
+          <p class="admin-breadcrumb">トクノリレンタカー 管理画面</p>
         </div>
       </div>
 
       <!-- 統計カード -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-value">24</div>
-          <div class="stat-label">本日の予約数</div>
-          <div class="stat-change positive">+12% 前週比</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div class="admin-card">
+          <div class="card-body" style="text-align: center;">
+            <div style="font-size: 32px; font-weight: bold; color: #333;" id="stat-today">-</div>
+            <div style="color: #666;">本日の予約</div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value">8</div>
-          <div class="stat-label">現在レンタル中</div>
+        <div class="admin-card">
+          <div class="card-body" style="text-align: center;">
+            <div style="font-size: 32px; font-weight: bold; color: #2196F3;" id="stat-active">-</div>
+            <div style="color: #666;">レンタル中</div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value">3</div>
-          <div class="stat-label">本日の返却予定</div>
+        <div class="admin-card">
+          <div class="card-body" style="text-align: center;">
+            <div style="font-size: 32px; font-weight: bold; color: #4CAF50;" id="stat-available">-</div>
+            <div style="color: #666;">利用可能車両</div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value">156</div>
-          <div class="stat-label">今月の売上件数</div>
-          <div class="stat-change positive">+8% 前月比</div>
+        <div class="admin-card">
+          <div class="card-body" style="text-align: center;">
+            <div style="font-size: 32px; font-weight: bold; color: #FF9800;" id="stat-pending">-</div>
+            <div style="color: #666;">対応待ち</div>
+          </div>
         </div>
       </div>
 
-      <!-- 本日の予約 -->
+      <!-- 今日の予約 -->
       <div class="admin-card">
         <div class="card-header">
           <h2 class="card-title">本日の予約</h2>
@@ -89,136 +84,82 @@
             <thead>
               <tr>
                 <th>予約番号</th>
-                <th>会員名</th>
+                <th>会員</th>
                 <th>車両クラス</th>
-                <th>受取時間</th>
-                <th>返却予定</th>
-                <th>決済金額</th>
-                <th>決済方法</th>
+                <th>時間</th>
                 <th>ステータス</th>
                 <th>操作</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>#R2026021101</td>
-                <td>山田 太郎</td>
-                <td>コンパクト</td>
-                <td>10:00</td>
-                <td>02/13 18:00</td>
-                <td>¥12,290</td>
-                <td><span class="badge badge-info">カード</span></td>
-                <td><span class="badge badge-info">受取待ち</span></td>
-                <td class="actions">
-                  <button class="btn btn-sm btn-outline">詳細</button>
-                </td>
-              </tr>
-              <tr>
-                <td>#R2026021102</td>
-                <td>佐藤 花子</td>
-                <td>スタンダード</td>
-                <td>11:00</td>
-                <td>02/15 11:00</td>
-                <td>¥22,000</td>
-                <td><span class="badge badge-secondary">現地払い</span></td>
-                <td><span class="badge badge-info">受取待ち</span></td>
-                <td class="actions">
-                  <button class="btn btn-sm btn-outline">詳細</button>
-                </td>
-              </tr>
-              <tr>
-                <td>#R2026021103</td>
-                <td>鈴木 一郎</td>
-                <td>ミニバン</td>
-                <td>14:00</td>
-                <td>02/18 14:00</td>
-                <td>¥35,200</td>
-                <td><span class="badge badge-info">カード</span></td>
-                <td><span class="badge badge-warning">確認中</span></td>
-                <td class="actions">
-                  <button class="btn btn-sm btn-outline">詳細</button>
-                </td>
-              </tr>
+            <tbody id="today-reservations">
+              <tr><td colspan="6" style="text-align:center;padding:40px;">読み込み中...</td></tr>
             </tbody>
           </table>
-        </div>
-      </div>
-
-      <!-- 本日の返却 -->
-      <div class="admin-card">
-        <div class="card-header">
-          <h2 class="card-title">本日の返却予定</h2>
-        </div>
-        <div class="card-body" style="padding: 0;">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>予約番号</th>
-                <th>会員名</th>
-                <th>車両</th>
-                <th>返却時間</th>
-                <th>精算金額</th>
-                <th>ステータス</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>#R2026020801</td>
-                <td>田中 誠</td>
-                <td>コンパクト / 品川 あ 12-34</td>
-                <td>15:00</td>
-                <td><span class="text-success">決済済み</span></td>
-                <td><span class="badge badge-success">レンタル中</span></td>
-                <td class="actions">
-                  <button class="btn btn-sm btn-success">返却処理</button>
-                  <button class="btn btn-sm btn-outline">延長</button>
-                </td>
-              </tr>
-              <tr>
-                <td>#R2026020902</td>
-                <td>高橋 美咲</td>
-                <td>スタンダード / 品川 い 56-78</td>
-                <td>18:00</td>
-                <td>
-                  <strong>¥8,860</strong><br>
-                  <small class="text-muted">延長2日分（現金）</small>
-                </td>
-                <td><span class="badge badge-success">レンタル中</span></td>
-                <td class="actions">
-                  <button class="btn btn-sm btn-success">返却処理</button>
-                  <button class="btn btn-sm btn-outline">延長</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- アラート -->
-      <div class="admin-card">
-        <div class="card-header">
-          <h2 class="card-title">アラート</h2>
-        </div>
-        <div class="card-body">
-          <div class="alert alert-warning">
-            <span></span>
-            <div>
-              <strong>メンテナンス予定</strong>
-              <p>車両「品川 う 90-12」は02/15からメンテナンス予定です。</p>
-            </div>
-          </div>
-          <div class="alert alert-info">
-            <span></span>
-            <div>
-              <strong>キャンセル申請</strong>
-              <p>2件のキャンセル申請が承認待ちです。</p>
-            </div>
-          </div>
         </div>
       </div>
     </main>
   </div>
+
+  <script src="../config.js"></script>
   <script src="common.js"></script>
+  <script>
+    const statusLabels = {
+      pending_payment: { text: '決済待ち', class: 'badge-warning' },
+      confirmed: { text: '受取待ち', class: 'badge-info' },
+      picked_up: { text: 'レンタル中', class: 'badge-success' },
+      returned: { text: '返却済み', class: 'badge-secondary' },
+      cancel_requested: { text: 'キャンセル申請', class: 'badge-danger' },
+      cancelled: { text: 'キャンセル済', class: 'badge-secondary' },
+    };
+
+    function formatTime(isoString) {
+      if (!isoString) return '-';
+      const d = new Date(isoString);
+      return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+
+    async function loadDashboard() {
+      try {
+        const stats = await API.get('/v1/admin/dashboard');
+        document.getElementById('stat-today').textContent = stats.todayReservations || 0;
+        document.getElementById('stat-active').textContent = stats.activeRentals || 0;
+        document.getElementById('stat-available').textContent = stats.availableVehicles || 0;
+        document.getElementById('stat-pending').textContent = stats.pendingActions || 0;
+      } catch (error) {
+        console.error('ダッシュボード統計エラー:', error);
+      }
+
+      // 本日の予約
+      const tbody = document.getElementById('today-reservations');
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const result = await API.get(`/v1/admin/reservations?pickupFrom=${today}T00:00:00&pickupTo=${today}T23:59:59&limit=10`);
+        const reservations = result.data || [];
+
+        if (reservations.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">本日の予約はありません</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = reservations.map(r => {
+          const st = statusLabels[r.status] || { text: r.status, class: 'badge-secondary' };
+          return `
+            <tr>
+              <td><strong>${r.id}</strong></td>
+              <td>${r.userName || '-'}</td>
+              <td>${r.carClassName || '-'}</td>
+              <td>${formatTime(r.pickupAt)} 〜 ${formatTime(r.returnAt)}</td>
+              <td><span class="badge ${st.class}">${st.text}</span></td>
+              <td><a href="reservations.html" class="btn btn-sm btn-outline">詳細</a></td>
+            </tr>
+          `;
+        }).join('');
+      } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#c00;">エラー: ${error.message}</td></tr>`;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadDashboard);
+  </script>
 </body>
 </html>

@@ -5,45 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>料金設定 - 管理画面</title>
   <link rel="stylesheet" href="common.css">
-  <style>
-    .pricing-matrix {
-      overflow-x: auto;
-    }
-    .pricing-matrix table {
-      min-width: 600px;
-    }
-    .pricing-matrix th {
-      background-color: #f5f5f5;
-      white-space: nowrap;
-    }
-    .pricing-matrix td input {
-      width: 100px;
-      text-align: right;
-    }
-    .pricing-matrix .class-header {
-      background-color: #e3f2fd;
-      font-weight: bold;
-    }
-    .unit {
-      color: #666;
-      font-size: 12px;
-      margin-left: 4px;
-    }
-  </style>
 </head>
 <body>
   <div class="admin-layout">
-    <!-- サイドバー -->
     <aside class="admin-sidebar">
       <div class="sidebar-header">
-        <a href="index.html" class="sidebar-logo">
-          予約管理
-          <small>管理画面</small></a>
+        <a href="index.html" class="sidebar-logo">予約管理<small>管理画面</small></a>
       </div>
       <nav class="sidebar-nav">
-        <div class="nav-section">
-          <a href="index.html" class="nav-item">ダッシュボード</a>
-        </div>
+        <div class="nav-section"><a href="index.html" class="nav-item">ダッシュボード</a></div>
         <div class="nav-section">
           <div class="nav-section-title">予約管理</div>
           <a href="reservations.html" class="nav-item">予約一覧</a>
@@ -60,11 +30,6 @@
           <div class="nav-section-title">設定</div>
           <a href="settings.html" class="nav-item">店舗設定</a>
           <a href="system-settings.html" class="nav-item">システム設定</a>
-          <a href="documents.html" class="nav-item">法的文書</a>
-        </div>
-        <div class="nav-section">
-          <a href="../login.html" class="nav-item">予約サイトへ</a>
-          <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
         </div>
         <div class="nav-section nav-section-bottom">
           <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
@@ -72,108 +37,207 @@
       </nav>
     </aside>
 
-    <!-- メインコンテンツ -->
     <main class="admin-main">
       <div class="admin-header">
         <div>
           <h1 class="admin-title">料金設定</h1>
           <p class="admin-breadcrumb"><a href="index.html">ダッシュボード</a> / 料金設定</p>
         </div>
+        <button class="btn btn-primary" onclick="openAddModal()">+ 料金プランを追加</button>
       </div>
 
-      <div class="alert alert-info">
-        <span>i</span>
-        <div>
-          日数とクラスの組み合わせごとに料金を設定します。<br>
-          日数の追加・削除は<a href="settings.html">店舗設定</a>、車両クラスの追加・削除は<a href="classes.html">車両クラス</a>で行ってください。
+      <!-- クラス選択 -->
+      <div class="admin-card" style="margin-bottom: 16px;">
+        <div class="card-body" style="padding: 12px 20px;">
+          <div style="display: flex; gap: 16px; align-items: center;">
+            <label>車両クラス:</label>
+            <select id="class-filter" class="form-select" style="width: 200px;" onchange="loadPricing()">
+              <option value="">全てのクラス</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <!-- 料金マトリックス -->
       <div class="admin-card">
-        <div class="card-header">
-          <h2 class="card-title">基本料金（税込）</h2>
-        </div>
-        <div class="card-body pricing-matrix">
+        <div class="card-body" style="padding: 0;">
           <table class="admin-table">
             <thead>
               <tr>
                 <th>車両クラス</th>
-                <th>1日</th>
-                <th>3日</th>
-                <th>1週間</th>
-                <th>2週間</th>
-                <th>1ヶ月</th>
+                <th>日数</th>
+                <th>料金（税込）</th>
+                <th>ステータス</th>
+                <th>操作</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td class="class-header">コンパクト</td>
-                <td><input type="number" class="form-input" value="3000"><span class="unit">円</span></td>
-                <td><input type="number" class="form-input" value="8000"><span class="unit">円</span></td>
-                <td><input type="number" class="form-input" value="15000"><span class="unit">円</span></td>
-                <td><input type="number" class="form-input" value="25000"><span class="unit">円</span></td>
-                <td><input type="number" class="form-input" value="40000"><span class="unit">円</span></td>
-              </tr>
-              <tr>
-                <td class="class-header">スタンダード</td>
-                <td><input type="number" class="form-input" value="5000"><span class="unit">円</span></td>
-                <td><input type="number" class="form-input" value="13000"><span class="unit">円</span></td>
-                <td><input type="number" class="form-input" value="25000"><span class="unit">円</span></td>
-                <td><input type="number" class="form-input" value="45000"><span class="unit">円</span></td>
-                <td><input type="number" class="form-input" value="70000"><span class="unit">円</span></td>
-              </tr>
-              <tr>
-                <td class="class-header">ミニバン</td>
-                <td><input type="number" class="form-input" value="8000"><span class="unit">円</span></td>
-                <td><input type="number" class="form-input" value="20000"><span class="unit">円</span></td>
-                <td><input type="number" class="form-input" value="40000"><span class="unit">円</span></td>
-                <td><input type="number" class="form-input" value="70000"><span class="unit">円</span></td>
-                <td><input type="number" class="form-input" value="110000"><span class="unit">円</span></td>
-              </tr>
+            <tbody id="pricing-tbody">
+              <tr><td colspan="5" style="text-align:center;padding:40px;">読み込み中...</td></tr>
             </tbody>
           </table>
         </div>
-      </div>
-
-      <!-- 延長料金 -->
-      <div class="admin-card">
-        <div class="card-header">
-          <h2 class="card-title">延長料金（1日あたり・税込）</h2>
-        </div>
-        <div class="card-body">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>車両クラス</th>
-                <th>延長料金/日</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="class-header">コンパクト</td>
-                <td><input type="number" class="form-input" value="3000" style="width: 100px;"><span class="unit">円</span></td>
-              </tr>
-              <tr>
-                <td class="class-header">スタンダード</td>
-                <td><input type="number" class="form-input" value="5000" style="width: 100px;"><span class="unit">円</span></td>
-              </tr>
-              <tr>
-                <td class="class-header">ミニバン</td>
-                <td><input type="number" class="form-input" value="8000" style="width: 100px;"><span class="unit">円</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- 保存ボタン -->
-      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-        <button class="btn btn-secondary">キャンセル</button>
-        <button class="btn btn-primary btn-lg">料金を保存</button>
       </div>
     </main>
   </div>
+
+  <!-- 追加/編集モーダル -->
+  <div class="modal" id="edit-modal">
+    <div class="modal-content" style="max-width:500px;">
+      <div class="modal-header">
+        <h3 id="modal-title">料金プランを追加</h3>
+        <button class="modal-close" onclick="closeModal('edit-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-id">
+        <div class="form-group">
+          <label class="form-label">車両クラス<span class="required">*</span></label>
+          <select id="edit-class" class="form-select"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">日数<span class="required">*</span></label>
+          <input type="number" id="edit-days" class="form-input" min="1" placeholder="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">料金（税込）<span class="required">*</span></label>
+          <input type="number" id="edit-price" class="form-input" min="0" placeholder="5000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ラベル</label>
+          <input type="text" id="edit-label" class="form-input" placeholder="1日">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('edit-modal')">キャンセル</button>
+        <button class="btn btn-primary" onclick="savePricing()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../config.js"></script>
   <script src="common.js"></script>
+  <script>
+    let carClasses = [];
+    let pricingPlans = [];
+
+    async function loadCarClasses() {
+      try {
+        const result = await API.get('/v1/admin/car-classes');
+        carClasses = result.data || [];
+        const filter = document.getElementById('class-filter');
+        const editSelect = document.getElementById('edit-class');
+        carClasses.forEach(c => {
+          filter.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+          editSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+        });
+      } catch (e) {
+        console.error('車両クラス取得エラー:', e);
+      }
+    }
+
+    async function loadPricing() {
+      const tbody = document.getElementById('pricing-tbody');
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;">読み込み中...</td></tr>';
+
+      try {
+        const result = await API.get('/v1/admin/pricing');
+        pricingPlans = result.data || [];
+
+        const carClassId = document.getElementById('class-filter').value;
+        let filtered = pricingPlans;
+        if (carClassId) {
+          filtered = pricingPlans.filter(p => p.carClassId === carClassId);
+        }
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;">料金プランがありません</td></tr>';
+          return;
+        }
+
+        // クラス名を取得
+        const classMap = {};
+        carClasses.forEach(c => classMap[c.id] = c.name);
+
+        tbody.innerHTML = filtered.map(p => `
+          <tr>
+            <td>${classMap[p.carClassId] || p.carClassId}</td>
+            <td>${p.days}日 ${p.label ? `(${p.label})` : ''}</td>
+            <td>¥${p.price.toLocaleString()}</td>
+            <td><span class="badge ${p.isActive !== false ? 'badge-success' : 'badge-secondary'}">${p.isActive !== false ? '有効' : '無効'}</span></td>
+            <td class="actions">
+              <button class="btn btn-sm btn-outline" onclick="openEditModal('${p.id}')">編集</button>
+              <button class="btn btn-sm btn-danger" onclick="deletePricing('${p.id}')">削除</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:#c00;">エラー: ${error.message}</td></tr>`;
+      }
+    }
+
+    function openAddModal() {
+      document.getElementById('modal-title').textContent = '料金プランを追加';
+      document.getElementById('edit-id').value = '';
+      document.getElementById('edit-class').value = carClasses[0]?.id || '';
+      document.getElementById('edit-days').value = '';
+      document.getElementById('edit-price').value = '';
+      document.getElementById('edit-label').value = '';
+      openModal('edit-modal');
+    }
+
+    function openEditModal(id) {
+      const p = pricingPlans.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById('modal-title').textContent = '料金プランを編集';
+      document.getElementById('edit-id').value = p.id;
+      document.getElementById('edit-class').value = p.carClassId;
+      document.getElementById('edit-days').value = p.days;
+      document.getElementById('edit-price').value = p.price;
+      document.getElementById('edit-label').value = p.label || '';
+      openModal('edit-modal');
+    }
+
+    async function savePricing() {
+      const id = document.getElementById('edit-id').value;
+      const carClassId = document.getElementById('edit-class').value;
+      const days = parseInt(document.getElementById('edit-days').value);
+      const price = parseInt(document.getElementById('edit-price').value);
+      const label = document.getElementById('edit-label').value;
+
+      if (!carClassId || isNaN(days) || isNaN(price)) {
+        alert('必須項目を入力してください');
+        return;
+      }
+
+      try {
+        if (id) {
+          await API.put(`/v1/admin/pricing/${id}`, { carClassId, days, price, label });
+        } else {
+          await API.post('/v1/admin/pricing', { carClassId, days, price, label });
+        }
+        alert('保存しました');
+        closeModal('edit-modal');
+        loadPricing();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    async function deletePricing(id) {
+      if (!confirm('この料金プランを削除しますか？')) return;
+      try {
+        await API.delete(`/v1/admin/pricing/${id}`);
+        loadPricing();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadCarClasses();
+      loadPricing();
+    });
+  </script>
 </body>
 </html>

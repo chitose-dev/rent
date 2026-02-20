@@ -5,52 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>車両クラス管理 - 管理画面</title>
   <link rel="stylesheet" href="common.css">
-  <style>
-    .class-card {
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      background: #fff;
-    }
-    .class-card-header {
-      background: #fafafa;
-      padding: 16px;
-      border-bottom: 1px solid #e0e0e0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-radius: 8px 8px 0 0;
-    }
-    .class-card-body {
-      padding: 16px;
-    }
-    .class-image {
-      width: 100px;
-      height: 70px;
-      object-fit: cover;
-      border-radius: 4px;
-      background: #eee;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #999;
-      font-size: 12px;
-    }
-  </style>
 </head>
 <body>
   <div class="admin-layout">
-    <!-- サイドバー -->
     <aside class="admin-sidebar">
       <div class="sidebar-header">
-        <a href="index.html" class="sidebar-logo">
-          予約管理
-          <small>管理画面</small></a>
+        <a href="index.html" class="sidebar-logo">予約管理<small>管理画面</small></a>
       </div>
       <nav class="sidebar-nav">
-        <div class="nav-section">
-          <a href="index.html" class="nav-item">ダッシュボード</a>
-        </div>
+        <div class="nav-section"><a href="index.html" class="nav-item">ダッシュボード</a></div>
         <div class="nav-section">
           <div class="nav-section-title">予約管理</div>
           <a href="reservations.html" class="nav-item">予約一覧</a>
@@ -67,11 +30,6 @@
           <div class="nav-section-title">設定</div>
           <a href="settings.html" class="nav-item">店舗設定</a>
           <a href="system-settings.html" class="nav-item">システム設定</a>
-          <a href="documents.html" class="nav-item">法的文書</a>
-        </div>
-        <div class="nav-section">
-          <a href="../login.html" class="nav-item">予約サイトへ</a>
-          <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
         </div>
         <div class="nav-section nav-section-bottom">
           <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
@@ -79,186 +37,155 @@
       </nav>
     </aside>
 
-    <!-- メインコンテンツ -->
     <main class="admin-main">
       <div class="admin-header">
         <div>
           <h1 class="admin-title">車両クラス管理</h1>
           <p class="admin-breadcrumb"><a href="index.html">ダッシュボード</a> / 車両クラス</p>
         </div>
-        <button class="btn btn-primary" onclick="openModal('add-class-modal')">+ 新規クラス追加</button>
+        <button class="btn btn-primary" onclick="openAddModal()">+ クラスを追加</button>
       </div>
 
-      <div class="alert alert-info">
-        <span>i</span>
-        <div>車両クラスの追加・削除を行います。料金設定は<a href="pricing.html">料金設定</a>ページで行ってください。</div>
-      </div>
-
-      <!-- 車両クラス一覧 -->
       <div class="admin-card">
         <div class="card-body" style="padding: 0;">
           <table class="admin-table">
             <thead>
               <tr>
-                <th>画像</th>
                 <th>クラス名</th>
                 <th>説明</th>
-                <th>在庫数</th>
-                <th>表示順</th>
+                <th>備考</th>
                 <th>ステータス</th>
                 <th>操作</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td><div class="class-image">画像</div></td>
-                <td><strong>コンパクト</strong><br><small class="text-muted">軽自動車・コンパクトカー</small></td>
-                <td style="max-width: 250px;">燃費の良い軽自動車・コンパクトカー。街乗りや近距離移動に最適です。</td>
-                <td>5台</td>
-                <td><input type="number" class="form-input" value="1" style="width: 60px;"></td>
-                <td><span class="badge badge-success">公開中</span></td>
-                <td class="actions">
-                  <button class="btn btn-sm btn-outline" onclick="openModal('edit-class-modal')">編集</button>
-                  <button class="btn btn-sm btn-danger">削除</button>
-                </td>
-              </tr>
-              <tr>
-                <td><div class="class-image">画像</div></td>
-                <td><strong>スタンダード</strong><br><small class="text-muted">普通乗用車</small></td>
-                <td style="max-width: 250px;">快適な乗り心地の普通乗用車。長距離ドライブや家族でのお出かけに。</td>
-                <td>3台</td>
-                <td><input type="number" class="form-input" value="2" style="width: 60px;"></td>
-                <td><span class="badge badge-success">公開中</span></td>
-                <td class="actions">
-                  <button class="btn btn-sm btn-outline" onclick="openModal('edit-class-modal')">編集</button>
-                  <button class="btn btn-sm btn-danger">削除</button>
-                </td>
-              </tr>
-              <tr>
-                <td><div class="class-image">画像</div></td>
-                <td><strong>ミニバン</strong><br><small class="text-muted">7〜8人乗りミニバン</small></td>
-                <td style="max-width: 250px;">広々とした室内空間のミニバン。大人数での移動や荷物が多い旅行に最適です。</td>
-                <td>2台</td>
-                <td><input type="number" class="form-input" value="3" style="width: 60px;"></td>
-                <td><span class="badge badge-success">公開中</span></td>
-                <td class="actions">
-                  <button class="btn btn-sm btn-outline" onclick="openModal('edit-class-modal')">編集</button>
-                  <button class="btn btn-sm btn-danger">削除</button>
-                </td>
-              </tr>
+            <tbody id="classes-tbody">
+              <tr><td colspan="5" style="text-align:center;padding:40px;">読み込み中...</td></tr>
             </tbody>
           </table>
         </div>
       </div>
-
-      <!-- 保存ボタン -->
-      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-        <button class="btn btn-primary btn-lg">変更を保存</button>
-      </div>
     </main>
   </div>
 
-  <!-- 新規クラス追加モーダル -->
-  <div class="modal-overlay" id="add-class-modal">
-    <div class="modal">
+  <!-- 追加/編集モーダル -->
+  <div class="modal" id="edit-modal">
+    <div class="modal-content" style="max-width:500px;">
       <div class="modal-header">
-        <h3 class="modal-title">新規車両クラス追加</h3>
-        <button class="modal-close" onclick="closeModal('add-class-modal')">×</button>
+        <h3 id="modal-title">車両クラスを追加</h3>
+        <button class="modal-close" onclick="closeModal('edit-modal')">&times;</button>
       </div>
       <div class="modal-body">
+        <input type="hidden" id="edit-id">
         <div class="form-group">
           <label class="form-label">クラス名<span class="required">*</span></label>
-          <input type="text" class="form-input" placeholder="例: プレミアム">
+          <input type="text" id="edit-name" class="form-input" placeholder="コンパクトクラス">
         </div>
         <div class="form-group">
-          <label class="form-label">サブタイトル</label>
-          <input type="text" class="form-input" placeholder="例: 高級セダン">
+          <label class="form-label">説明</label>
+          <textarea id="edit-description" class="form-textarea" rows="2" placeholder="小回りが利いて運転しやすい"></textarea>
         </div>
         <div class="form-group">
-          <label class="form-label">説明文</label>
-          <textarea class="form-textarea" rows="3" placeholder="クラスの説明を入力"></textarea>
+          <label class="form-label">備考</label>
+          <input type="text" id="edit-notes" class="form-input" placeholder="5人乗り / オートマ / ナビ付き">
         </div>
         <div class="form-group">
-          <label class="form-label">画像</label>
-          <input type="file" class="form-input" accept="image/*">
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">表示順</label>
-            <input type="number" class="form-input" value="1" style="width: 80px;">
-          </div>
-          <div class="form-group">
-            <label class="form-label">ステータス</label>
-            <select class="form-select">
-              <option value="active">公開中</option>
-              <option value="hidden">非公開</option>
-            </select>
-          </div>
+          <label class="form-label">表示順</label>
+          <input type="number" id="edit-order" class="form-input" min="0" value="0">
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('add-class-modal')">キャンセル</button>
-        <button class="btn btn-primary">追加</button>
+        <button class="btn btn-secondary" onclick="closeModal('edit-modal')">キャンセル</button>
+        <button class="btn btn-primary" onclick="saveClass()">保存</button>
       </div>
     </div>
   </div>
 
-  <!-- 編集モーダル -->
-  <div class="modal-overlay" id="edit-class-modal">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 class="modal-title">車両クラス編集</h3>
-        <button class="modal-close" onclick="closeModal('edit-class-modal')">×</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">クラス名<span class="required">*</span></label>
-          <input type="text" class="form-input" value="コンパクト">
-        </div>
-        <div class="form-group">
-          <label class="form-label">サブタイトル</label>
-          <input type="text" class="form-input" value="軽自動車・コンパクトカー">
-        </div>
-        <div class="form-group">
-          <label class="form-label">説明文</label>
-          <textarea class="form-textarea" rows="3">燃費の良い軽自動車・コンパクトカー。街乗りや近距離移動に最適です。</textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">画像</label>
-          <div style="display: flex; align-items: center; gap: 16px;">
-            <div class="class-image">現在の画像</div>
-            <input type="file" class="form-input" accept="image/*" style="flex: 1;">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">表示順</label>
-            <input type="number" class="form-input" value="1" style="width: 80px;">
-          </div>
-          <div class="form-group">
-            <label class="form-label">ステータス</label>
-            <select class="form-select">
-              <option value="active" selected>公開中</option>
-              <option value="hidden">非公開</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('edit-class-modal')">キャンセル</button>
-        <button class="btn btn-primary">保存</button>
-      </div>
-    </div>
-  </div>
-
+  <script src="../config.js"></script>
   <script src="common.js"></script>
   <script>
-    function openModal(id) {
-      document.getElementById(id).classList.add('active');
+    let carClasses = [];
+
+    async function loadClasses() {
+      const tbody = document.getElementById('classes-tbody');
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;">読み込み中...</td></tr>';
+
+      try {
+        const result = await API.get('/v1/admin/car-classes');
+        carClasses = result.data || [];
+
+        if (carClasses.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;">車両クラスがありません</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = carClasses.map(c => `
+          <tr>
+            <td><strong>${c.name}</strong></td>
+            <td>${c.description || '-'}</td>
+            <td>${c.notes || '-'}</td>
+            <td><span class="badge ${c.isActive !== false ? 'badge-success' : 'badge-secondary'}">${c.isActive !== false ? '有効' : '無効'}</span></td>
+            <td class="actions">
+              <button class="btn btn-sm btn-outline" onclick="openEditModal('${c.id}')">編集</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:#c00;">エラー: ${error.message}</td></tr>`;
+      }
     }
-    function closeModal(id) {
-      document.getElementById(id).classList.remove('active');
+
+    function openAddModal() {
+      document.getElementById('modal-title').textContent = '車両クラスを追加';
+      document.getElementById('edit-id').value = '';
+      document.getElementById('edit-name').value = '';
+      document.getElementById('edit-description').value = '';
+      document.getElementById('edit-notes').value = '';
+      document.getElementById('edit-order').value = '0';
+      openModal('edit-modal');
     }
+
+    function openEditModal(id) {
+      const c = carClasses.find(x => x.id === id);
+      if (!c) return;
+      document.getElementById('modal-title').textContent = '車両クラスを編集';
+      document.getElementById('edit-id').value = c.id;
+      document.getElementById('edit-name').value = c.name;
+      document.getElementById('edit-description').value = c.description || '';
+      document.getElementById('edit-notes').value = c.notes || '';
+      document.getElementById('edit-order').value = c.sortOrder || 0;
+      openModal('edit-modal');
+    }
+
+    async function saveClass() {
+      const id = document.getElementById('edit-id').value;
+      const name = document.getElementById('edit-name').value;
+      const description = document.getElementById('edit-description').value;
+      const notes = document.getElementById('edit-notes').value;
+      const sortOrder = parseInt(document.getElementById('edit-order').value);
+
+      if (!name) {
+        alert('クラス名を入力してください');
+        return;
+      }
+
+      try {
+        if (id) {
+          await API.put(`/v1/admin/car-classes/${id}`, { name, description, notes, sortOrder });
+        } else {
+          await API.post('/v1/admin/car-classes', { name, description, notes, sortOrder });
+        }
+        alert('保存しました');
+        closeModal('edit-modal');
+        loadClasses();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    document.addEventListener('DOMContentLoaded', loadClasses);
   </script>
 </body>
 </html>
