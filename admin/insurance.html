@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>保険プラン管理 - 管理画面</title>
+  <link rel="stylesheet" href="common.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- サイドバー -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-logo">
+          予約管理
+          <small>管理画面</small></a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="index.html" class="nav-item">ダッシュボード</a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">予約管理</div>
+          <a href="reservations.html" class="nav-item">予約一覧</a>
+          <a href="members.html" class="nav-item">会員管理</a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">車両・サービス</div>
+          <a href="classes.html" class="nav-item">車両クラス</a>
+          <a href="pricing.html" class="nav-item">料金設定</a>
+          <a href="vehicles.html" class="nav-item">車両・在庫</a>
+          <a href="options.html" class="nav-item">オプション</a>
+          <a href="insurance.html" class="nav-item active">保険プラン</a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">設定</div>
+          <a href="settings.html" class="nav-item">店舗設定</a>
+          <a href="system-settings.html" class="nav-item">システム設定</a>
+          <a href="documents.html" class="nav-item">法的文書</a>
+        </div>
+        <div class="nav-section nav-section-bottom">
+          <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="admin-main">
+      <div class="page-header">
+        <h1 class="page-title">保険プラン管理</h1>
+        <button class="btn btn-primary" onclick="showAddModal()">+ 新規プラン追加</button>
+      </div>
+
+      <!-- プラン一覧 -->
+      <div class="admin-card">
+        <div class="card-body">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>プラン名</th>
+                <th>説明</th>
+                <th>日額料金</th>
+                <th>免責金額</th>
+                <th>並び順</th>
+                <th>状態</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="plans-table">
+              <tr><td colspan="8" style="text-align:center;">読み込み中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 追加/編集モーダル -->
+  <div id="modal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2 id="modal-title">保険プラン追加</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="plan-form" onsubmit="savePlan(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">プランID（半角英数）</label>
+            <input type="text" id="planId" class="form-input" required pattern="[a-z0-9_-]+" placeholder="例: standard">
+            <small style="color:#666;">※作成後は変更できません</small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">プラン名</label>
+            <input type="text" id="planName" class="form-input" required placeholder="例: スタンダード補償">
+          </div>
+          <div class="form-group">
+            <label class="form-label">説明</label>
+            <textarea id="planDescription" class="form-textarea" rows="2" placeholder="例: 対物・車両の免責額を0円に"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">日額料金（税込）</label>
+              <input type="number" id="planPrice" class="form-input" required min="0" step="100" placeholder="1100">
+            </div>
+            <div class="form-group">
+              <label class="form-label">免責金額</label>
+              <input type="number" id="planDeductible" class="form-input" min="0" step="10000" placeholder="0">
+              <small style="color:#666;">0 = 免責なし</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">並び順</label>
+            <input type="number" id="planSortOrder" class="form-input" value="0" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <input type="checkbox" id="planActive" checked> 有効
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
+          <button type="submit" class="btn btn-primary" id="save-btn">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../config.js"></script>
+  <script src="common.js"></script>
+  <script>
+    let plans = [];
+    let editingPlanId = null;
+
+    // 初期読み込み
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!AdminAuth.checkAuth()) return;
+      loadPlans();
+    });
+
+    async function loadPlans() {
+      try {
+        plans = await API.get('/v1/admin/insurance-plans');
+        renderPlans();
+      } catch (error) {
+        console.error('保険プラン読み込みエラー:', error);
+        document.getElementById('plans-table').innerHTML = 
+          '<tr><td colspan="8" style="text-align:center;color:red;">読み込みに失敗しました</td></tr>';
+      }
+    }
+
+    function renderPlans() {
+      const tbody = document.getElementById('plans-table');
+      if (plans.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">保険プランがありません</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = plans.map(plan => `
+        <tr>
+          <td><code>${plan.id}</code></td>
+          <td><strong>${plan.name}</strong></td>
+          <td>${plan.description || '-'}</td>
+          <td>¥${(plan.pricePerDay || 0).toLocaleString()}/日</td>
+          <td>${plan.deductible !== null ? '¥' + plan.deductible.toLocaleString() : '免責なし'}</td>
+          <td>${plan.sortOrder || 0}</td>
+          <td>
+            <span class="badge ${plan.isActive ? 'badge-success' : 'badge-secondary'}">
+              ${plan.isActive ? '有効' : '無効'}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline" onclick="editPlan('${plan.id}')">編集</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function showAddModal() {
+      editingPlanId = null;
+      document.getElementById('modal-title').textContent = '保険プラン追加';
+      document.getElementById('planId').disabled = false;
+      document.getElementById('plan-form').reset();
+      document.getElementById('planActive').checked = true;
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    function editPlan(planId) {
+      const plan = plans.find(p => p.id === planId);
+      if (!plan) return;
+
+      editingPlanId = planId;
+      document.getElementById('modal-title').textContent = '保険プラン編集';
+      document.getElementById('planId').value = plan.id;
+      document.getElementById('planId').disabled = true;
+      document.getElementById('planName').value = plan.name;
+      document.getElementById('planDescription').value = plan.description || '';
+      document.getElementById('planPrice').value = plan.pricePerDay || 0;
+      document.getElementById('planDeductible').value = plan.deductible || '';
+      document.getElementById('planSortOrder').value = plan.sortOrder || 0;
+      document.getElementById('planActive').checked = plan.isActive !== false;
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    async function savePlan(event) {
+      event.preventDefault();
+      const saveBtn = document.getElementById('save-btn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = '保存中...';
+
+      const data = {
+        id: document.getElementById('planId').value.trim(),
+        name: document.getElementById('planName').value.trim(),
+        description: document.getElementById('planDescription').value.trim(),
+        pricePerDay: parseInt(document.getElementById('planPrice').value) || 0,
+        deductible: document.getElementById('planDeductible').value ? parseInt(document.getElementById('planDeductible').value) : null,
+        sortOrder: parseInt(document.getElementById('planSortOrder').value) || 0,
+        isActive: document.getElementById('planActive').checked
+      };
+
+      try {
+        if (editingPlanId) {
+          await API.put(`/v1/admin/insurance-plans/${editingPlanId}`, data);
+        } else {
+          await API.post('/v1/admin/insurance-plans', data);
+        }
+        closeModal();
+        loadPlans();
+      } catch (error) {
+        alert('保存に失敗しました: ' + error.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = '保存';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>メール確認 | TOKU-NORI レンタカー</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .verify-container {
+      max-width: 400px;
+      margin: 80px auto 40px;
+      padding: 0 20px;
+    }
+    .verify-card {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .verify-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    .verify-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #333;
+    }
+    .verify-subtitle {
+      color: #666;
+      margin-bottom: 24px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    .verify-email {
+      font-weight: bold;
+      color: #007bff;
+    }
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #333;
+    }
+    .code-input {
+      width: 100%;
+      padding: 16px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 1.8rem;
+      text-align: center;
+      letter-spacing: 12px;
+      font-family: monospace;
+      box-sizing: border-box;
+    }
+    .code-input:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-primary {
+      background: #007bff;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #0056b3;
+    }
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .error-message {
+      background: #fee;
+      color: #c00;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .success-message {
+      background: #efe;
+      color: #060;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .resend-link {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .resend-link a {
+      color: #007bff;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .resend-link a:hover {
+      text-decoration: underline;
+    }
+    .back-link {
+      margin-top: 16px;
+    }
+    .back-link a {
+      color: #666;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <img src="images/logo-toku.svg" alt="TOKU-NORI" height="28">
+        <img src="images/logo-rentacar.svg" alt="レンタカー" height="20">
+      </a>
+    </div>
+  </header>
+
+  <div class="verify-container">
+    <div class="verify-card">
+      <div class="verify-icon">📧</div>
+      <h1 class="verify-title">メールアドレスの確認</h1>
+      <p class="verify-subtitle">
+        <span id="email-display" class="verify-email"></span><br>
+        に確認コードを送信しました。<br>
+        メールに記載された6桁のコードを入力してください。
+      </p>
+
+      <div id="error-message" class="error-message"></div>
+      <div id="success-message" class="success-message"></div>
+
+      <form id="verify-form">
+        <div class="form-group">
+          <label for="code">確認コード</label>
+          <input type="text" id="code" name="code" class="code-input" 
+                 required maxlength="6" pattern="[0-9]{6}" 
+                 inputmode="numeric" placeholder="000000"
+                 autocomplete="one-time-code">
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+          確認する
+        </button>
+      </form>
+
+      <div class="resend-link">
+        コードが届かない場合は <a onclick="resendCode()">再送信</a>
+      </div>
+
+      <div class="back-link">
+        <a href="login.html">← ログイン画面に戻る</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    // URLパラメータから情報を取得
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('userId');
+    const email = urlParams.get('email');
+
+    if (email) {
+      document.getElementById('email-display').textContent = email;
+    }
+
+    if (!userId) {
+      document.getElementById('error-message').textContent = 'ユーザー情報が見つかりません。再度登録してください。';
+      document.getElementById('error-message').style.display = 'block';
+      document.getElementById('verify-form').style.display = 'none';
+    }
+
+    // コード入力を数字のみに制限
+    document.getElementById('code').addEventListener('input', function(e) {
+      this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+    });
+
+    // 確認フォーム送信
+    document.getElementById('verify-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const errorEl = document.getElementById('error-message');
+      const successEl = document.getElementById('success-message');
+      const submitBtn = document.getElementById('submit-btn');
+
+      errorEl.style.display = 'none';
+      successEl.style.display = 'none';
+
+      const code = document.getElementById('code').value.trim();
+
+      if (code.length !== 6) {
+        errorEl.textContent = '確認コードは6桁の数字を入力してください';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '確認中...';
+
+      try {
+        const response = await fetch(`${AppConfig.API_BASE_URL}/v1/auth/verify-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, code })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error?.message || 'メール確認に失敗しました');
+        }
+
+        successEl.textContent = 'メールアドレスが確認されました！ログイン画面に移動します...';
+        successEl.style.display = 'block';
+
+        setTimeout(() => {
+          window.location.href = `login.html?verified=1&email=${encodeURIComponent(email || '')}`;
+        }, 2000);
+
+      } catch (error) {
+        errorEl.textContent = error.message;
+        errorEl.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = '確認する';
+      }
+    });
+
+    // 確認コード再送信
+    async function resendCode() {
+      if (!email) {
+        alert('メールアドレスが不明です。再度登録してください。');
+        return;
+      }
+
+      const errorEl = document.getElementById('error-message');
+      const successEl = document.getElementById('success-message');
+
+      try {
+        const response = await fetch(`${AppConfig.API_BASE_URL}/v1/auth/resend-verification`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error?.message || '再送信に失敗しました');
+        }
+
+        successEl.textContent = '確認コードを再送信しました。メールをご確認ください。';
+        successEl.style.display = 'block';
+        errorEl.style.display = 'none';
+
+      } catch (error) {
+        errorEl.textContent = error.message;
+        errorEl.style.display = 'block';
+        successEl.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>

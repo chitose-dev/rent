@@ -365,12 +365,8 @@
       try {
         const result = await Auth.register({ name, email, phone, password });
         
-        // メール確認が必要
-        alert('登録が完了しました！\n確認メールを送信しました。メールのリンクをクリックして登録を完了してください。');
-        
-        // ログインタブに切り替え
-        switchLoginTab('login');
-        document.getElementById('loginEmail').value = email;
+        // メール確認画面へ遷移
+        window.location.href = `verify-email.html?userId=${encodeURIComponent(result.userId)}&email=${encodeURIComponent(email)}`;
       } catch (error) {
         console.error('登録エラー:', error);
         alert('登録に失敗しました: ' + error.message);
@@ -396,12 +392,12 @@
 
     // 利用規約表示
     function showTerms() {
-      alert('利用規約ページを表示します（準備中）');
+      window.open('terms.html', '_blank');
     }
 
     // プライバシーポリシー表示
     function showPrivacy() {
-      alert('プライバシーポリシーページを表示します（準備中）');
+      window.open('privacy.html', '_blank');
     }
 
     // ソーシャルログイン（将来の拡張用）
