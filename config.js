@@ -1,6 +1,11 @@
 // API設定
 const API_BASE_URL = 'https://rentcar-backend-dgyxfpofua-an.a.run.app';
 
+// AppConfig（後方互換性のため）
+const AppConfig = {
+  API_BASE_URL: API_BASE_URL
+};
+
 // API呼び出しユーティリティ
 const API = {
   baseUrl: API_BASE_URL,
