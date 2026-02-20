@@ -859,6 +859,7 @@
     </div>
   </div>
 
+  <script src="config.js"></script>
   <script src="common.js"></script>
   <script>
     // 状態管理
@@ -868,6 +869,8 @@
       startTime: null,
       endDate: null, // 自動計算
       vehicleClass: null,
+      carClassId: null,
+      pricingPlanId: null,
       classPrice: 0,
       insurance: null,
       insurancePrice: 0,
@@ -881,7 +884,13 @@
     let selectedStartDate = null;
     
     // 初期化
-    function init() {
+    async function init() {
+      // 認証チェック
+      if (!Auth.requireAuth()) return;
+      
+      // マスターデータ読み込み
+      await AppConfig.loadMasterData();
+      
       // セッションから復元
       const saved = ReservationStorage.get();
       if (saved) {
@@ -1261,8 +1270,11 @@
       // セッションに保存
       const days = state.days;
       const classNames = { compact: 'コンパクト', standard: 'スタンダード', minivan: 'ミニバン' };
-      const insuranceNames = { none: '加入しない', standard: 'スタンダード補償', full: 'フル補償' };
-      const paymentNames = { card: 'クレジットカード', local: '現地払い' };
+      const insuranceNames = { none: '補償なし', standard: 'スタンダード補償', premium: 'プレミアム補償', full: 'フル補償' };
+      const paymentNames = { card: 'クレジットカード', onsite: '現地払い', local: '現地払い' };
+      
+      // 支払い方法をAPI形式に変換
+      const paymentMethod = state.payment === 'local' ? 'onsite' : state.payment;
       
       ReservationStorage.save({
         planDays: days,
@@ -1270,14 +1282,23 @@
         startDate: state.startDate,
         startTime: state.startTime,
         endDate: state.endDate,
+        carClassId: state.carClassId || state.vehicleClass,
         vehicleClass: state.vehicleClass,
-        vehicleClassName: classNames[state.vehicleClass],
+        vehicleClassName: classNames[state.vehicleClass] || state.vehicleClass,
+        carClassName: classNames[state.vehicleClass] || state.vehicleClass,
+        pricingPlanId: state.pricingPlanId,
         classPrice: state.classPrice,
-        insurance: state.insurance,
+        planPrice: state.classPrice * days,
+        insurance: state.insurance === 'full' ? 'premium' : state.insurance,
         insuranceName: insuranceNames[state.insurance],
         insurancePrice: state.insurancePrice,
-        options: state.options,
+        options: state.options.map(opt => ({
+          optionId: opt,
+          optionName: opt,
+          quantity: 1
+        })),
         optionsPrice: state.optionsPrice,
+        paymentMethod: paymentMethod,
         payment: state.payment,
         paymentName: paymentNames[state.payment],
         totalPrice: (state.classPrice + state.insurancePrice + state.optionsPrice) * days
@@ -1294,7 +1315,7 @@
     // ログアウト
     function logout() {
       if (confirm('ログアウトしますか?')) {
-        ReservationStorage.clear();
+        Auth.logout();
         window.location.href = 'login.html';
       }
     }
