@@ -294,14 +294,18 @@
     </div>
   </div>
 
+  <script src="config.js"></script>
   <script src="common.js"></script>
   <script>
     let reservationData = null;
 
     // 予約データを取得
     function loadReservationData() {
+      // 認証チェック
+      if (!Auth.requireAuth()) return;
+      
       const data = ReservationStorage.get();
-      if (!data || !data.vehicleClass) {
+      if (!data || !data.carClassId) {
         alert('予約情報を入力してください');
         window.location.href = 'reserve.html';
         return;
@@ -311,19 +315,11 @@
       displayConfirmation();
     }
 
-    // オプション名称マップ
-    const OptionNames = {
-      'navi': 'カーナビ',
-      'etc': 'ETC車載器',
-      'child': 'チャイルドシート',
-      'junior': 'ジュニアシート'
-    };
-
     // 確認内容を表示
     function displayConfirmation() {
       // 車両情報
-      document.getElementById('confirmClass').textContent = reservationData.vehicleClassName;
-      document.getElementById('confirmDays').textContent = reservationData.planLabel;
+      document.getElementById('confirmClass').textContent = reservationData.vehicleClassName || reservationData.carClassName || '-';
+      document.getElementById('confirmDays').textContent = reservationData.planLabel || `${reservationData.planDays}日`;
       
       // 日時情報
       const startDate = new Date(reservationData.startDate);
@@ -339,7 +335,7 @@
       if (reservationData.insurance && reservationData.insurance !== 'none') {
         hasOptions = true;
         document.getElementById('confirmInsuranceRow').style.display = 'flex';
-        document.getElementById('confirmInsurance').textContent = reservationData.insuranceName;
+        document.getElementById('confirmInsurance').textContent = reservationData.insuranceName || reservationData.insurance;
       }
       
       if (reservationData.options && reservationData.options.length > 0) {
@@ -350,7 +346,7 @@
           row.className = 'confirm-row';
           row.innerHTML = `
             <span class="confirm-label">追加オプション</span>
-            <span class="confirm-value">${OptionNames[opt.name] || opt.name}</span>
+            <span class="confirm-value">${opt.optionName || opt.name} × ${opt.quantity || 1}</span>
           `;
           container.appendChild(row);
         });
@@ -361,24 +357,23 @@
       }
       
       // 料金情報
-      const days = reservationData.planDays;
-      const basePrice = reservationData.classPrice * days;
+      const basePrice = reservationData.planPrice || (reservationData.classPrice * reservationData.planDays);
       document.getElementById('confirmBasePrice').textContent = `¥${basePrice.toLocaleString()}`;
       
       if (reservationData.insurancePrice && reservationData.insurancePrice > 0) {
         document.getElementById('confirmInsurancePriceRow').style.display = 'flex';
-        const insuranceTotal = reservationData.insurancePrice * days;
+        const insuranceTotal = reservationData.insurancePrice * reservationData.planDays;
         document.getElementById('confirmInsurancePrice').textContent = `¥${insuranceTotal.toLocaleString()}`;
       }
       
       if (reservationData.optionsPrice && reservationData.optionsPrice > 0) {
         document.getElementById('confirmOptionsPriceRow').style.display = 'flex';
-        const optionsTotal = reservationData.optionsPrice * days;
+        const optionsTotal = reservationData.optionsPrice * reservationData.planDays;
         document.getElementById('confirmOptionsPrice').textContent = `¥${optionsTotal.toLocaleString()}`;
       }
       
       // 決済方法
-      document.getElementById('confirmPayment').textContent = reservationData.paymentName;
+      document.getElementById('confirmPayment').textContent = reservationData.paymentName || (reservationData.paymentMethod === 'card' ? 'クレジットカード' : '現地払い');
       
       // 合計金額
       document.getElementById('confirmPrice').textContent = `¥${reservationData.totalPrice.toLocaleString()}`;
@@ -390,42 +385,76 @@
       document.getElementById('confirmBtn').disabled = !agreed;
     }
 
-    // 予約確定
-    function confirmReservation() {
+    // 予約確定（API呼び出し）
+    async function confirmReservation() {
       const agreed = document.getElementById('agreePolicy').checked;
       if (!agreed) {
         alert('キャンセルポリシーに同意してください');
         return;
       }
       
-      // 同意フラグを保存
-      ReservationStorage.save({
-        agreeCancelPolicy: true,
-        reservationId: generateReservationId(),
-        reservationDate: new Date().toISOString(),
-        status: 'confirmed'
-      });
+      const confirmBtn = document.getElementById('confirmBtn');
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = '予約処理中...';
       
-      // 完了ページへ
-      window.location.href = 'reserve-complete.html';
-    }
-
-    // 予約番号生成（仮実装）
-    function generateReservationId() {
-      const timestamp = Date.now();
-      const random = Math.floor(Math.random() * 10000);
-      return `R${timestamp}${random}`.substring(0, 16);
+      try {
+        // 受取日時をISO8601形式に変換
+        const pickupDateTime = new Date(`${reservationData.startDate}T${reservationData.startTime}:00`);
+        // 返却日時（終日の最終時間として18:00を設定）
+        const returnDateTime = new Date(`${reservationData.endDate}T18:00:00`);
+        
+        // タイムゾーンオフセットを付与（JST: +09:00）
+        const formatWithOffset = (date) => {
+          const pad = (n) => String(n).padStart(2, '0');
+          return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:00+09:00`;
+        };
+        
+        // オプションをAPI形式に変換
+        const options = (reservationData.options || []).map(opt => ({
+          optionId: opt.optionId || opt.id,
+          quantity: opt.quantity || 1
+        }));
+        
+        // API呼び出し
+        const result = await ReservationAPI.create({
+          carClassId: reservationData.carClassId,
+          pricingPlanId: reservationData.pricingPlanId,
+          pickupAt: formatWithOffset(pickupDateTime),
+          returnAt: formatWithOffset(returnDateTime),
+          paymentMethod: reservationData.paymentMethod || 'onsite',
+          insuranceType: reservationData.insurance || 'none',
+          options: options
+        });
+        
+        // 予約成功 - 結果を保存
+        ReservationStorage.save({
+          agreeCancelPolicy: true,
+          reservationId: result.id || result.reservationId,
+          reservationDate: new Date().toISOString(),
+          status: 'confirmed',
+          apiResult: result
+        });
+        
+        // 完了ページへ
+        window.location.href = 'reserve-complete.html';
+        
+      } catch (error) {
+        console.error('予約エラー:', error);
+        alert('予約に失敗しました: ' + error.message);
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = '予約を確定する';
+      }
     }
 
     // 戻る
     function goBack() {
-      window.location.href = 'reserve.html';
+      window.location.href = 'reserve-payment.html';
     }
 
     // ログアウト
     function logout() {
       if (confirm('ログアウトしますか?')) {
-        ReservationStorage.clear();
+        Auth.logout();
         window.location.href = 'login.html';
       }
     }

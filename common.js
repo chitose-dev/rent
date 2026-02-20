@@ -375,6 +375,175 @@ const DOM = {
 };
 
 // ========================================
+// 認証管理
+// ========================================
+
+const Auth = {
+  TOKEN_KEY: 'authToken',
+  REFRESH_KEY: 'refreshToken',
+  USER_KEY: 'userData',
+  
+  // トークン保存
+  saveTokens(accessToken, refreshToken) {
+    sessionStorage.setItem(this.TOKEN_KEY, accessToken);
+    if (refreshToken) {
+      sessionStorage.setItem(this.REFRESH_KEY, refreshToken);
+    }
+  },
+  
+  // ユーザー情報保存
+  saveUser(user) {
+    sessionStorage.setItem(this.USER_KEY, JSON.stringify(user));
+  },
+  
+  // トークン取得
+  getToken() {
+    return sessionStorage.getItem(this.TOKEN_KEY);
+  },
+  
+  // リフレッシュトークン取得
+  getRefreshToken() {
+    return sessionStorage.getItem(this.REFRESH_KEY);
+  },
+  
+  // ユーザー情報取得
+  getUser() {
+    const data = sessionStorage.getItem(this.USER_KEY);
+    return data ? JSON.parse(data) : null;
+  },
+  
+  // ログイン状態確認
+  isLoggedIn() {
+    return !!this.getToken();
+  },
+  
+  // ログアウト
+  logout() {
+    sessionStorage.removeItem(this.TOKEN_KEY);
+    sessionStorage.removeItem(this.REFRESH_KEY);
+    sessionStorage.removeItem(this.USER_KEY);
+    ReservationStorage.clear();
+  },
+  
+  // ログインページへリダイレクト
+  redirectToLogin() {
+    window.location.href = 'login.html';
+  },
+  
+  // 認証チェック（未ログインならリダイレクト）
+  requireAuth() {
+    if (!this.isLoggedIn()) {
+      this.redirectToLogin();
+      return false;
+    }
+    return true;
+  },
+  
+  // ログイン処理
+  async login(email, password) {
+    const result = await API.post('/v1/auth/login', { email, password });
+    
+    if (result.accessToken) {
+      this.saveTokens(result.accessToken, result.refreshToken);
+      if (result.user) {
+        this.saveUser(result.user);
+      }
+    }
+    
+    return result;
+  },
+  
+  // 新規登録処理
+  async register(data) {
+    return await API.post('/v1/auth/register', data);
+  },
+  
+  // メール確認
+  async verifyEmail(userId, code) {
+    return await API.post('/v1/auth/verify-email', { userId, code });
+  },
+  
+  // パスワードリセット要求
+  async forgotPassword(email) {
+    return await API.post('/v1/auth/forgot-password', { email });
+  },
+  
+  // プロフィール取得
+  async getProfile() {
+    return await API.get('/v1/me');
+  },
+  
+  // プロフィール更新
+  async updateProfile(data) {
+    return await API.put('/v1/me', data);
+  },
+  
+  // パスワード変更
+  async changePassword(currentPassword, newPassword) {
+    return await API.post('/v1/me/change-password', { currentPassword, newPassword });
+  },
+  
+  // 退会
+  async withdraw(password, reason) {
+    return await API.delete('/v1/me', {
+      body: JSON.stringify({ password, reason }),
+      headers: { 'Content-Type': 'application/json' }
+    });
+  },
+  
+  // トークン更新
+  async refreshAccessToken() {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      throw new Error('No refresh token');
+    }
+    
+    const result = await API.post('/v1/auth/refresh', { refreshToken });
+    if (result.accessToken) {
+      this.saveTokens(result.accessToken, result.refreshToken);
+    }
+    return result;
+  }
+};
+
+// ========================================
+// 予約API
+// ========================================
+
+const ReservationAPI = {
+  // 予約作成
+  async create(data) {
+    return await API.post('/v1/reservations', data);
+  },
+  
+  // 予約一覧取得
+  async list(params = {}) {
+    const query = new URLSearchParams();
+    if (params.page) query.set('page', params.page);
+    if (params.limit) query.set('limit', params.limit);
+    if (params.status) query.set('status', params.status);
+    
+    const queryStr = query.toString();
+    return await API.get(`/v1/reservations${queryStr ? '?' + queryStr : ''}`);
+  },
+  
+  // 予約詳細取得
+  async get(id) {
+    return await API.get(`/v1/reservations/${id}`);
+  },
+  
+  // キャンセル申請
+  async cancel(id, reason) {
+    return await API.post(`/v1/reservations/${id}/cancel`, { reason });
+  },
+  
+  // 返却予定更新
+  async updatePlannedReturn(id, plannedReturnAt) {
+    return await API.put(`/v1/reservations/${id}/planned-return`, { plannedReturnAt });
+  }
+};
+
+// ========================================
 // ページ初期化
 // ========================================
 

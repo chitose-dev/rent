@@ -107,16 +107,20 @@
     </div>
   </div>
 
+  <script src="config.js"></script>
   <script src="common.js"></script>
   <script>
+    let reservationData = null;
+    
+    // URLから予約IDを取得
+    function getReservationId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+
     // キャンセル料金計算
-    function calculateCancellationFee() {
-      const data = ReservationStorage.get();
-      if (!data || !data.pickupDateTime || !data.planPrice) {
-        return { fee: 0, rate: 0 };
-      }
-      
-      const pickupDate = new Date(data.pickupDateTime);
+    function calculateCancellationFee(pickupAt, totalAmount) {
+      const pickupDate = new Date(pickupAt);
       const now = new Date();
       const daysUntilPickup = Math.ceil((pickupDate - now) / (1000 * 60 * 60 * 24));
       
@@ -131,38 +135,46 @@
         rate = 0.5; // 当日50%
       }
       
-      const fee = Math.floor(data.planPrice * rate);
+      const fee = Math.floor(totalAmount * rate);
       return { fee, rate };
     }
 
-    // キャンセル情報表示
-    function displayCancelInfo() {
-      const data = ReservationStorage.get();
+    // キャンセル情報表示（API呼び出し）
+    async function displayCancelInfo() {
+      // 認証チェック
+      if (!Auth.requireAuth()) return;
       
-      if (!data || !data.reservationId) {
-        alert('予約情報が見つかりません');
+      const reservationId = getReservationId();
+      if (!reservationId) {
+        alert('予約IDが指定されていません');
         window.location.href = 'mypage-rental.html';
         return;
       }
       
-      const carClass = Utils.getCarClass(data.carClassId);
-      
-      // 予約情報
-      document.getElementById('cancelReservationId').textContent = data.reservationId;
-      document.getElementById('cancelCarClass').textContent = carClass.name;
-      document.getElementById('cancelPickup').textContent = 
-        Utils.formatDateTimeJP(new Date(data.pickupDateTime));
-      document.getElementById('cancelPrice').textContent = Utils.formatPrice(data.planPrice);
-      
-      // キャンセル料金
-      const { fee, rate } = calculateCancellationFee();
-      const feeText = fee === 0 ? '無料' : Utils.formatPrice(fee);
-      const rateText = rate === 0 ? '' : ` (${rate * 100}%)`;
-      document.getElementById('cancellationFee').textContent = feeText + rateText;
+      try {
+        reservationData = await ReservationAPI.get(reservationId);
+        
+        // 予約情報
+        document.getElementById('cancelReservationId').textContent = reservationData.id;
+        document.getElementById('cancelCarClass').textContent = reservationData.carClassName || '車両クラス';
+        document.getElementById('cancelPickup').textContent = 
+          Utils.formatDateTimeJP(new Date(reservationData.pickupAt));
+        document.getElementById('cancelPrice').textContent = Utils.formatPrice(reservationData.totalAmount || 0);
+        
+        // キャンセル料金
+        const { fee, rate } = calculateCancellationFee(reservationData.pickupAt, reservationData.totalAmount || 0);
+        const feeText = fee === 0 ? '無料' : Utils.formatPrice(fee);
+        const rateText = rate === 0 ? '' : ` (${rate * 100}%)`;
+        document.getElementById('cancellationFee').textContent = feeText + rateText;
+      } catch (error) {
+        console.error('予約取得エラー:', error);
+        alert('予約情報の取得に失敗しました: ' + error.message);
+        window.location.href = 'mypage-rental.html';
+      }
     }
 
-    // キャンセル申請送信
-    function submitCancel(event) {
+    // キャンセル申請送信（API呼び出し）
+    async function submitCancel(event) {
       event.preventDefault();
       
       const reason = document.getElementById('cancelReason').value;
@@ -173,28 +185,41 @@
         return;
       }
       
-      if (confirm('キャンセル申請を送信しますか？')) {
-        // セッションストレージに状態を保存
-        ReservationStorage.save({
-          status: 'cancel-requested',
-          cancelReason: reason,
-          cancelRequestDate: new Date().toISOString()
-        });
+      if (!confirm('キャンセル申請を送信しますか？')) {
+        return;
+      }
+      
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '送信中...';
+      
+      try {
+        await ReservationAPI.cancel(reservationData.id, reason);
         
         // 完了ページへ
         window.location.href = 'cancel-request-complete.html';
+      } catch (error) {
+        console.error('キャンセル申請エラー:', error);
+        alert('キャンセル申請に失敗しました: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'キャンセル申請を送信';
       }
     }
 
     // 戻る
     function goBack() {
-      window.location.href = 'rental-detail.html';
+      const reservationId = getReservationId();
+      if (reservationId) {
+        window.location.href = `rental-detail.html?id=${reservationId}`;
+      } else {
+        window.location.href = 'mypage-rental.html';
+      }
     }
 
     // ログアウト
     function logout() {
       if (confirm('ログアウトしますか?')) {
-        ReservationStorage.clear();
+        Auth.logout();
         window.location.href = 'login.html';
       }
     }

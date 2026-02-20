@@ -138,6 +138,7 @@
     </div>
   </div>
 
+  <script src="config.js"></script>
   <script src="common.js"></script>
   <script>
     // タブ切り替え
@@ -158,51 +159,62 @@
       }
     }
 
-    // プロフィール情報を読み込み（将来はAPIから）
-    function loadProfile() {
-      // 将来はAPIから取得
-      // 今はダミーデータ
-      const profile = {
-        name: '山田 太郎',
-        nameKana: 'ヤマダ タロウ',
-        email: 'yamada@example.com',
-        phone: '09012345678',
-        birthDate: '1990-01-01',
-        postalCode: '1500001',
-        address: '東京都渋谷区神宮前1-1-1',
-        licenseNumber: '1234567890'
-      };
+    // プロフィール情報を読み込み（API呼び出し）
+    async function loadProfile() {
+      // 認証チェック
+      if (!Auth.requireAuth()) return;
       
-      // フォームに反映
-      document.getElementById('name').value = profile.name || '';
-      document.getElementById('nameKana').value = profile.nameKana || '';
-      document.getElementById('email').value = profile.email || '';
-      document.getElementById('phone').value = profile.phone || '';
-      document.getElementById('birthDate').value = profile.birthDate || '';
-      document.getElementById('postalCode').value = profile.postalCode || '';
-      document.getElementById('address').value = profile.address || '';
-      document.getElementById('licenseNumber').value = profile.licenseNumber || '';
+      try {
+        const profile = await Auth.getProfile();
+        
+        // フォームに反映
+        document.getElementById('name').value = profile.name || '';
+        document.getElementById('nameKana').value = profile.nameKana || '';
+        document.getElementById('email').value = profile.email || '';
+        document.getElementById('phone').value = profile.phone || '';
+        document.getElementById('birthDate').value = profile.birthDate || '';
+        document.getElementById('postalCode').value = profile.postalCode || '';
+        document.getElementById('address').value = profile.address || '';
+        document.getElementById('licenseNumber').value = profile.licenseNumber || '';
+      } catch (error) {
+        console.error('プロフィール取得エラー:', error);
+        alert('プロフィールの取得に失敗しました: ' + error.message);
+      }
     }
 
-    // プロフィール保存
-    function saveProfile(event) {
+    // プロフィール保存（API呼び出し）
+    async function saveProfile(event) {
       event.preventDefault();
+      
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '保存中...';
       
       const formData = {
         name: document.getElementById('name').value,
-        nameKana: document.getElementById('nameKana').value,
-        email: document.getElementById('email').value,
+        nameKana: document.getElementById('nameKana').value || undefined,
         phone: document.getElementById('phone').value,
-        birthDate: document.getElementById('birthDate').value,
-        postalCode: document.getElementById('postalCode').value,
-        address: document.getElementById('address').value,
-        licenseNumber: document.getElementById('licenseNumber').value
+        birthDate: document.getElementById('birthDate').value || undefined,
+        postalCode: document.getElementById('postalCode').value || undefined,
+        address: document.getElementById('address').value || undefined,
+        licenseNumber: document.getElementById('licenseNumber').value || undefined
       };
       
-      // 将来はAPIに送信
-      console.log('保存するデータ:', formData);
+      // undefinedのフィールドを削除
+      Object.keys(formData).forEach(key => {
+        if (formData[key] === undefined) delete formData[key];
+      });
       
-      alert('登録情報を保存しました');
+      try {
+        await Auth.updateProfile(formData);
+        alert('登録情報を保存しました');
+      } catch (error) {
+        console.error('プロフィール保存エラー:', error);
+        alert('登録情報の保存に失敗しました: ' + error.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '変更を保存';
+      }
     }
 
     // フォームリセット
@@ -212,8 +224,8 @@
       }
     }
 
-    // パスワード変更
-    function changePassword(event) {
+    // パスワード変更（API呼び出し）
+    async function changePassword(event) {
       event.preventDefault();
       
       const currentPassword = document.getElementById('currentPassword').value;
@@ -225,17 +237,29 @@
         return;
       }
       
-      // 将来はAPIに送信
-      console.log('パスワード変更');
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '変更中...';
       
-      alert('パスワードを変更しました');
-      document.getElementById('passwordForm').reset();
+      try {
+        await Auth.changePassword(currentPassword, newPassword);
+        alert('パスワードを変更しました。再度ログインしてください。');
+        Auth.logout();
+        window.location.href = 'login.html';
+      } catch (error) {
+        console.error('パスワード変更エラー:', error);
+        alert('パスワード変更に失敗しました: ' + error.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'パスワードを変更';
+        document.getElementById('passwordForm').reset();
+      }
     }
 
     // ログアウト
     function logout() {
       if (confirm('ログアウトしますか?')) {
-        ReservationStorage.clear();
+        Auth.logout();
         window.location.href = 'login.html';
       }
     }

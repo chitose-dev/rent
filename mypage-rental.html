@@ -328,8 +328,21 @@
     </div>
   </div>
 
+  <script src="config.js"></script>
   <script src="common.js"></script>
   <script>
+    let reservations = [];
+    let selectedReservationId = null;
+    
+    const statusLabels = {
+      pending_payment: { text: '決済待ち', class: 'status-pending' },
+      confirmed: { text: '受取待ち', class: 'status-confirmed' },
+      picked_up: { text: 'レンタル中', class: 'status-active' },
+      returned: { text: '返却済み', class: 'status-completed' },
+      cancel_requested: { text: 'キャンセル申請中', class: 'status-cancel-requested' },
+      cancelled: { text: 'キャンセル済', class: 'status-cancelled' }
+    };
+
     // タブ切り替え（各ページへ遷移）
     function switchTab(tab) {
       const pages = {
@@ -348,133 +361,119 @@
       }
     }
 
-    // レンタル状況を表示
-    function displayRentalStatus() {
-      const data = ReservationStorage.get();
+    // レンタル状況を表示（API呼び出し）
+    async function displayRentalStatus() {
+      // 認証チェック
+      if (!Auth.requireAuth()) return;
       
-      if (!data || !data.reservationId || data.status === 'cancelled') {
-        // 予約なし
-        document.getElementById('rentalEmpty').style.display = 'block';
-        document.getElementById('rentalList').innerHTML = '';
-        return;
+      const container = document.getElementById('rentalList');
+      container.innerHTML = '<p style="text-align:center;padding:40px;">読み込み中...</p>';
+      
+      try {
+        // アクティブな予約のみ取得（confirmed, picked_up）
+        const result = await ReservationAPI.list({ limit: 10 });
+        reservations = (result.data || []).filter(r => 
+          ['pending_payment', 'confirmed', 'picked_up', 'cancel_requested'].includes(r.status)
+        );
+        
+        if (reservations.length === 0) {
+          document.getElementById('rentalEmpty').style.display = 'block';
+          container.innerHTML = '';
+          return;
+        }
+        
+        document.getElementById('rentalEmpty').style.display = 'none';
+        renderReservations();
+      } catch (error) {
+        console.error('予約取得エラー:', error);
+        container.innerHTML = `<p style="text-align:center;padding:40px;color:#c00;">エラー: ${error.message}</p>`;
       }
-      
-      // 予約あり
-      document.getElementById('rentalEmpty').style.display = 'none';
-      renderRentalCard(data);
     }
 
     // 予約カード描画
-    function renderRentalCard(data) {
+    function renderReservations() {
       const container = document.getElementById('rentalList');
+      container.innerHTML = '';
       
-      // ステータス判定（簡易版）
-      let status = 'confirmed';
-      let statusText = '予約確定';
-      let statusClass = 'status-confirmed';
-      
-      if (data.status === 'cancel-requested') {
-        status = 'cancel-requested';
-        statusText = 'キャンセル申請中';
-        statusClass = 'status-cancel-requested';
-      } else if (data.status === 'cancelled') {
-        status = 'cancelled';
-        statusText = 'キャンセル確定';
-        statusClass = 'status-cancelled';
-      } else {
-        // 時系列でステータスを判定
-        const now = new Date();
-        const pickupDate = new Date(data.startDate + 'T' + data.startTime);
-        const returnDate = new Date(data.endDate + 'T23:59:59');
+      reservations.forEach(r => {
+        const st = statusLabels[r.status] || { text: r.status, class: 'status-pending' };
         
-        if (now < pickupDate) {
-          status = 'pending';
-          statusText = '受取待ち';
-          statusClass = 'status-pending';
-        } else if (now >= pickupDate && now < returnDate) {
-          status = 'active';
-          statusText = 'レンタル中';
-          statusClass = 'status-active';
-        } else if (now >= returnDate) {
-          status = 'completed';
-          statusText = '返却予定';
-          statusClass = 'status-pending';
+        // 日付フォーマット
+        const pickupDate = new Date(r.pickupAt);
+        const returnDate = new Date(r.returnAt);
+        const pickupText = `${pickupDate.getFullYear()}年${pickupDate.getMonth()+1}月${pickupDate.getDate()}日 ${String(pickupDate.getHours()).padStart(2,'0')}:${String(pickupDate.getMinutes()).padStart(2,'0')}`;
+        const returnText = `${returnDate.getFullYear()}年${returnDate.getMonth()+1}月${returnDate.getDate()}日まで`;
+        
+        // 返却予定の表示
+        let plannedReturnText = '未入力';
+        if (r.plannedReturnAt) {
+          const planned = new Date(r.plannedReturnAt);
+          plannedReturnText = `${planned.getMonth()+1}月${planned.getDate()}日 ${String(planned.getHours()).padStart(2,'0')}:${String(planned.getMinutes()).padStart(2,'0')}`;
         }
-      }
-      
-      // 日付フォーマット
-      const startDateObj = new Date(data.startDate);
-      const endDateObj = new Date(data.endDate);
-      const pickupText = `${startDateObj.getFullYear()}年${startDateObj.getMonth()+1}月${startDateObj.getDate()}日 ${data.startTime}`;
-      const returnText = `${endDateObj.getFullYear()}年${endDateObj.getMonth()+1}月${endDateObj.getDate()}日まで`;
-      
-      // 返却予定の表示
-      let plannedReturnText = '未入力';
-      if (data.plannedReturnDate && data.plannedReturnTime) {
-        const plannedDate = new Date(data.plannedReturnDate);
-        plannedReturnText = `${plannedDate.getMonth()+1}月${plannedDate.getDate()}日 ${data.plannedReturnTime}`;
-      }
-      
-      const card = document.createElement('div');
-      card.className = 'rental-card';
-      card.innerHTML = `
-        <div class="rental-card-header">
-          <h2 class="rental-card-title">${data.vehicleClassName}</h2>
-          <span class="status-badge ${statusClass}">${statusText}</span>
-        </div>
         
-        <div class="rental-card-body">
-          <div class="rental-info-row">
-            <span class="rental-info-label">予約番号</span>
-            <span class="rental-info-value">${data.reservationId}</span>
-          </div>
-          <div class="rental-info-row">
-            <span class="rental-info-label">受取日時</span>
-            <span class="rental-info-value">${pickupText}</span>
-          </div>
-          <div class="rental-info-row">
-            <span class="rental-info-label">返却期限</span>
-            <span class="rental-info-value">${returnText}</span>
-          </div>
-          <div class="rental-info-row">
-            <span class="rental-info-label">決済方法</span>
-            <span class="rental-info-value">${data.paymentName}</span>
-          </div>
-          <div class="rental-info-row">
-            <span class="rental-info-label">料金</span>
-            <span class="rental-info-value">¥${data.totalPrice.toLocaleString()}</span>
+        // 決済方法表示
+        const paymentText = r.paymentMethod === 'card' ? 'クレジットカード' : '現地払い';
+        
+        const card = document.createElement('div');
+        card.className = 'rental-card';
+        card.innerHTML = `
+          <div class="rental-card-header">
+            <h2 class="rental-card-title">${r.carClassName || '車両クラス'}</h2>
+            <span class="status-badge ${st.class}">${st.text}</span>
           </div>
           
-          <!-- 返却予定 -->
-          <div class="return-plan-row">
-            <div class="return-plan-label">返却予定</div>
-            <div class="return-plan-value">
-              <span id="plannedReturnDisplay">${plannedReturnText}</span>
-              <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openReturnPlanModal()">
-                ${data.plannedReturnDate ? '変更' : '入力'}
-              </button>
+          <div class="rental-card-body">
+            <div class="rental-info-row">
+              <span class="rental-info-label">予約番号</span>
+              <span class="rental-info-value">${r.id}</span>
+            </div>
+            <div class="rental-info-row">
+              <span class="rental-info-label">受取日時</span>
+              <span class="rental-info-value">${pickupText}</span>
+            </div>
+            <div class="rental-info-row">
+              <span class="rental-info-label">返却期限</span>
+              <span class="rental-info-value">${returnText}</span>
+            </div>
+            <div class="rental-info-row">
+              <span class="rental-info-label">決済方法</span>
+              <span class="rental-info-value">${paymentText}</span>
+            </div>
+            <div class="rental-info-row">
+              <span class="rental-info-label">料金</span>
+              <span class="rental-info-value">¥${(r.totalAmount || 0).toLocaleString()}</span>
+            </div>
+            
+            <!-- 返却予定 -->
+            <div class="return-plan-row">
+              <div class="return-plan-label">返却予定</div>
+              <div class="return-plan-value">
+                <span id="plannedReturn-${r.id}">${plannedReturnText}</span>
+                ${r.status === 'picked_up' ? `
+                  <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openReturnPlanModal('${r.id}')">
+                    ${r.plannedReturnAt ? '変更' : '入力'}
+                  </button>
+                ` : ''}
+              </div>
             </div>
           </div>
-        </div>
+          
+          <div class="rental-card-actions">
+            <button class="btn btn-secondary" onclick="viewDetail('${r.id}')">
+              詳細を見る
+            </button>
+            ${r.status === 'cancel_requested' ? `
+              <button class="btn btn-secondary" disabled>申請処理中</button>
+            ` : ['confirmed', 'pending_payment'].includes(r.status) ? `
+              <button class="btn btn-danger" onclick="requestCancel('${r.id}')">
+                キャンセル申請
+              </button>
+            ` : ''}
+          </div>
+        `;
         
-        <div class="rental-card-actions">
-          <button class="btn btn-secondary" onclick="viewDetail('${data.reservationId}')">
-            詳細を見る
-          </button>
-          ${status === 'cancel-requested' ? `
-            <button class="btn btn-secondary" disabled>
-              申請処理中
-            </button>
-          ` : status === 'cancelled' ? '' : `
-            <button class="btn btn-danger" onclick="requestCancel('${data.reservationId}')">
-              キャンセル申請
-            </button>
-          `}
-        </div>
-      `;
-      
-      container.innerHTML = '';
-      container.appendChild(card);
+        container.appendChild(card);
+      });
     }
 
     // 詳細表示
@@ -498,26 +497,34 @@
     // ログアウト
     function logout() {
       if (confirm('ログアウトしますか?')) {
-        ReservationStorage.clear();
+        Auth.logout();
         window.location.href = 'login.html';
       }
     }
     
     // 返却予定モーダルを開く
-    function openReturnPlanModal() {
-      const data = ReservationStorage.get();
+    function openReturnPlanModal(reservationId) {
+      selectedReservationId = reservationId;
+      const reservation = reservations.find(r => r.id === reservationId);
+      if (!reservation) return;
       
       // 日付の範囲を設定
       const dateInput = document.getElementById('plannedReturnDate');
-      dateInput.min = data.startDate;
-      dateInput.max = data.endDate;
+      const pickupDate = new Date(reservation.pickupAt);
+      const returnDate = new Date(reservation.returnAt);
+      
+      dateInput.min = pickupDate.toISOString().split('T')[0];
+      dateInput.max = returnDate.toISOString().split('T')[0];
       
       // 既存の値があれば設定
-      if (data.plannedReturnDate) {
-        dateInput.value = data.plannedReturnDate;
-      }
-      if (data.plannedReturnTime) {
-        document.getElementById('plannedReturnTime').value = data.plannedReturnTime;
+      if (reservation.plannedReturnAt) {
+        const planned = new Date(reservation.plannedReturnAt);
+        dateInput.value = planned.toISOString().split('T')[0];
+        document.getElementById('plannedReturnTime').value = 
+          `${String(planned.getHours()).padStart(2,'0')}:${String(planned.getMinutes()).padStart(2,'0')}`;
+      } else {
+        dateInput.value = '';
+        document.getElementById('plannedReturnTime').value = '';
       }
       
       document.getElementById('returnPlanModal').classList.add('active');
@@ -526,10 +533,11 @@
     // 返却予定モーダルを閉じる
     function closeReturnPlanModal() {
       document.getElementById('returnPlanModal').classList.remove('active');
+      selectedReservationId = null;
     }
     
-    // 返却予定を保存
-    function saveReturnPlan() {
+    // 返却予定を保存（API呼び出し）
+    async function saveReturnPlan() {
       const date = document.getElementById('plannedReturnDate').value;
       const time = document.getElementById('plannedReturnTime').value;
       
@@ -538,21 +546,28 @@
         return;
       }
       
-      // 保存
-      ReservationStorage.save({
-        plannedReturnDate: date,
-        plannedReturnTime: time
-      });
+      if (!selectedReservationId) {
+        alert('予約が選択されていません');
+        return;
+      }
       
-      // 表示更新
-      const dateObj = new Date(date);
-      document.getElementById('plannedReturnDisplay').textContent = 
-        `${dateObj.getMonth()+1}月${dateObj.getDate()}日 ${time}`;
-      
-      closeReturnPlanModal();
-      
-      // カードを再描画
-      displayRentalStatus();
+      try {
+        const plannedReturnAt = `${date}T${time}:00+09:00`;
+        await ReservationAPI.updatePlannedReturn(selectedReservationId, plannedReturnAt);
+        
+        // 表示更新
+        const dateObj = new Date(date);
+        document.getElementById(`plannedReturn-${selectedReservationId}`).textContent = 
+          `${dateObj.getMonth()+1}月${dateObj.getDate()}日 ${time}`;
+        
+        closeReturnPlanModal();
+        
+        // 予約データを再取得
+        displayRentalStatus();
+      } catch (error) {
+        console.error('返却予定更新エラー:', error);
+        alert('返却予定の更新に失敗しました: ' + error.message);
+      }
     }
 
     // 初期化

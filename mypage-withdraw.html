@@ -135,6 +135,7 @@
     </div>
   </div>
 
+  <script src="config.js"></script>
   <script src="common.js"></script>
   <script>
     // タブ切り替え
@@ -152,18 +153,31 @@
       }
     }
 
-    // 進行中の予約をチェック
-    function checkActiveReservation() {
-      const data = ReservationStorage.get();
+    // 進行中の予約をチェック（API呼び出し）
+    async function checkActiveReservation() {
+      // 認証チェック
+      if (!Auth.requireAuth()) return true;
       
-      if (data && data.reservationId && data.status !== 'cancelled') {
-        // 進行中の予約がある
-        document.getElementById('activeReservationAlert').style.display = 'block';
+      try {
+        const result = await ReservationAPI.list({ limit: 10 });
+        const activeReservations = (result.data || []).filter(r => 
+          ['pending_payment', 'confirmed', 'picked_up', 'cancel_requested'].includes(r.status)
+        );
+        
+        if (activeReservations.length > 0) {
+          document.getElementById('activeReservationAlert').style.display = 'block';
+          document.getElementById('withdrawBtn').disabled = true;
+          return true;
+        }
+        
+        return false;
+      } catch (error) {
+        console.error('予約確認エラー:', error);
+        // エラー時は念のため退会ボタンを無効化
         document.getElementById('withdrawBtn').disabled = true;
+        alert('予約情報の確認に失敗しました: ' + error.message);
         return true;
       }
-      
-      return false;
     }
 
     // 退会確認
@@ -176,25 +190,41 @@
         return;
       }
       
+      // パスワード確認のプロンプト
+      const password = prompt('本人確認のため、パスワードを入力してください:');
+      if (!password) {
+        return;
+      }
+      
       if (confirm('本当に退会しますか？\nこの操作は取り消せません。')) {
-        processWithdraw();
+        processWithdraw(password);
       }
     }
 
-    // 退会処理
-    function processWithdraw() {
+    // 退会処理（API呼び出し）
+    async function processWithdraw(password) {
       const reason = document.getElementById('reason').value;
+      const withdrawBtn = document.getElementById('withdrawBtn');
       
-      // 将来はAPIに送信
-      console.log('退会処理:', { reason });
+      withdrawBtn.disabled = true;
+      withdrawBtn.textContent = '処理中...';
       
-      // セッションストレージをクリア
-      ReservationStorage.clear();
-      
-      alert('退会手続きが完了しました。\nご利用ありがとうございました。');
-      
-      // ログイン画面へ
-      window.location.href = 'login.html';
+      try {
+        await API.request('/v1/me', {
+          method: 'DELETE',
+          body: JSON.stringify({ password, reason })
+        });
+        
+        Auth.logout();
+        
+        alert('退会手続きが完了しました。\nご利用ありがとうございました。');
+        window.location.href = 'login.html';
+      } catch (error) {
+        console.error('退会処理エラー:', error);
+        alert('退会処理に失敗しました: ' + error.message);
+        withdrawBtn.disabled = false;
+        withdrawBtn.textContent = '退会する';
+      }
     }
 
     // 戻る
@@ -205,7 +235,7 @@
     // ログアウト
     function logout() {
       if (confirm('ログアウトしますか?')) {
-        ReservationStorage.clear();
+        Auth.logout();
         window.location.href = 'login.html';
       }
     }

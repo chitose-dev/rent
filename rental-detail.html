@@ -330,69 +330,88 @@
     </div>
   </div>
 
+  <script src="config.js"></script>
   <script src="common.js"></script>
   <script>
-    // 予約詳細を表示
-    function displayDetail() {
-      const data = ReservationStorage.get();
+    let reservationData = null;
+    
+    const statusLabels = {
+      pending_payment: { text: '決済待ち', class: 'status-pending' },
+      confirmed: { text: '受取待ち', class: 'status-confirmed' },
+      picked_up: { text: 'レンタル中', class: 'status-active' },
+      returned: { text: '返却済み', class: 'status-completed' },
+      cancel_requested: { text: 'キャンセル申請中', class: 'status-cancel-requested' },
+      cancelled: { text: 'キャンセル済', class: 'status-cancelled' }
+    };
+    
+    // URLから予約IDを取得
+    function getReservationId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+
+    // 予約詳細を表示（API呼び出し）
+    async function displayDetail() {
+      // 認証チェック
+      if (!Auth.requireAuth()) return;
       
-      if (!data || !data.reservationId) {
-        alert('予約情報が見つかりません');
+      const reservationId = getReservationId();
+      if (!reservationId) {
+        alert('予約IDが指定されていません');
         window.location.href = 'mypage-rental.html';
         return;
       }
       
-      // ステータス表示
-      let statusText = '予約確定';
-      let statusClass = 'status-confirmed';
-      
-      if (data.status === 'cancel-requested') {
-        statusText = 'キャンセル申請中';
-        statusClass = 'status-cancel-requested';
-        document.getElementById('cancelBtn').style.display = 'none';
-      } else if (data.status === 'cancelled') {
-        statusText = 'キャンセル確定';
-        statusClass = 'status-cancelled';
-        document.getElementById('cancelBtn').style.display = 'none';
+      try {
+        reservationData = await ReservationAPI.get(reservationId);
+        
+        // ステータス表示
+        const st = statusLabels[reservationData.status] || { text: reservationData.status, class: 'status-pending' };
+        document.getElementById('statusText').textContent = st.text;
+        document.getElementById('statusText').className = `status-badge ${st.class}`;
+        
+        // キャンセルボタン表示制御
+        if (['cancel_requested', 'cancelled', 'returned', 'picked_up'].includes(reservationData.status)) {
+          document.getElementById('cancelBtn').style.display = 'none';
+        }
+        
+        // 予約情報
+        document.getElementById('detailReservationId').textContent = reservationData.id;
+        document.getElementById('detailReservationDate').textContent = 
+          reservationData.createdAt ? Utils.formatDateTimeJP(new Date(reservationData.createdAt)) : '-';
+        
+        // 車両情報
+        document.getElementById('detailCarClass').textContent = reservationData.carClassName || '車両クラス';
+        document.getElementById('detailDays').textContent = reservationData.days ? `${reservationData.days}日` : '-';
+        
+        // 日時情報
+        const pickupDate = new Date(reservationData.pickupAt);
+        const returnDate = new Date(reservationData.returnAt);
+        document.getElementById('detailPickup').textContent = Utils.formatDateTimeJP(pickupDate);
+        document.getElementById('detailReturn').textContent = 
+          `${returnDate.getFullYear()}年${returnDate.getMonth()+1}月${returnDate.getDate()}日まで`;
+        
+        // 返却予定表示
+        if (reservationData.plannedReturnAt) {
+          const plannedDate = new Date(reservationData.plannedReturnAt);
+          document.getElementById('detailPlannedReturn').textContent = Utils.formatDateTimeJP(plannedDate);
+        }
+        
+        // 料金情報
+        const paymentText = reservationData.paymentMethod === 'card' ? 'クレジットカード' : '現地払い';
+        document.getElementById('detailPayment').textContent = paymentText;
+        document.getElementById('detailPrice').textContent = `¥${(reservationData.totalAmount || 0).toLocaleString()}`;
+      } catch (error) {
+        console.error('予約取得エラー:', error);
+        alert('予約情報の取得に失敗しました: ' + error.message);
+        window.location.href = 'mypage-rental.html';
       }
-      
-      document.getElementById('statusText').textContent = statusText;
-      document.getElementById('statusText').className = `status-badge ${statusClass}`;
-      
-      // 予約情報
-      document.getElementById('detailReservationId').textContent = data.reservationId;
-      document.getElementById('detailReservationDate').textContent = 
-        data.reservationDate ? Utils.formatDateTimeJP(new Date(data.reservationDate)) : '-';
-      
-      // 車両情報
-      document.getElementById('detailCarClass').textContent = data.vehicleClassName;
-      document.getElementById('detailDays').textContent = data.planLabel;
-      
-      // 日時情報
-      const pickupDate = new Date(data.startDate);
-      const returnDate = new Date(data.endDate);
-      document.getElementById('detailPickup').textContent = 
-        `${pickupDate.getFullYear()}年${pickupDate.getMonth()+1}月${pickupDate.getDate()}日 ${data.startTime || ''}`;
-      document.getElementById('detailReturn').textContent = 
-        `${returnDate.getFullYear()}年${returnDate.getMonth()+1}月${returnDate.getDate()}日まで（営業時間内）`;
-      
-      // 返却予定表示
-      if (data.plannedReturnDate && data.plannedReturnTime) {
-        const plannedDate = new Date(data.plannedReturnDate);
-        document.getElementById('detailPlannedReturn').textContent = 
-          `${plannedDate.getFullYear()}年${plannedDate.getMonth()+1}月${plannedDate.getDate()}日 ${data.plannedReturnTime}`;
-      }
-      
-      // 料金情報
-      document.getElementById('detailPayment').textContent = data.paymentName;
-      document.getElementById('detailPrice').textContent = `¥${data.totalPrice.toLocaleString()}`;
     }
 
     // キャンセル申請
     function requestCancel() {
-      const data = ReservationStorage.get();
       if (confirm('キャンセル申請を行いますか?\n申請後、店舗にて内容を確認いたします。')) {
-        window.location.href = `cancel-request.html?id=${data.reservationId}`;
+        window.location.href = `cancel-request.html?id=${reservationData.id}`;
       }
     }
 
@@ -404,28 +423,28 @@
     // ログアウト
     function logout() {
       if (confirm('ログアウトしますか?')) {
-        ReservationStorage.clear();
+        Auth.logout();
         window.location.href = 'login.html';
       }
     }
 
     // 返却予定モーダルを開く
     function openReturnPlanModal() {
-      const data = ReservationStorage.get();
+      if (!reservationData) return;
       
       // 日付の範囲を設定
-      const startDate = new Date(data.startDate);
-      const endDate = new Date(data.endDate);
+      const pickupDate = new Date(reservationData.pickupAt);
+      const returnDate = new Date(reservationData.returnAt);
       const dateInput = document.getElementById('plannedReturnDate');
-      dateInput.min = data.startDate;
-      dateInput.max = data.endDate;
+      dateInput.min = pickupDate.toISOString().split('T')[0];
+      dateInput.max = returnDate.toISOString().split('T')[0];
       
       // 既存の値があれば設定
-      if (data.plannedReturnDate) {
-        dateInput.value = data.plannedReturnDate;
-      }
-      if (data.plannedReturnTime) {
-        document.getElementById('plannedReturnTime').value = data.plannedReturnTime;
+      if (reservationData.plannedReturnAt) {
+        const planned = new Date(reservationData.plannedReturnAt);
+        dateInput.value = planned.toISOString().split('T')[0];
+        document.getElementById('plannedReturnTime').value = 
+          `${String(planned.getHours()).padStart(2,'0')}:${String(planned.getMinutes()).padStart(2,'0')}`;
       }
       
       document.getElementById('returnPlanModal').classList.add('active');
@@ -436,8 +455,8 @@
       document.getElementById('returnPlanModal').classList.remove('active');
     }
     
-    // 返却予定を保存
-    function saveReturnPlan() {
+    // 返却予定を保存（API呼び出し）
+    async function saveReturnPlan() {
       const date = document.getElementById('plannedReturnDate').value;
       const time = document.getElementById('plannedReturnTime').value;
       
@@ -446,19 +465,20 @@
         return;
       }
       
-      // 保存
-      ReservationStorage.save({
-        plannedReturnDate: date,
-        plannedReturnTime: time
-      });
-      
-      // 表示更新
-      const dateObj = new Date(date);
-      document.getElementById('detailPlannedReturn').textContent = 
-        `${dateObj.getFullYear()}年${dateObj.getMonth()+1}月${dateObj.getDate()}日 ${time}`;
-      
-      closeReturnPlanModal();
-      alert('返却予定を保存しました');
+      try {
+        const plannedReturnAt = `${date}T${time}:00+09:00`;
+        await ReservationAPI.updatePlannedReturn(reservationData.id, plannedReturnAt);
+        
+        // 表示更新
+        const dateObj = new Date(`${date}T${time}:00`);
+        document.getElementById('detailPlannedReturn').textContent = Utils.formatDateTimeJP(dateObj);
+        
+        closeReturnPlanModal();
+        alert('返却予定を保存しました');
+      } catch (error) {
+        console.error('返却予定更新エラー:', error);
+        alert('返却予定の更新に失敗しました: ' + error.message);
+      }
     }
     
     // 初期化

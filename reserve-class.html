@@ -218,6 +218,7 @@
     </div>
   </div>
 
+  <script src="config.js"></script>
   <script src="common.js"></script>
   <script>
     let selectedClassId = null;
@@ -225,6 +226,9 @@
 
     // 予約データを取得
     function loadReservationData() {
+      // 認証チェック
+      if (!Auth.requireAuth()) return;
+      
       const data = ReservationStorage.get();
       if (!data || !data.startDate) {
         alert('開始日を選択してください');
@@ -342,10 +346,23 @@
       const selectedCard = document.querySelector(`.class-card[data-class-id="${selectedClassId}"]`);
       const price = parseInt(selectedCard.dataset.price);
       
+      // 選択した車両クラスの情報を取得
+      const carClass = AppConfig.carClasses.find(c => c.id === selectedClassId);
+      
+      // 料金プランIDを取得
+      const data = ReservationStorage.get();
+      const plan = AppConfig.pricingPlans.find(
+        p => p.carClassId === selectedClassId && p.days === data.planDays
+      );
+      
       // セッションに保存
       ReservationStorage.save({
         carClassId: selectedClassId,
-        planPrice: price
+        carClassName: carClass ? carClass.name : selectedClassId,
+        vehicleClassName: carClass ? carClass.name : selectedClassId, // 互換性のため
+        pricingPlanId: plan ? plan.id : null,
+        planPrice: price,
+        classPrice: plan ? plan.price / data.planDays : price / data.planDays // 1日あたりの価格
       });
       
       // 次のページへ（オプション選択）
@@ -360,7 +377,7 @@
     // ログアウト
     function logout() {
       if (confirm('ログアウトしますか?')) {
-        ReservationStorage.clear();
+        Auth.logout();
         window.location.href = 'login.html';
       }
     }

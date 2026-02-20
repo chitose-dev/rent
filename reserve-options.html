@@ -357,6 +357,9 @@
 
     // 予約データを取得
     function loadReservationData() {
+      // 認証チェック
+      if (!Auth.requireAuth()) return;
+      
       const data = ReservationStorage.get();
       if (!data || !data.carClassId) {
         alert('車両クラスを選択してください');
@@ -599,12 +602,35 @@
         }
       });
       
+      // 保険タイプを変換（API形式: none/standard/premium）
+      let insuranceType = 'none';
+      let insuranceName = '補償なし';
+      if (selectedInsurance && selectedInsurance !== 'insurance-none') {
+        const insurance = InsuranceOptions.find(o => o.id === selectedInsurance);
+        if (insurance) {
+          // IDから保険タイプを抽出（例: "standard" -> "standard"）
+          insuranceType = selectedInsurance;
+          insuranceName = insurance.name;
+        }
+      }
+      
+      // オプションをAPI形式に変換
+      const optionsForApi = selectedOptions.map(optionId => {
+        const option = AdditionalOptions.find(o => o.id === optionId);
+        return {
+          optionId: optionId,
+          optionName: option ? option.name : optionId,
+          quantity: 1
+        };
+      });
+      
       // セッションに保存
       ReservationStorage.save({
-        selectedInsurance: selectedInsurance,
-        selectedOptions: selectedOptions,
-        insurancePrice: insuranceTotal,
-        optionsPrice: optionsTotal,
+        insurance: insuranceType,
+        insuranceName: insuranceName,
+        options: optionsForApi,
+        insurancePrice: insuranceTotal / rentalDays, // 1日あたりの価格
+        optionsPrice: optionsTotal / rentalDays,     // 1日あたりの価格
         totalPrice: basePrice + insuranceTotal + optionsTotal
       });
       
@@ -620,7 +646,7 @@
     // ログアウト
     function logout() {
       if (confirm('ログアウトしますか?')) {
-        ReservationStorage.clear();
+        Auth.logout();
         window.location.href = 'login.html';
       }
     }

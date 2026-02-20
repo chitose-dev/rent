@@ -255,12 +255,16 @@
     </div>
   </div>
 
+  <script src="config.js"></script>
   <script src="common.js"></script>
   <script>
     let selectedPayment = null;
 
     // 予約データを取得
     function loadReservationData() {
+      // 認証チェック
+      if (!Auth.requireAuth()) return;
+      
       const data = ReservationStorage.get();
       if (!data || !data.returnDateTime) {
         alert('返却日時を選択してください');
@@ -339,8 +343,10 @@
       }
       
       // セッションに保存
+      const paymentName = selectedPayment === 'card' ? 'クレジットカード' : '現地払い';
       ReservationStorage.save({
-        paymentMethod: selectedPayment
+        paymentMethod: selectedPayment,
+        paymentName: paymentName
       });
       
       // 次のページへ
@@ -355,7 +361,7 @@
     // ログアウト
     function logout() {
       if (confirm('ログアウトしますか?')) {
-        ReservationStorage.clear();
+        Auth.logout();
         window.location.href = 'login.html';
       }
     }

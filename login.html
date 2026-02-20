@@ -292,11 +292,11 @@
     </div>
   </div>
 
+  <script src="config.js"></script>
   <script src="common.js"></script>
   <script>
     // タブ切り替え
     function switchLoginTab(tab) {
-      // タブスタイル更新
       document.querySelectorAll('.login-tab').forEach((el, index) => {
         if ((tab === 'login' && index === 0) || (tab === 'register' && index === 1)) {
           el.classList.add('active');
@@ -305,32 +305,45 @@
         }
       });
       
-      // フォーム表示切り替え
       document.getElementById('loginForm').classList.toggle('active', tab === 'login');
       document.getElementById('registerForm').classList.toggle('active', tab === 'register');
     }
 
     // ログイン処理
-    function handleLogin(event) {
+    async function handleLogin(event) {
       event.preventDefault();
       
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
+      const submitBtn = event.target.querySelector('button[type="submit"]');
       
-      // 将来はAPIに送信
-      console.log('ログイン:', { email, password });
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'ログイン中...';
       
-      // 仮のログイン成功処理
-      // 実際にはAPIでトークンを取得し、ローカルストレージに保存
-      localStorage.setItem('userToken', 'demo-token');
-      localStorage.setItem('userEmail', email);
-      
-      // マイページへ遷移
-      window.location.href = 'mypage-rental.html';
+      try {
+        const result = await Auth.login(email, password);
+        
+        if (result.requires2FA) {
+          // 2段階認証が必要な場合（ユーザー向けは通常不要だが念のため）
+          sessionStorage.setItem('pending2FA', JSON.stringify({ userId: result.userId, email }));
+          alert('2段階認証コードを入力してください');
+          // TODO: 2FA入力画面を表示
+          return;
+        }
+        
+        // ログイン成功 - マイページへ遷移
+        window.location.href = 'mypage-rental.html';
+      } catch (error) {
+        console.error('ログインエラー:', error);
+        alert('ログインに失敗しました: ' + error.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'ログイン';
+      }
     }
 
     // 新規登録処理
-    function handleRegister(event) {
+    async function handleRegister(event) {
       event.preventDefault();
       
       const name = document.getElementById('registerName').value;
@@ -338,6 +351,7 @@
       const phone = document.getElementById('registerPhone').value;
       const password = document.getElementById('registerPassword').value;
       const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+      const submitBtn = event.target.querySelector('button[type="submit"]');
       
       // パスワード確認
       if (password !== passwordConfirm) {
@@ -345,53 +359,65 @@
         return;
       }
       
-      // 将来はAPIに送信
-      console.log('新規登録:', { name, email, phone, password });
+      submitBtn.disabled = true;
+      submitBtn.textContent = '登録中...';
       
-      // 仮の登録成功処理
-      alert('登録が完了しました！ログインしてください。');
-      switchLoginTab('login');
-      document.getElementById('loginEmail').value = email;
+      try {
+        const result = await Auth.register({ name, email, phone, password });
+        
+        // メール確認が必要
+        alert('登録が完了しました！\n確認メールを送信しました。メールのリンクをクリックして登録を完了してください。');
+        
+        // ログインタブに切り替え
+        switchLoginTab('login');
+        document.getElementById('loginEmail').value = email;
+      } catch (error) {
+        console.error('登録エラー:', error);
+        alert('登録に失敗しました: ' + error.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '新規登録';
+      }
     }
 
     // パスワード忘れ
-    function showForgotPassword() {
+    async function showForgotPassword() {
       const email = prompt('パスワードリセット用のメールアドレスを入力してください:');
       if (email) {
-        // 将来はAPIに送信
-        console.log('パスワードリセット:', { email });
-        alert('パスワードリセット用のメールを送信しました。\nメールをご確認ください。');
+        try {
+          await Auth.forgotPassword(email);
+          alert('パスワードリセット用のメールを送信しました。\nメールをご確認ください。');
+        } catch (error) {
+          // セキュリティのため、存在しないメールでも同じメッセージ
+          alert('パスワードリセット用のメールを送信しました。\nメールをご確認ください。');
+        }
       }
     }
 
     // 利用規約表示
     function showTerms() {
-      alert('利用規約ページを表示します（将来実装）');
+      alert('利用規約ページを表示します（準備中）');
     }
 
     // プライバシーポリシー表示
     function showPrivacy() {
-      alert('プライバシーポリシーページを表示します（将来実装）');
+      alert('プライバシーポリシーページを表示します（準備中）');
     }
 
     // ソーシャルログイン（将来の拡張用）
     function socialLogin(provider) {
-      console.log('ソーシャルログイン:', provider);
       alert(`${provider}ログインは準備中です`);
     }
 
     // 既にログイン済みの場合はマイページへ
     function checkAuth() {
-      const token = localStorage.getItem('userToken');
-      if (token) {
-        // トークンの有効性チェック（将来はAPIで検証）
-        // 今は単純にマイページへ遷移
+      if (Auth.isLoggedIn()) {
         window.location.href = 'mypage-rental.html';
       }
     }
 
     // 初期化
-    // checkAuth(); // 開発中はコメントアウト
+    checkAuth();
   </script>
 </body>
 </html>
