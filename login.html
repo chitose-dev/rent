@@ -386,11 +386,11 @@
       if (email) {
         try {
           await Auth.forgotPassword(email);
-          alert('パスワードリセット用のメールを送信しました。\nメールをご確認ください。');
         } catch (error) {
-          // セキュリティのため、存在しないメールでも同じメッセージ
-          alert('パスワードリセット用のメールを送信しました。\nメールをご確認ください。');
+          // セキュリティのため、存在しないメールでも続行
         }
+        // リセット画面に遷移（メール送信の成否に関わらず）
+        window.location.href = `reset-password.html?email=${encodeURIComponent(email)}`;
       }
     }
 
