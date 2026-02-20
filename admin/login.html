@@ -76,6 +76,10 @@
     .login-btn:hover {
       background: #555;
     }
+    .login-btn:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
     .error-message {
       background: #fee;
       color: #c00;
@@ -88,37 +92,102 @@
     .error-message.show {
       display: block;
     }
+    .info-message {
+      background: #e8f4fd;
+      color: #0066cc;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+    .info-message.show {
+      display: block;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      color: #666;
+      font-size: 14px;
+      text-decoration: none;
+    }
+    .back-link:hover {
+      color: #333;
+    }
+    .code-input {
+      text-align: center;
+      font-size: 24px;
+      letter-spacing: 8px;
+      font-weight: bold;
+    }
+    .hidden {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
   <div class="login-container">
     <div class="login-card">
-      <div class="login-header">
-        <h1>管理画面</h1>
-        <p>ログインしてください</p>
-      </div>
-      <div class="error-message" id="errorMessage">
-        IDまたはパスワードが正しくありません
-      </div>
-      <form class="login-form" id="loginForm">
-        <div class="form-group">
-          <label for="adminId">管理者ID</label>
-          <input type="text" id="adminId" name="adminId" required autocomplete="username">
+      <!-- ステップ1: ログインフォーム -->
+      <div id="step1">
+        <div class="login-header">
+          <h1>管理画面</h1>
+          <p>ログインしてください</p>
         </div>
-        <div class="form-group">
-          <label for="adminPassword">パスワード</label>
-          <input type="password" id="adminPassword" name="adminPassword" required autocomplete="current-password">
+        <div class="error-message" id="errorMessage">
+          IDまたはパスワードが正しくありません
         </div>
-        <button type="submit" class="login-btn">ログイン</button>
-      </form>
+        <form class="login-form" id="loginForm">
+          <div class="form-group">
+            <label for="adminId">メールアドレス</label>
+            <input type="email" id="adminId" name="adminId" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label for="adminPassword">パスワード</label>
+            <input type="password" id="adminPassword" name="adminPassword" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="login-btn" id="loginBtn">ログイン</button>
+        </form>
+      </div>
+
+      <!-- ステップ2: 2段階認証 -->
+      <div id="step2" class="hidden">
+        <div class="login-header">
+          <h1>認証コード入力</h1>
+          <p>メールに送信された6桁のコードを入力してください</p>
+        </div>
+        <div class="info-message show" id="infoMessage">
+          認証コードをメールで送信しました
+        </div>
+        <div class="error-message" id="errorMessage2">
+          認証コードが正しくありません
+        </div>
+        <form class="login-form" id="verifyForm">
+          <div class="form-group">
+            <label for="verifyCode">認証コード</label>
+            <input type="text" id="verifyCode" name="verifyCode" required 
+                   maxlength="6" pattern="[0-9]{6}" inputmode="numeric"
+                   class="code-input" placeholder="000000" autocomplete="one-time-code">
+          </div>
+          <button type="submit" class="login-btn" id="verifyBtn">確認</button>
+        </form>
+        <a href="#" class="back-link" id="backToLogin">← ログインに戻る</a>
+      </div>
     </div>
   </div>
   <script src="../config.js"></script>
   <script>
+    let tempToken = null;
+
+    // ステップ1: ログイン
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const errorEl = document.getElementById('errorMessage');
+      const loginBtn = document.getElementById('loginBtn');
       errorEl.classList.remove('show');
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'ログイン中...';
       
       const email = document.getElementById('adminId').value;
       const password = document.getElementById('adminPassword').value;
@@ -127,20 +196,91 @@
         const response = await API.post('/v1/admin/auth/login', { email, password });
         console.log('Login response:', response);
         
+        // 2FAが必要な場合
+        if (response.requires2FA) {
+          tempToken = response.tempToken;
+          document.getElementById('step1').classList.add('hidden');
+          document.getElementById('step2').classList.remove('hidden');
+          document.getElementById('verifyCode').focus();
+          return;
+        }
+        
+        // 直接ログイン成功（2FA無効の場合）
         if (response.data && response.data.token) {
           sessionStorage.setItem('adminLoggedIn', 'true');
           sessionStorage.setItem('authToken', response.data.token);
+          sessionStorage.setItem('refreshToken', response.data.refreshToken);
           sessionStorage.setItem('adminId', response.data.admin?.id || email);
           sessionStorage.setItem('adminName', response.data.admin?.name || email);
           window.location.href = 'index.html';
-        } else {
-          throw new Error('Invalid response');
+          return;
         }
+        
+        throw new Error('予期しないレスポンス形式です');
       } catch (error) {
         console.error('Login failed:', error);
         errorEl.textContent = error.message || 'IDまたはパスワードが正しくありません';
         errorEl.classList.add('show');
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'ログイン';
       }
+    });
+
+    // ステップ2: 2FA検証
+    document.getElementById('verifyForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const errorEl = document.getElementById('errorMessage2');
+      const verifyBtn = document.getElementById('verifyBtn');
+      errorEl.classList.remove('show');
+      verifyBtn.disabled = true;
+      verifyBtn.textContent = '確認中...';
+      
+      const code = document.getElementById('verifyCode').value;
+      
+      try {
+        const response = await API.post('/v1/admin/auth/verify-2fa', { 
+          tempToken, 
+          code 
+        });
+        console.log('2FA verify response:', response);
+        
+        if (response.accessToken) {
+          sessionStorage.setItem('adminLoggedIn', 'true');
+          sessionStorage.setItem('authToken', response.accessToken);
+          sessionStorage.setItem('refreshToken', response.refreshToken);
+          sessionStorage.setItem('adminId', response.admin?.id || '');
+          sessionStorage.setItem('adminName', response.admin?.name || '');
+          window.location.href = 'index.html';
+          return;
+        }
+        
+        throw new Error('予期しないレスポンス形式です');
+      } catch (error) {
+        console.error('2FA verification failed:', error);
+        errorEl.textContent = error.message || '認証コードが正しくありません';
+        errorEl.classList.add('show');
+        document.getElementById('verifyCode').value = '';
+        document.getElementById('verifyCode').focus();
+      } finally {
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = '確認';
+      }
+    });
+
+    // ログインに戻る
+    document.getElementById('backToLogin').addEventListener('click', function(e) {
+      e.preventDefault();
+      tempToken = null;
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('step1').classList.remove('hidden');
+      document.getElementById('verifyCode').value = '';
+      document.getElementById('errorMessage2').classList.remove('show');
+    });
+
+    // 認証コード自動フォーマット
+    document.getElementById('verifyCode').addEventListener('input', function(e) {
+      this.value = this.value.replace(/[^0-9]/g, '');
     });
 
     // 既にログイン済みならダッシュボードへ
