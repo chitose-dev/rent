@@ -211,13 +211,23 @@
               <td><span class="badge ${st.class}">${st.text}</span></td>
               <td class="actions">
                 ${v.status === 'maintenance' 
-                  ? `<button class="btn btn-sm btn-success" onclick="clearMaintenance('${v.id}')">メンテ解除</button>`
-                  : `<button class="btn btn-sm btn-warning" onclick="openMaintenanceModal('${v.id}')">メンテ設定</button>`
+                  ? `<button class="btn btn-sm btn-success" data-action="clear-maint" data-id="${v.id}">メンテ解除</button>`
+                  : `<button class="btn btn-sm btn-warning" data-action="set-maint" data-id="${v.id}">メンテ設定</button>`
                 }
               </td>
             </tr>
           `;
         }).join('');
+        
+        // イベント委譲でアクションボタンを処理
+        tbody.querySelectorAll('[data-action]').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const action = this.dataset.action;
+            const id = this.dataset.id;
+            if (action === 'clear-maint') clearMaintenance(id);
+            else if (action === 'set-maint') openMaintenanceModal(id);
+          });
+        });
       } catch (error) {
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:#c00;">エラー: ${error.message}</td></tr>`;
       }

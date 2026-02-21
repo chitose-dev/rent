@@ -170,9 +170,12 @@
       if (p.totalPages <= 1) { container.innerHTML = ''; return; }
       let html = '';
       for (let i = 1; i <= p.totalPages; i++) {
-        html += `<button class="btn btn-sm ${i === p.page ? 'btn-primary' : 'btn-outline'}" onclick="goToPage(${i})">${i}</button>`;
+        html += `<button class="btn btn-sm ${i === p.page ? 'btn-primary' : 'btn-outline'}" data-page="${i}">${i}</button>`;
       }
       container.innerHTML = html;
+      container.querySelectorAll('[data-page]').forEach(btn => {
+        btn.addEventListener('click', () => goToPage(parseInt(btn.dataset.page)));
+      });
     }
 
     function goToPage(page) { currentPage = page; loadMembers(); }

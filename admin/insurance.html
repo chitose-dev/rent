@@ -171,10 +171,15 @@
             </span>
           </td>
           <td>
-            <button class="btn btn-sm btn-outline" onclick="editPlan('${plan.id}')">編集</button>
+            <button class="btn btn-sm btn-outline" data-edit-id="${plan.id}">編集</button>
           </td>
         </tr>
       `).join('');
+      
+      // イベント委譲で編集ボタンを処理
+      tbody.querySelectorAll('[data-edit-id]').forEach(btn => {
+        btn.addEventListener('click', () => editPlan(btn.dataset.editId));
+      });
     }
 
     function showAddModal() {
