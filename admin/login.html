@@ -207,11 +207,10 @@
         
         // 直接ログイン成功（2FA無効の場合）
         if (response.data && response.data.token) {
-          sessionStorage.setItem('adminLoggedIn', 'true');
-          sessionStorage.setItem('authToken', response.data.token);
-          sessionStorage.setItem('refreshToken', response.data.refreshToken);
-          sessionStorage.setItem('adminId', response.data.admin?.id || email);
-          sessionStorage.setItem('adminName', response.data.admin?.name || email);
+          AdminAuth.saveTokens(response.data.token, response.data.refreshToken);
+          if (response.data.admin) {
+            AdminAuth.saveAdmin(response.data.admin);
+          }
           window.location.href = 'index.html';
           return;
         }
@@ -246,11 +245,10 @@
         console.log('2FA verify response:', response);
         
         if (response.accessToken) {
-          sessionStorage.setItem('adminLoggedIn', 'true');
-          sessionStorage.setItem('authToken', response.accessToken);
-          sessionStorage.setItem('refreshToken', response.refreshToken);
-          sessionStorage.setItem('adminId', response.admin?.id || '');
-          sessionStorage.setItem('adminName', response.admin?.name || '');
+          AdminAuth.saveTokens(response.accessToken, response.refreshToken);
+          if (response.admin) {
+            AdminAuth.saveAdmin(response.admin);
+          }
           window.location.href = 'index.html';
           return;
         }

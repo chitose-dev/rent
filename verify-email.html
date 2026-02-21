@@ -175,13 +175,15 @@
   <script src="config.js"></script>
   <script src="common.js"></script>
   <script>
-    // URLパラメータまたはsessionStorageから情報を取得
+    // URLパラメータまたはAuthStateから情報を取得
     const urlParams = new URLSearchParams(window.location.search);
-    let userId = urlParams.get('userId');
-    let email = urlParams.get('email') || sessionStorage.getItem('pendingVerifyEmail');
+    const pendingState = AuthState.getPendingVerification();
+    let userId = urlParams.get('userId') || pendingState?.userId;
+    let email = urlParams.get('email') || pendingState?.email || sessionStorage.getItem('pendingVerifyEmail');
     
-    // sessionStorageのデータをクリア
+    // 古いsessionStorageのデータをクリア（後方互換性）
     sessionStorage.removeItem('pendingVerifyEmail');
+    // AuthStateはまだクリアしない（再送信時に使用）
 
     if (email) {
       document.getElementById('email-display').textContent = email;
@@ -242,6 +244,9 @@
 
         successEl.textContent = 'メールアドレスが確認されました！ログイン画面に移動します...';
         successEl.style.display = 'block';
+        
+        // 認証状態をクリア
+        AuthState.clear();
 
         setTimeout(() => {
           window.location.href = `login.html?verified=1&email=${encodeURIComponent(email || '')}`;
@@ -278,9 +283,10 @@
           throw new Error(data.error?.message || '再送信に失敗しました');
         }
 
-        // レスポンスからuserIdを取得（あれば）
+        // レスポンスからuserIdを取得してAuthStateを更新
         if (data.userId) {
           userId = data.userId;
+          AuthState.setPendingVerification(email, userId);
         }
 
         successEl.textContent = '確認コードを再送信しました。メールをご確認ください。';

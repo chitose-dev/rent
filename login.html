@@ -344,22 +344,18 @@
         window.location.href = 'mypage-rental.html';
       } catch (error) {
         console.error('ログインエラー:', error);
-        const msg = error.message || 'ログインに失敗しました';
+        const msg = error.message || '';
         
         // メール未認証の場合は認証ページへ遷移
         if (msg.includes('EMAIL_NOT_VERIFIED') || msg.includes('確認が完了していません') || msg.includes('認証が完了していません')) {
           if (confirm('メールアドレスの認証が完了していません。\n認証ページに移動しますか？')) {
-            // メールアドレスを渡して認証ページへ
-            sessionStorage.setItem('pendingVerifyEmail', email);
+            AuthState.setPendingVerification(email);
             window.location.href = 'verify-email.html';
             return;
           }
-        } else if (msg.includes('429') || msg.includes('RATE_LIMIT')) {
-          alert('リクエストが多すぎます。しばらく待ってから再度お試しください。');
-        } else if (msg.includes('NetworkError') || msg.includes('Failed to fetch')) {
-          alert('ネットワークエラーです。インターネット接続を確認してください。');
         } else {
-          alert(msg);
+          // 統一エラーハンドラを使用
+          ErrorHandler.show(error);
         }
       } finally {
         submitBtn.disabled = false;
@@ -394,16 +390,8 @@
         window.location.href = `verify-email.html?userId=${encodeURIComponent(result.userId)}&email=${encodeURIComponent(email)}`;
       } catch (error) {
         console.error('登録エラー:', error);
-        // より詳細なエラーメッセージを表示
-        let msg = error.message || '登録に失敗しました';
-        if (msg.includes('EMAIL_EXISTS') || msg.includes('既に登録')) {
-          msg = 'このメールアドレスは既に登録されています。ログインするか、別のメールアドレスをお使いください。';
-        } else if (msg.includes('403')) {
-          msg = 'アクセスが拒否されました。ページを再読み込みしてから再度お試しください。';
-        } else if (msg.includes('VALIDATION') || msg.includes('バリデーション')) {
-          msg = '入力内容に問題があります。全ての項目を正しく入力してください。';
-        }
-        alert(msg);
+        // 統一エラーハンドラを使用
+        ErrorHandler.show(error);
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = '新規登録';

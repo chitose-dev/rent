@@ -1,19 +1,176 @@
 // 管理画面共通JavaScript
 
-// ログインチェック（login.html以外で実行）
-function checkAdminAuth() {
-  if (sessionStorage.getItem('adminLoggedIn') !== 'true') {
+// API設定
+const ADMIN_API_BASE = typeof API_BASE_URL !== 'undefined' 
+  ? API_BASE_URL 
+  : 'https://rentcar-backend-dgyxfpofua-an.a.run.app';
+
+// 管理者認証管理
+const AdminAuth = {
+  // トークンを取得
+  getToken() {
+    return sessionStorage.getItem('adminToken');
+  },
+  
+  // リフレッシュトークンを取得
+  getRefreshToken() {
+    return sessionStorage.getItem('adminRefreshToken');
+  },
+  
+  // トークンを保存
+  saveTokens(token, refreshToken) {
+    sessionStorage.setItem('adminToken', token);
+    sessionStorage.setItem('adminLoggedIn', 'true');
+    if (refreshToken) {
+      sessionStorage.setItem('adminRefreshToken', refreshToken);
+    }
+  },
+  
+  // 管理者情報を保存
+  saveAdmin(admin) {
+    sessionStorage.setItem('adminId', admin.id);
+    sessionStorage.setItem('adminEmail', admin.email);
+    sessionStorage.setItem('adminName', admin.name || '');
+  },
+  
+  // 管理者情報を取得
+  getAdmin() {
+    return {
+      id: sessionStorage.getItem('adminId'),
+      email: sessionStorage.getItem('adminEmail'),
+      name: sessionStorage.getItem('adminName'),
+    };
+  },
+  
+  // ログイン状態を確認
+  isLoggedIn() {
+    return !!this.getToken();
+  },
+  
+  // 認証チェック（ページ読み込み時）
+  checkAuth() {
+    if (!this.isLoggedIn()) {
+      window.location.href = 'login.html';
+      return false;
+    }
+    return true;
+  },
+  
+  // ログアウト
+  logout() {
+    sessionStorage.removeItem('adminToken');
+    sessionStorage.removeItem('adminRefreshToken');
+    sessionStorage.removeItem('adminLoggedIn');
+    sessionStorage.removeItem('adminId');
+    sessionStorage.removeItem('adminEmail');
+    sessionStorage.removeItem('adminName');
     window.location.href = 'login.html';
-    return false;
+  },
+  
+  // トークンリフレッシュ
+  async refreshToken() {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) return false;
+    
+    try {
+      const response = await fetch(`${ADMIN_API_BASE}/v1/admin/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken })
+      });
+      
+      if (!response.ok) return false;
+      
+      const data = await response.json();
+      if (data.token || data.data?.token) {
+        const token = data.token || data.data.token;
+        const newRefresh = data.refreshToken || data.data?.refreshToken;
+        this.saveTokens(token, newRefresh);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
   }
-  return true;
+};
+
+// API通信ヘルパー（認証付き）
+const API = {
+  // 基本リクエスト
+  async request(method, url, body = null) {
+    const token = AdminAuth.getToken();
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    const options = { method, headers };
+    if (body && method !== 'GET') {
+      options.body = JSON.stringify(body);
+    }
+    
+    const fullUrl = url.startsWith('http') ? url : `${ADMIN_API_BASE}${url}`;
+    let response = await fetch(fullUrl, options);
+    
+    // 401の場合はトークンリフレッシュを試みる
+    if (response.status === 401) {
+      const refreshed = await AdminAuth.refreshToken();
+      if (refreshed) {
+        headers['Authorization'] = `Bearer ${AdminAuth.getToken()}`;
+        response = await fetch(fullUrl, { method, headers, body: options.body });
+      } else {
+        AdminAuth.logout();
+        throw new Error('セッションが切れました。再度ログインしてください。');
+      }
+    }
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      const error = new Error(data.error?.message || data.message || `HTTP ${response.status}`);
+      error.code = data.error?.code || '';
+      throw error;
+    }
+    
+    return data.data !== undefined ? data.data : data;
+  },
+  
+  // GET
+  async get(url) {
+    return this.request('GET', url);
+  },
+  
+  // POST
+  async post(url, body) {
+    return this.request('POST', url, body);
+  },
+  
+  // PUT
+  async put(url, body) {
+    return this.request('PUT', url, body);
+  },
+  
+  // PATCH
+  async patch(url, body) {
+    return this.request('PATCH', url, body);
+  },
+  
+  // DELETE
+  async delete(url) {
+    return this.request('DELETE', url);
+  }
+};
+
+// 後方互換性のための関数
+function checkAdminAuth() {
+  return AdminAuth.checkAuth();
 }
 
-// ログアウト処理
 function adminLogout() {
-  sessionStorage.removeItem('adminLoggedIn');
-  sessionStorage.removeItem('adminId');
-  window.location.href = 'login.html';
+  AdminAuth.logout();
 }
 
 // ページ読み込み時にログインチェック

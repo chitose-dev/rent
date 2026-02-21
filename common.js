@@ -1,4 +1,218 @@
 // ========================================
+// 統一エラーハンドラ
+// ========================================
+
+const ErrorHandler = {
+  // APIエラーコードから日本語メッセージへのマッピング
+  messages: {
+    'INVALID_CREDENTIALS': 'メールアドレスまたはパスワードが正しくありません',
+    'EMAIL_NOT_VERIFIED': 'メールアドレスの認証が完了していません',
+    'EMAIL_EXISTS': 'このメールアドレスは既に登録されています',
+    'EMAIL_NOT_FOUND': 'このメールアドレスは登録されていません',
+    'ACCOUNT_SUSPENDED': 'アカウントが停止されています',
+    'RATE_LIMIT_EXCEEDED': 'リクエストが多すぎます。しばらく待ってから再度お試しください',
+    'VALIDATION_ERROR': '入力内容に問題があります',
+    'UNAUTHORIZED': 'ログインが必要です',
+    'FORBIDDEN': 'アクセス権限がありません',
+    'NOT_FOUND': 'データが見つかりません',
+    'INTERNAL_ERROR': 'システムエラーが発生しました。しばらく経ってから再度お試しください',
+    'NETWORK_ERROR': 'ネットワークエラーです。インターネット接続を確認してください',
+    'ALREADY_VERIFIED': '既にメール認証済みです',
+    'CODE_EXPIRED': '認証コードの有効期限が切れました',
+    'CODE_INVALID': '認証コードが正しくありません',
+    'TOO_MANY_REQUESTS': 'リクエストが多すぎます。しばらく待ってから再度お試しください',
+  },
+  
+  // エラーメッセージを取得
+  getMessage(error) {
+    // エラーオブジェクトからコードを取得
+    const code = error.code || '';
+    const message = error.message || '';
+    
+    // コードからマッピング
+    if (code && this.messages[code]) {
+      return this.messages[code];
+    }
+    
+    // メッセージ内にコードが含まれている場合
+    for (const [key, value] of Object.entries(this.messages)) {
+      if (message.includes(key)) {
+        return value;
+      }
+    }
+    
+    // ネットワークエラー
+    if (message.includes('NetworkError') || message.includes('Failed to fetch')) {
+      return this.messages['NETWORK_ERROR'];
+    }
+    
+    // HTTPステータスコード
+    if (message.includes('403')) {
+      return this.messages['FORBIDDEN'];
+    }
+    if (message.includes('404')) {
+      return this.messages['NOT_FOUND'];
+    }
+    if (message.includes('429')) {
+      return this.messages['TOO_MANY_REQUESTS'];
+    }
+    if (message.includes('500') || message.includes('502') || message.includes('503')) {
+      return this.messages['INTERNAL_ERROR'];
+    }
+    
+    // デフォルト
+    return message || 'エラーが発生しました';
+  },
+  
+  // エラーを表示（alert）
+  show(error) {
+    alert(this.getMessage(error));
+  },
+  
+  // エラーを表示（要素に表示）
+  showIn(elementId, error) {
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.textContent = this.getMessage(error);
+      el.style.display = 'block';
+    }
+  },
+  
+  // エラー要素を非表示
+  hide(elementId) {
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.style.display = 'none';
+    }
+  }
+};
+
+// ========================================
+// ローディング状態管理
+// ========================================
+
+const LoadingState = {
+  // ボタンをローディング状態にする
+  startButton(button, loadingText = '処理中...') {
+    if (!button) return;
+    button.disabled = true;
+    button.dataset.originalText = button.textContent;
+    button.textContent = loadingText;
+  },
+  
+  // ボタンを元に戻す
+  endButton(button) {
+    if (!button) return;
+    button.disabled = false;
+    button.textContent = button.dataset.originalText || 'Submit';
+  },
+  
+  // オーバーレイを表示
+  showOverlay(message = '読み込み中...') {
+    let overlay = document.getElementById('loading-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'loading-overlay';
+      overlay.innerHTML = `
+        <div class="loading-spinner"></div>
+        <div class="loading-message">${message}</div>
+      `;
+      overlay.style.cssText = `
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(255,255,255,0.9); display: flex;
+        flex-direction: column; align-items: center; justify-content: center;
+        z-index: 9999;
+      `;
+      document.body.appendChild(overlay);
+    } else {
+      overlay.querySelector('.loading-message').textContent = message;
+      overlay.style.display = 'flex';
+    }
+  },
+  
+  // オーバーレイを非表示
+  hideOverlay() {
+    const overlay = document.getElementById('loading-overlay');
+    if (overlay) {
+      overlay.style.display = 'none';
+    }
+  }
+};
+
+// ========================================
+// 入力バリデーション
+// ========================================
+
+const Validator = {
+  // メールアドレス
+  isEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  },
+  
+  // 電話番号（日本）
+  isPhone(value) {
+    return /^0\d{9,10}$/.test(value.replace(/-/g, ''));
+  },
+  
+  // パスワード（8文字以上、英数字含む）
+  isPassword(value) {
+    return value.length >= 8 && /[a-zA-Z]/.test(value) && /[0-9]/.test(value);
+  },
+  
+  // 必須チェック
+  isRequired(value) {
+    return value !== null && value !== undefined && String(value).trim() !== '';
+  },
+  
+  // エラーメッセージを取得
+  getPasswordError(value) {
+    if (!value) return 'パスワードを入力してください';
+    if (value.length < 8) return 'パスワードは8文字以上で入力してください';
+    if (!/[a-zA-Z]/.test(value)) return 'パスワードには英字を含めてください';
+    if (!/[0-9]/.test(value)) return 'パスワードには数字を含めてください';
+    return '';
+  }
+};
+
+// ========================================
+// 認証状態管理（統一）
+// ========================================
+
+const AuthState = {
+  KEY: 'authState',
+  // sessionStorageを使用（セキュリティ重視：タブを閉じるとクリア）
+  // localStorageに変更する場合はここを変更
+  storage: sessionStorage,
+  
+  // 認証状態を保存
+  save(data) {
+    this.storage.setItem(this.KEY, JSON.stringify(data));
+  },
+  
+  // 認証状態を取得
+  load() {
+    const data = this.storage.getItem(this.KEY);
+    return data ? JSON.parse(data) : null;
+  },
+  
+  // 認証状態をクリア
+  clear() {
+    this.storage.removeItem(this.KEY);
+  },
+  
+  // メール認証待ち状態を保存
+  setPendingVerification(email, userId = null) {
+    this.save({ pendingVerification: { email, userId } });
+  },
+  
+  // メール認証待ち状態を取得
+  getPendingVerification() {
+    const state = this.load();
+    return state?.pendingVerification || null;
+  }
+};
+
+// ========================================
 // セッションストレージ管理
 // ========================================
 
