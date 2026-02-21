@@ -687,6 +687,20 @@ const Auth = {
     return await API.post('/v1/auth/forgot-password', { email });
   },
   
+  // 2段階認証確認
+  async verify2FA(tempToken, code) {
+    const result = await API.post('/v1/auth/verify-2fa', { tempToken, code });
+    
+    if (result.accessToken) {
+      this.saveTokens(result.accessToken, result.refreshToken);
+      if (result.user) {
+        this.saveUser(result.user);
+      }
+    }
+    
+    return result;
+  },
+  
   // プロフィール取得
   async getProfile() {
     return await API.get('/v1/me');

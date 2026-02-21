@@ -266,25 +266,25 @@
         <button type="submit" class="btn btn-primary btn-full">新規登録</button>
       </form>
 
-      <!-- ソーシャルログイン（将来の拡張用） -->
-      <!--
-      <div class="divider">
-        <div class="divider-line"></div>
-        <span class="divider-text">または</span>
-        <div class="divider-line"></div>
-      </div>
+      <!-- 2段階認証入力フォーム -->
+      <form id="twoFactorForm" class="login-form" style="display:none;" onsubmit="handle2FA(event)">
+        <div class="form-group">
+          <p style="text-align:center; margin-bottom: 20px; color: #666;">
+            📧 メールに送信された6桁のコードを入力してください
+          </p>
+          <label for="twoFactorCode" class="form-label required">認証コード</label>
+          <input type="text" id="twoFactorCode" class="form-input" 
+                 placeholder="000000" maxlength="6" pattern="[0-9]{6}" 
+                 inputmode="numeric" required style="text-align:center; font-size:1.5rem; letter-spacing:8px;">
+          <span class="form-error">認証コードを入力してください</span>
+        </div>
 
-      <div class="social-login">
-        <button type="button" class="social-btn" onclick="socialLogin('google')">
-          <span class="social-icon">G</span>
-          <span>Googleでログイン</span>
-        </button>
-        <button type="button" class="social-btn" onclick="socialLogin('line')">
-          <span class="social-icon">L</span>
-          <span>LINEでログイン</span>
-        </button>
-      </div>
-      -->
+        <button type="submit" class="btn btn-primary btn-full">認証</button>
+        
+        <div style="text-align:center; margin-top:16px;">
+          <a href="#" onclick="cancelTwoFactor(); return false;" style="color:#666;">← ログインに戻る</a>
+        </div>
+      </form>
     </div>
 
     <div class="login-footer">
@@ -333,10 +333,18 @@
         console.log('ログイン結果:', result);
         
         if (result.requires2FA) {
-          // 2段階認証が必要な場合（ユーザー向けは通常不要だが念のため）
-          sessionStorage.setItem('pending2FA', JSON.stringify({ userId: result.userId, email }));
-          alert('2段階認証コードを入力してください');
-          // TODO: 2FA入力画面を表示
+          // 2段階認証が必要な場合
+          sessionStorage.setItem('pending2FA', JSON.stringify({ 
+            tempToken: result.tempToken,
+            userId: result.userId, 
+            email 
+          }));
+          // 2FA入力フォームを表示
+          document.getElementById('loginForm').style.display = 'none';
+          document.getElementById('registerForm').classList.remove('active');
+          document.querySelector('.login-tabs').style.display = 'none';
+          document.getElementById('twoFactorForm').style.display = 'block';
+          document.getElementById('twoFactorCode').focus();
           return;
         }
         
@@ -425,6 +433,44 @@
     // ソーシャルログイン（将来の拡張用）
     function socialLogin(provider) {
       alert(`${provider}ログインは準備中です`);
+    }
+
+    // 2段階認証処理
+    async function handle2FA(event) {
+      event.preventDefault();
+      
+      const code = document.getElementById('twoFactorCode').value.trim();
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      
+      if (code.length !== 6) {
+        alert('6桁のコードを入力してください');
+        return;
+      }
+      
+      submitBtn.disabled = true;
+      submitBtn.textContent = '認証中...';
+      
+      try {
+        const pending = JSON.parse(sessionStorage.getItem('pending2FA') || '{}');
+        const result = await Auth.verify2FA(pending.tempToken, code);
+        
+        sessionStorage.removeItem('pending2FA');
+        window.location.href = 'mypage-rental.html';
+      } catch (error) {
+        console.error('2FA認証エラー:', error);
+        ErrorHandler.show(error);
+        submitBtn.disabled = false;
+        submitBtn.textContent = '認証';
+      }
+    }
+    
+    // 2段階認証キャンセル
+    function cancelTwoFactor() {
+      sessionStorage.removeItem('pending2FA');
+      document.getElementById('twoFactorForm').style.display = 'none';
+      document.querySelector('.login-tabs').style.display = 'flex';
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('loginForm').classList.add('active');
     }
 
     // 既にログイン済みの場合はマイページへ
