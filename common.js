@@ -143,36 +143,7 @@ const LoadingState = {
 // 入力バリデーション
 // ========================================
 
-const Validator = {
-  // メールアドレス
-  isEmail(value) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-  },
-  
-  // 電話番号（日本）
-  isPhone(value) {
-    return /^0\d{9,10}$/.test(value.replace(/-/g, ''));
-  },
-  
-  // パスワード（8文字以上、英数字含む）
-  isPassword(value) {
-    return value.length >= 8 && /[a-zA-Z]/.test(value) && /[0-9]/.test(value);
-  },
-  
-  // 必須チェック
-  isRequired(value) {
-    return value !== null && value !== undefined && String(value).trim() !== '';
-  },
-  
-  // エラーメッセージを取得
-  getPasswordError(value) {
-    if (!value) return 'パスワードを入力してください';
-    if (value.length < 8) return 'パスワードは8文字以上で入力してください';
-    if (!/[a-zA-Z]/.test(value)) return 'パスワードには英字を含めてください';
-    if (!/[0-9]/.test(value)) return 'パスワードには数字を含めてください';
-    return '';
-  }
-};
+// Validatorは後方で定義（既存コードとの互換性）
 
 // ========================================
 // 認証状態管理（統一）
@@ -508,11 +479,17 @@ const Validator = {
   required(value) {
     return value !== null && value !== undefined && value.toString().trim() !== '';
   },
+  isRequired(value) {
+    return this.required(value);
+  },
   
   // メールアドレスチェック
   email(value) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(value);
+  },
+  isEmail(value) {
+    return this.email(value);
   },
   
   // 電話番号チェック
@@ -520,21 +497,46 @@ const Validator = {
     const regex = /^[0-9]{10,11}$/;
     return regex.test(value.replace(/-/g, ''));
   },
+  isPhone(value) {
+    return this.phone(value);
+  },
+  
+  // パスワードチェック（8文字以上、英数字含む）
+  isPassword(value) {
+    return value.length >= 8 && /[a-zA-Z]/.test(value) && /[0-9]/.test(value);
+  },
+  
+  // パスワードエラーメッセージ取得
+  getPasswordError(value) {
+    if (!value) return 'パスワードを入力してください';
+    if (value.length < 8) return 'パスワードは8文字以上で入力してください';
+    if (!/[a-zA-Z]/.test(value)) return 'パスワードには英字を含めてください';
+    if (!/[0-9]/.test(value)) return 'パスワードには数字を含めてください';
+    return '';
+  },
   
   // エラー表示
   showError(fieldId, message) {
-    const group = document.querySelector(`#${fieldId}`).closest('.form-group');
-    group.classList.add('error');
-    const errorEl = group.querySelector('.form-error');
-    if (errorEl) {
-      errorEl.textContent = message;
+    const el = document.querySelector(`#${fieldId}`);
+    if (!el) return;
+    const group = el.closest('.form-group');
+    if (group) {
+      group.classList.add('error');
+      const errorEl = group.querySelector('.form-error');
+      if (errorEl) {
+        errorEl.textContent = message;
+      }
     }
   },
   
   // エラークリア
   clearError(fieldId) {
-    const group = document.querySelector(`#${fieldId}`).closest('.form-group');
-    group.classList.remove('error');
+    const el = document.querySelector(`#${fieldId}`);
+    if (!el) return;
+    const group = el.closest('.form-group');
+    if (group) {
+      group.classList.remove('error');
+    }
   },
   
   // 全エラークリア
