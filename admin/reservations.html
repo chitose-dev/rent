@@ -231,24 +231,42 @@
 
     // アクションボタン生成
     function getActionButtons(reservation) {
-      const buttons = [`<button class="btn btn-sm btn-outline" onclick="showDetail('${reservation.id}')">詳細</button>`];
+      const buttons = [`<button class="btn btn-sm btn-outline" data-action="detail" data-id="${reservation.id}">詳細</button>`];
       
       switch (reservation.status) {
         case 'confirmed':
-          buttons.push(`<button class="btn btn-sm btn-success" onclick="processPickup('${reservation.id}')">受取処理</button>`);
+          buttons.push(`<button class="btn btn-sm btn-success" data-action="pickup" data-id="${reservation.id}">受取処理</button>`);
           break;
         case 'picked_up':
-          buttons.push(`<button class="btn btn-sm btn-warning" onclick="openExtendModal('${reservation.id}')">延長</button>`);
-          buttons.push(`<button class="btn btn-sm btn-success" onclick="processReturn('${reservation.id}')">返却処理</button>`);
+          buttons.push(`<button class="btn btn-sm btn-warning" data-action="extend" data-id="${reservation.id}">延長</button>`);
+          buttons.push(`<button class="btn btn-sm btn-success" data-action="return" data-id="${reservation.id}">返却処理</button>`);
           break;
         case 'cancel_requested':
-          buttons.push(`<button class="btn btn-sm btn-success" onclick="approveCancel('${reservation.id}')">承認</button>`);
-          buttons.push(`<button class="btn btn-sm btn-danger" onclick="rejectCancel('${reservation.id}')">却下</button>`);
+          buttons.push(`<button class="btn btn-sm btn-success" data-action="approve-cancel" data-id="${reservation.id}">承認</button>`);
+          buttons.push(`<button class="btn btn-sm btn-danger" data-action="reject-cancel" data-id="${reservation.id}">却下</button>`);
           break;
       }
       
       return buttons.join(' ');
     }
+    
+    // イベント委譲でアクションボタンを処理
+    document.getElementById('reservations-tbody').addEventListener('click', function(e) {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      
+      const action = btn.dataset.action;
+      const id = btn.dataset.id;
+      
+      switch (action) {
+        case 'detail': showDetail(id); break;
+        case 'pickup': processPickup(id); break;
+        case 'extend': openExtendModal(id); break;
+        case 'return': processReturn(id); break;
+        case 'approve-cancel': approveCancel(id); break;
+        case 'reject-cancel': rejectCancel(id); break;
+      }
+    });
 
     // ページネーション描画
     function renderPagination(pagination) {

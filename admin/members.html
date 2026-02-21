@@ -139,14 +139,25 @@
             <td><span class="badge ${m.status === 'active' ? 'badge-success' : 'badge-danger'}">${m.status === 'active' ? '有効' : '停止'}</span></td>
             <td>${formatDate(m.createdAt)}</td>
             <td class="actions">
-              <button class="btn btn-sm btn-outline" onclick="showDetail('${m.id}')">詳細</button>
+              <button class="btn btn-sm btn-outline" data-action="detail" data-id="${m.id}">詳細</button>
               ${m.status === 'active' 
-                ? `<button class="btn btn-sm btn-danger" onclick="suspendMember('${m.id}')">停止</button>`
-                : `<button class="btn btn-sm btn-success" onclick="unsuspendMember('${m.id}')">解除</button>`
+                ? `<button class="btn btn-sm btn-danger" data-action="suspend" data-id="${m.id}">停止</button>`
+                : `<button class="btn btn-sm btn-success" data-action="unsuspend" data-id="${m.id}">解除</button>`
               }
             </td>
           </tr>
         `).join('');
+        
+        // イベント委譲でアクションボタンを処理
+        tbody.querySelectorAll('[data-action]').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const action = this.dataset.action;
+            const id = this.dataset.id;
+            if (action === 'detail') showDetail(id);
+            else if (action === 'suspend') suspendMember(id);
+            else if (action === 'unsuspend') unsuspendMember(id);
+          });
+        });
 
         if (result.pagination) renderPagination(result.pagination);
       } catch (error) {

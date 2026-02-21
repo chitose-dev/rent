@@ -125,10 +125,15 @@
             <td>${c.notes || '-'}</td>
             <td><span class="badge ${c.isActive !== false ? 'badge-success' : 'badge-secondary'}">${c.isActive !== false ? '有効' : '無効'}</span></td>
             <td class="actions">
-              <button class="btn btn-sm btn-outline" onclick="openEditModal('${c.id}')">編集</button>
+              <button class="btn btn-sm btn-outline" data-edit-id="${c.id}">編集</button>
             </td>
           </tr>
         `).join('');
+        
+        // イベント委譲で編集ボタンを処理
+        tbody.querySelectorAll('[data-edit-id]').forEach(btn => {
+          btn.addEventListener('click', () => openEditModal(btn.dataset.editId));
+        });
       } catch (error) {
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:#c00;">エラー: ${error.message}</td></tr>`;
       }

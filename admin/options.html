@@ -133,11 +133,19 @@
             <td>${o.maxQuantity}</td>
             <td><span class="badge ${o.isActive !== false ? 'badge-success' : 'badge-secondary'}">${o.isActive !== false ? '有効' : '無効'}</span></td>
             <td class="actions">
-              <button class="btn btn-sm btn-outline" onclick="openEditModal('${o.id}')">編集</button>
-              <button class="btn btn-sm ${o.isActive !== false ? 'btn-danger' : 'btn-success'}" onclick="toggleOption('${o.id}', ${o.isActive !== false})">${o.isActive !== false ? '無効化' : '有効化'}</button>
+              <button class="btn btn-sm btn-outline" data-edit-id="${o.id}">編集</button>
+              <button class="btn btn-sm ${o.isActive !== false ? 'btn-danger' : 'btn-success'}" data-toggle-id="${o.id}" data-active="${o.isActive !== false}">${o.isActive !== false ? '無効化' : '有効化'}</button>
             </td>
           </tr>
         `).join('');
+        
+        // イベント委譲で編集・トグルボタンを処理
+        tbody.querySelectorAll('[data-edit-id]').forEach(btn => {
+          btn.addEventListener('click', () => openEditModal(btn.dataset.editId));
+        });
+        tbody.querySelectorAll('[data-toggle-id]').forEach(btn => {
+          btn.addEventListener('click', () => toggleOption(btn.dataset.toggleId, btn.dataset.active === 'true'));
+        });
       } catch (error) {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#c00;">エラー: ${error.message}</td></tr>`;
       }

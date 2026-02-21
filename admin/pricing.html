@@ -163,11 +163,19 @@
             <td>¥${p.price.toLocaleString()}</td>
             <td><span class="badge ${p.isActive !== false ? 'badge-success' : 'badge-secondary'}">${p.isActive !== false ? '有効' : '無効'}</span></td>
             <td class="actions">
-              <button class="btn btn-sm btn-outline" onclick="openEditModal('${p.id}')">編集</button>
-              <button class="btn btn-sm btn-danger" onclick="deletePricing('${p.id}')">削除</button>
+              <button class="btn btn-sm btn-outline" data-edit-id="${p.id}">編集</button>
+              <button class="btn btn-sm btn-danger" data-delete-id="${p.id}">削除</button>
             </td>
           </tr>
         `).join('');
+        
+        // イベント委譲で編集・削除ボタンを処理
+        tbody.querySelectorAll('[data-edit-id]').forEach(btn => {
+          btn.addEventListener('click', () => openEditModal(btn.dataset.editId));
+        });
+        tbody.querySelectorAll('[data-delete-id]').forEach(btn => {
+          btn.addEventListener('click', () => deletePricing(btn.dataset.deleteId));
+        });
       } catch (error) {
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:#c00;">エラー: ${error.message}</td></tr>`;
       }
