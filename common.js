@@ -36,6 +36,9 @@ const ReservationStorage = {
 // ========================================
 
 const AppConfig = {
+  // API URL（後方互換性）
+  API_BASE_URL: typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'https://rentcar-backend-dgyxfpofua-an.a.run.app',
+  
   // 営業時間（デフォルト値、APIから取得で上書き）
   openTime: '09:00',
   closeTime: '18:00',
