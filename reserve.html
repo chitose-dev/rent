@@ -694,33 +694,9 @@
       <div class="section-locked-message" id="locked-class">レンタル期間を選択してください</div>
       <div class="section-completed" id="completed-class"></div>
       <div class="section-content hidden" id="content-class">
-      <div class="class-grid">
-        <div class="class-card" data-class="compact" data-price="3000" onclick="selectClass(this)">
-          <div class="class-card-image">車両画像</div>
-          <div class="class-card-info">
-            <div class="class-card-name">コンパクト</div>
-            <div class="class-card-desc">軽自動車・コンパクトカー</div>
-          </div>
-          <div class="class-card-price" id="price-compact"></div>
-        </div>
-        
-        <div class="class-card" data-class="standard" data-price="5000" onclick="selectClass(this)">
-          <div class="class-card-image">車両画像</div>
-          <div class="class-card-info">
-            <div class="class-card-name">スタンダード</div>
-            <div class="class-card-desc">普通乗用車</div>
-          </div>
-          <div class="class-card-price" id="price-standard"></div>
-        </div>
-        
-        <div class="class-card" data-class="minivan" data-price="8000" onclick="selectClass(this)">
-          <div class="class-card-image">車両画像</div>
-          <div class="class-card-info">
-            <div class="class-card-name">ミニバン</div>
-            <div class="class-card-desc">7〜8人乗りミニバン</div>
-          </div>
-          <div class="class-card-price" id="price-minivan"></div>
-        </div>
+      <div class="class-grid" id="class-grid">
+        <!-- APIから動的に生成 -->
+        <div class="loading">読み込み中...</div>
       </div>
       </div>
     </div>
@@ -733,75 +709,16 @@
       </h2>
       <div class="section-completed" id="completed-options"></div>
       <div class="section-content" id="content-options">
-      <div class="option-group">
+      <!-- 免責補償（APIから動的生成） -->
+      <div class="option-group" id="insurance-options">
         <div class="option-group-title">免責補償</div>
-        
-        <div class="option-card" data-insurance="none" data-price="0" onclick="selectInsurance(this)">
-          <input type="radio" name="insurance" value="none">
-          <div class="option-card-info">
-            <div class="option-card-name">加入しない</div>
-            <div class="option-card-desc">事故時に最大20万円の自己負担が発生します</div>
-          </div>
-          <div class="option-card-price">¥0</div>
-        </div>
-        
-        <div class="option-card recommended" data-insurance="standard" data-price="1100" onclick="selectInsurance(this)">
-          <input type="radio" name="insurance" value="standard">
-          <div class="option-card-info">
-            <div class="option-card-name">スタンダード補償</div>
-            <div class="option-card-desc">対物・車両の免責額を0円に</div>
-          </div>
-          <div class="option-card-price">¥1,100/日</div>
-        </div>
-        
-        <div class="option-card" data-insurance="full" data-price="1650" onclick="selectInsurance(this)">
-          <input type="radio" name="insurance" value="full">
-          <div class="option-card-info">
-            <div class="option-card-name">フル補償</div>
-            <div class="option-card-desc">NOC（休業補償）も含む完全補償</div>
-          </div>
-          <div class="option-card-price">¥1,650/日</div>
-        </div>
+        <!-- renderInsuranceOptions()で動的生成 -->
       </div>
       
-      <div class="option-group">
+      <!-- 追加オプション（APIから動的生成） -->
+      <div class="option-group" id="additional-options">
         <div class="option-group-title">追加オプション</div>
-        
-        <div class="option-card" data-option="navi" data-price="550" onclick="toggleOption(this)">
-          <input type="checkbox" value="navi">
-          <div class="option-card-info">
-            <div class="option-card-name">カーナビ</div>
-            <div class="option-card-desc">ポータブルカーナビ</div>
-          </div>
-          <div class="option-card-price">¥550/日</div>
-        </div>
-        
-        <div class="option-card" data-option="etc" data-price="330" onclick="toggleOption(this)">
-          <input type="checkbox" value="etc">
-          <div class="option-card-info">
-            <div class="option-card-name">ETC車載器</div>
-            <div class="option-card-desc">ETCカードは含まれません</div>
-          </div>
-          <div class="option-card-price">¥330/日</div>
-        </div>
-        
-        <div class="option-card" data-option="child" data-price="550" onclick="toggleOption(this)">
-          <input type="checkbox" value="child">
-          <div class="option-card-info">
-            <div class="option-card-name">チャイルドシート</div>
-            <div class="option-card-desc">1〜4歳向け</div>
-          </div>
-          <div class="option-card-price">¥550/日</div>
-        </div>
-        
-        <div class="option-card" data-option="junior" data-price="330" onclick="toggleOption(this)">
-          <input type="checkbox" value="junior">
-          <div class="option-card-info">
-            <div class="option-card-name">ジュニアシート</div>
-            <div class="option-card-desc">4〜10歳向け</div>
-          </div>
-          <div class="option-card-price">¥330/日</div>
-        </div>
+        <!-- renderAdditionalOptions()で動的生成 -->
       </div>
       </div>
     </div>
@@ -873,6 +790,7 @@
       pricingPlanId: null,
       classPrice: 0,
       insurance: null,
+      insuranceName: null,
       insurancePrice: 0,
       options: [],
       optionsPrice: 0,
@@ -891,6 +809,13 @@
       // マスターデータ読み込み
       await AppConfig.loadMasterData();
       
+      // 車両クラスを動的に生成
+      renderCarClasses();
+      
+      // オプションを動的に生成
+      renderInsuranceOptions();
+      renderAdditionalOptions();
+      
       // セッションから復元
       const saved = ReservationStorage.get();
       if (saved) {
@@ -898,6 +823,100 @@
       }
       
       updateSections();
+    }
+    
+    // 車両クラスを動的生成
+    function renderCarClasses() {
+      const container = document.getElementById('class-grid');
+      
+      if (!AppConfig.carClasses || AppConfig.carClasses.length === 0) {
+        container.innerHTML = '<p>車両クラスがありません</p>';
+        return;
+      }
+      
+      container.innerHTML = AppConfig.carClasses.map(carClass => {
+        // 料金プランから1日あたりの基本料金を計算（最小のプランから）
+        const plans = AppConfig.pricingPlans.filter(p => p.carClassId === carClass.id);
+        let dailyPrice = 0;
+        if (plans.length > 0) {
+          // 最初のプランの1日あたり料金を計算
+          const firstPlan = plans.reduce((a, b) => a.days < b.days ? a : b);
+          dailyPrice = Math.round(firstPlan.price / firstPlan.days);
+        }
+        
+        return `
+          <div class="class-card" data-class-id="${carClass.id}" data-class-name="${carClass.name}" data-daily-price="${dailyPrice}" onclick="selectClass(this)">
+            <div class="class-card-image">${carClass.imageUrl ? `<img src="${carClass.imageUrl}" alt="${carClass.name}">` : '車両画像'}</div>
+            <div class="class-card-info">
+              <div class="class-card-name">${carClass.name}</div>
+              <div class="class-card-desc">${carClass.description || ''}</div>
+              ${carClass.notes ? `<div class="class-card-desc">${carClass.notes}</div>` : ''}
+            </div>
+            <div class="class-card-price">¥${dailyPrice.toLocaleString()}/日〜</div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    // 免責補償オプションを動的生成
+    function renderInsuranceOptions() {
+      const container = document.getElementById('insurance-options');
+      const title = container.querySelector('.option-group-title');
+      
+      // 既存のオプションカードを削除
+      container.querySelectorAll('.option-card').forEach(el => el.remove());
+      
+      // APIから取得した保険プランを表示
+      AppConfig.insurancePlans.forEach((plan, index) => {
+        const card = document.createElement('div');
+        card.className = 'option-card' + (plan.id === 'standard' ? ' recommended' : '');
+        card.dataset.insurance = plan.id;
+        card.dataset.price = plan.pricePerDay;
+        card.onclick = function() { selectInsurance(this); };
+        
+        const priceText = plan.pricePerDay === 0 ? '¥0' : `¥${plan.pricePerDay.toLocaleString()}/日`;
+        
+        card.innerHTML = `
+          <input type="radio" name="insurance" value="${plan.id}">
+          <div class="option-card-info">
+            <div class="option-card-name">${plan.name}</div>
+            <div class="option-card-desc">${plan.description}</div>
+          </div>
+          <div class="option-card-price">${priceText}</div>
+        `;
+        
+        container.appendChild(card);
+      });
+    }
+    
+    // 追加オプションを動的生成
+    function renderAdditionalOptions() {
+      const container = document.getElementById('additional-options');
+      const title = container.querySelector('.option-group-title');
+      
+      // 既存のオプションカードを削除
+      container.querySelectorAll('.option-card').forEach(el => el.remove());
+      
+      // APIから取得したオプションを表示
+      AppConfig.options.forEach(option => {
+        const card = document.createElement('div');
+        card.className = 'option-card';
+        card.dataset.option = option.id;
+        card.dataset.optionName = option.name;
+        card.dataset.price = option.pricePerDay;
+        card.onclick = function() { toggleOption(this); };
+        
+        card.innerHTML = `
+          <input type="checkbox" value="${option.id}">
+          <div class="option-card-info">
+            <div class="option-card-name">${option.name}</div>
+            <div class="option-card-desc">${option.description || ''}</div>
+          </div>
+          <div class="option-card-price">¥${option.pricePerDay.toLocaleString()}/日</div>
+        `;
+        
+        container.appendChild(card);
+      });
     }
     
     // セクションのロック/アンロック制御
@@ -928,8 +947,7 @@
       
       // オプション選択済みの表示
       if (state.insurance !== null) {
-        const insuranceNames = { none: '補償なし', standard: 'スタンダード補償', full: 'フル補償' };
-        let optText = insuranceNames[state.insurance];
+        let optText = state.insuranceName || state.insurance;
         if (state.options.length > 0) {
           optText += ` + オプション${state.options.length}件`;
         }
@@ -1158,9 +1176,32 @@
     // 車両クラスの料金表示を更新（プラン合計金額）
     function updateClassPrices() {
       const days = state.days || 1;
-      document.getElementById('price-compact').textContent = `${days}日間: ¥${(3000 * days).toLocaleString()}（税込）`;
-      document.getElementById('price-standard').textContent = `${days}日間: ¥${(5000 * days).toLocaleString()}（税込）`;
-      document.getElementById('price-minivan').textContent = `${days}日間: ¥${(8000 * days).toLocaleString()}（税込）`;
+      
+      // 各車両クラスカードの料金を更新
+      document.querySelectorAll('.class-card').forEach(card => {
+        const classId = card.dataset.classId;
+        const priceEl = card.querySelector('.class-card-price');
+        
+        // このクラスの料金プランを取得
+        const plans = AppConfig.pricingPlans.filter(p => p.carClassId === classId);
+        
+        // 選択した日数にマッチするプランを検索
+        let matchingPlan = plans.find(p => p.days === days);
+        
+        if (matchingPlan) {
+          // マッチするプランがあればその料金を表示
+          priceEl.textContent = `${days}日間: ¥${matchingPlan.price.toLocaleString()}（税込）`;
+          card.dataset.planPrice = matchingPlan.price;
+          card.dataset.pricingPlanId = matchingPlan.id;
+        } else {
+          // マッチするプランがなければ1日料金 × 日数で計算
+          const dailyPrice = parseInt(card.dataset.dailyPrice) || 0;
+          const totalPrice = dailyPrice * days;
+          priceEl.textContent = `${days}日間: ¥${totalPrice.toLocaleString()}（税込）`;
+          card.dataset.planPrice = totalPrice;
+          card.dataset.pricingPlanId = '';
+        }
+      });
     }
     
     // 車両クラス選択
@@ -1169,8 +1210,13 @@
         card.classList.remove('selected');
       });
       el.classList.add('selected');
-      state.vehicleClass = el.dataset.class;
-      state.classPrice = parseInt(el.dataset.price);
+      
+      state.carClassId = el.dataset.classId;
+      state.vehicleClass = el.dataset.classId; // 後方互換性
+      state.vehicleClassName = el.dataset.className;
+      state.pricingPlanId = el.dataset.pricingPlanId || null;
+      state.classPrice = parseInt(el.dataset.planPrice) || parseInt(el.dataset.dailyPrice) || 0;
+      
       updateSections();
     }
     
@@ -1184,6 +1230,9 @@
       el.querySelector('input').checked = true;
       state.insurance = el.dataset.insurance;
       state.insurancePrice = parseInt(el.dataset.price);
+      // 保険名を取得
+      const nameEl = el.querySelector('.option-card-name');
+      state.insuranceName = nameEl ? nameEl.textContent : state.insurance;
       updateSections();
     }
     
@@ -1193,13 +1242,14 @@
       const checkbox = el.querySelector('input');
       checkbox.checked = !checkbox.checked;
       
-      const option = el.dataset.option;
+      const optionId = el.dataset.option;
+      const optionName = el.dataset.optionName || optionId;
       const price = parseInt(el.dataset.price);
       
       if (checkbox.checked) {
-        state.options.push({ name: option, price: price });
+        state.options.push({ id: optionId, name: optionName, price: price });
       } else {
-        state.options = state.options.filter(o => o.name !== option);
+        state.options = state.options.filter(o => o.id !== optionId);
       }
       
       state.optionsPrice = state.options.reduce((sum, o) => sum + o.price, 0);
@@ -1270,7 +1320,6 @@
       // セッションに保存
       const days = state.days;
       const classNames = { compact: 'コンパクト', standard: 'スタンダード', minivan: 'ミニバン' };
-      const insuranceNames = { none: '補償なし', standard: 'スタンダード補償', premium: 'プレミアム補償', full: 'フル補償' };
       const paymentNames = { card: 'クレジットカード', onsite: '現地払い', local: '現地払い' };
       
       // 支払い方法をAPI形式に変換
@@ -1290,11 +1339,11 @@
         classPrice: state.classPrice,
         planPrice: state.classPrice * days,
         insurance: state.insurance === 'full' ? 'premium' : state.insurance,
-        insuranceName: insuranceNames[state.insurance],
+        insuranceName: state.insuranceName || state.insurance,
         insurancePrice: state.insurancePrice,
         options: state.options.map(opt => ({
-          optionId: opt,
-          optionName: opt,
+          optionId: opt.id,
+          optionName: opt.name,
           quantity: 1
         })),
         optionsPrice: state.optionsPrice,

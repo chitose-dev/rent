@@ -1,37 +1,43 @@
 # トクノリレンタカー 開発プラン
 
-最終更新: 2026-02-21 01:25 JST
+最終更新: 2026-02-21 11:00 JST
 
 ## 現状サマリー
 - **バックエンド**: ✅ 完成（Cloud Run稼働中）
 - **管理画面**: ✅ 完成（API連携済み）
-- **ユーザー向けフロント**: ⚠️ API繋ぎ込み必要
+- **ユーザー向けフロント**: ✅ 基本機能完成（API連携済み）
 
 ---
 
 ## TODO（優先順）
 
-### P1: ユーザー認証フロー
+### P1: ユーザー認証フロー ✅完了
 - [x] `login.html` - `/v1/auth/login` API連携
 - [x] `login.html` - `/v1/auth/register` API連携（新規登録）
 - [x] `verify-email.html` - `/v1/auth/verify-email` API連携
 - [x] `reset-password.html` - パスワードリセットAPI連携
 
-### P2: 予約フロー
+### P2: 予約フロー ✅完了
 - [x] `reserve-confirm.html` - `/v1/reservations` API連携（予約作成）
 - [x] `reserve-payment.html` - Stripe決済連携
 - [x] 予約完了後のリダイレクト処理
 
-### P3: マイページ
+### P3: マイページ ✅完了
 - [x] `mypage-rental.html` - `/v1/user/reservations` API連携
 - [x] `mypage-history.html` - 予約履歴表示
 - [x] `mypage-profile.html` - `/v1/user/profile` API連携
 - [x] `cancel-request.html` - キャンセル申請API連携
 
-### P4: その他
+### P4: その他 ✅完了
 - [x] エラーハンドリング統一
 - [x] ローディング表示
 - [x] トークンリフレッシュ処理
+
+### P5: 改善タスク（発見された問題）
+- [ ] `reserve.html` - オプションをAPIから動的取得（現在ハードコード）
+  - 現状: カーナビ、ETC車載器、チャイルドシート、ジュニアシートがHTMLにハードコード
+  - API: `/v1/options` から取得すべき
+  - 免責補償も `/v1/insurance-plans` から動的取得すべき
 
 ---
 
