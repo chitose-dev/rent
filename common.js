@@ -547,6 +547,46 @@ const ReservationAPI = {
 // ページ初期化
 // ========================================
 
+// ========================================
+// グローバル関数（後方互換性）
+// ========================================
+
+// ハンバーガーメニュートグル（onclick用）
+function toggleMenu() {
+  const hamburger = document.querySelector('.hamburger');
+  const nav = document.querySelector('.header-nav');
+  if (hamburger && nav) {
+    hamburger.classList.toggle('active');
+    nav.classList.toggle('active');
+  }
+}
+
+// ログアウト
+function logout() {
+  if (confirm('ログアウトしますか？')) {
+    Auth.logout();
+    window.location.href = 'login.html';
+  }
+}
+
+// ========================================
+// ページ初期化
+// ========================================
+
 document.addEventListener('DOMContentLoaded', () => {
   DOM.initHamburger();
+  
+  // 認証が必要なページかチェック（login.html, register.html, index.html以外）
+  const publicPages = ['login.html', 'register.html', 'index.html', 'verify-email.html', 'reset-password.html', 'terms.html', 'privacy.html'];
+  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  
+  // 管理画面は別の認証チェック
+  if (currentPage.startsWith('admin/') || window.location.pathname.includes('/admin/')) {
+    return; // 管理画面は独自の認証チェックを持つ
+  }
+  
+  // 公開ページ以外で未ログインならリダイレクト
+  if (!publicPages.includes(currentPage) && !Auth.isLoggedIn()) {
+    window.location.href = 'login.html';
+  }
 });
