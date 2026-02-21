@@ -41,6 +41,12 @@
   - 保険プラン: `/v1/insurance-plans` から取得
   - コミット: ac3739f (2026-02-21)
 
+### P6: 発見された問題（2026-02-21 14:00）
+- [ ] デモ管理者アカウント（admin@demo.tokunori.com）がFirestoreに存在しない
+  - seed-demo-data.tsの実行が必要
+  - ローカルからFirestoreアクセスするGoogle Cloud認証設定がない
+  - **対応案**: Cloud Shellから実行 or Firebase Consoleから手動作成
+
 ---
 
 ## 完了タスク
