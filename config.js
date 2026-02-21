@@ -65,8 +65,11 @@ const API = {
     }
     
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'API Error' }));
-      throw new Error(error.message || `HTTP ${response.status}`);
+      const errorData = await response.json().catch(() => ({ message: `HTTP ${response.status}` }));
+      // APIエラーの形式: { error: { code, message } } または { message }
+      const errorMessage = errorData.error?.message || errorData.message || `HTTP ${response.status}`;
+      const errorCode = errorData.error?.code || '';
+      throw new Error(errorCode ? `${errorMessage} (${errorCode})` : errorMessage);
     }
     
     return response.json();

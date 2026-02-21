@@ -335,7 +335,16 @@
         window.location.href = 'mypage-rental.html';
       } catch (error) {
         console.error('ログインエラー:', error);
-        alert('ログインに失敗しました: ' + error.message);
+        // より詳細なエラーメッセージを表示
+        let msg = error.message || 'ログインに失敗しました';
+        if (msg.includes('403')) {
+          msg = 'アクセスが拒否されました。ページを再読み込みしてから再度お試しください。';
+        } else if (msg.includes('429') || msg.includes('RATE_LIMIT')) {
+          msg = 'リクエストが多すぎます。しばらく待ってから再度お試しください。';
+        } else if (msg.includes('NetworkError') || msg.includes('Failed to fetch')) {
+          msg = 'ネットワークエラーです。インターネット接続を確認してください。';
+        }
+        alert(msg);
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = 'ログイン';
@@ -369,7 +378,16 @@
         window.location.href = `verify-email.html?userId=${encodeURIComponent(result.userId)}&email=${encodeURIComponent(email)}`;
       } catch (error) {
         console.error('登録エラー:', error);
-        alert('登録に失敗しました: ' + error.message);
+        // より詳細なエラーメッセージを表示
+        let msg = error.message || '登録に失敗しました';
+        if (msg.includes('EMAIL_EXISTS') || msg.includes('既に登録')) {
+          msg = 'このメールアドレスは既に登録されています。ログインするか、別のメールアドレスをお使いください。';
+        } else if (msg.includes('403')) {
+          msg = 'アクセスが拒否されました。ページを再読み込みしてから再度お試しください。';
+        } else if (msg.includes('VALIDATION') || msg.includes('バリデーション')) {
+          msg = '入力内容に問題があります。全ての項目を正しく入力してください。';
+        }
+        alert(msg);
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = '新規登録';
