@@ -175,19 +175,29 @@
   <script src="config.js"></script>
   <script src="common.js"></script>
   <script>
-    // URLパラメータから情報を取得
+    // URLパラメータまたはsessionStorageから情報を取得
     const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('userId');
-    const email = urlParams.get('email');
+    let userId = urlParams.get('userId');
+    let email = urlParams.get('email') || sessionStorage.getItem('pendingVerifyEmail');
+    
+    // sessionStorageのデータをクリア
+    sessionStorage.removeItem('pendingVerifyEmail');
 
     if (email) {
       document.getElementById('email-display').textContent = email;
+    } else {
+      document.getElementById('email-display').textContent = '（メールアドレス不明）';
     }
 
-    if (!userId) {
+    // userIdがなくてもemailがあれば再送信可能
+    if (!userId && !email) {
       document.getElementById('error-message').textContent = 'ユーザー情報が見つかりません。再度登録してください。';
       document.getElementById('error-message').style.display = 'block';
       document.getElementById('verify-form').style.display = 'none';
+    } else if (!userId && email) {
+      // userIdがないがemailがある場合、再送信を促す
+      document.getElementById('success-message').textContent = '認証コードを再送信してください。';
+      document.getElementById('success-message').style.display = 'block';
     }
 
     // コード入力を数字のみに制限
@@ -268,6 +278,11 @@
           throw new Error(data.error?.message || '再送信に失敗しました');
         }
 
+        // レスポンスからuserIdを取得（あれば）
+        if (data.userId) {
+          userId = data.userId;
+        }
+
         successEl.textContent = '確認コードを再送信しました。メールをご確認ください。';
         successEl.style.display = 'block';
         errorEl.style.display = 'none';
@@ -277,6 +292,12 @@
         errorEl.style.display = 'block';
         successEl.style.display = 'none';
       }
+    }
+
+    // ページ読み込み時にemailがあってuserIdがなければ、再送信ボタンをハイライト
+    if (email && !userId) {
+      document.querySelector('.resend-link').style.fontWeight = 'bold';
+      document.querySelector('.resend-link').style.color = '#007bff';
     }
   </script>
 </body>

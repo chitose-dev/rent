@@ -344,16 +344,23 @@
         window.location.href = 'mypage-rental.html';
       } catch (error) {
         console.error('ログインエラー:', error);
-        // より詳細なエラーメッセージを表示
-        let msg = error.message || 'ログインに失敗しました';
-        if (msg.includes('403')) {
-          msg = 'アクセスが拒否されました。ページを再読み込みしてから再度お試しください。';
+        const msg = error.message || 'ログインに失敗しました';
+        
+        // メール未認証の場合は認証ページへ遷移
+        if (msg.includes('EMAIL_NOT_VERIFIED') || msg.includes('確認が完了していません') || msg.includes('認証が完了していません')) {
+          if (confirm('メールアドレスの認証が完了していません。\n認証ページに移動しますか？')) {
+            // メールアドレスを渡して認証ページへ
+            sessionStorage.setItem('pendingVerifyEmail', email);
+            window.location.href = 'verify-email.html';
+            return;
+          }
         } else if (msg.includes('429') || msg.includes('RATE_LIMIT')) {
-          msg = 'リクエストが多すぎます。しばらく待ってから再度お試しください。';
+          alert('リクエストが多すぎます。しばらく待ってから再度お試しください。');
         } else if (msg.includes('NetworkError') || msg.includes('Failed to fetch')) {
-          msg = 'ネットワークエラーです。インターネット接続を確認してください。';
+          alert('ネットワークエラーです。インターネット接続を確認してください。');
+        } else {
+          alert(msg);
         }
-        alert(msg);
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = 'ログイン';
