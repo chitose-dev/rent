@@ -215,7 +215,7 @@
         </div>
 
         <div class="forgot-password">
-          <a href="#" onclick="showForgotPassword()">パスワードをお忘れですか？</a>
+          <a href="#" onclick="showForgotPassword(); return false;">パスワードをお忘れですか？</a>
         </div>
 
         <button type="submit" class="btn btn-primary btn-full">ログイン</button>
@@ -259,7 +259,7 @@
         <div class="checkbox-group mb-lg">
           <input type="checkbox" id="agreeTerms" required>
           <label for="agreeTerms">
-            <a href="#" onclick="showTerms()">利用規約</a>および<a href="#" onclick="showPrivacy()">プライバシーポリシー</a>に同意します
+            <a href="#" onclick="showTerms(); return false;">利用規約</a>および<a href="#" onclick="showPrivacy(); return false;">プライバシーポリシー</a>に同意します
           </label>
         </div>
 
