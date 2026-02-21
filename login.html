@@ -313,15 +313,24 @@
     async function handleLogin(event) {
       event.preventDefault();
       
-      const email = document.getElementById('loginEmail').value;
+      const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value;
       const submitBtn = event.target.querySelector('button[type="submit"]');
+      
+      // 入力チェック
+      if (!email || !password) {
+        alert('メールアドレスとパスワードを入力してください');
+        return;
+      }
       
       submitBtn.disabled = true;
       submitBtn.textContent = 'ログイン中...';
       
+      console.log('ログイン試行:', email);
+      
       try {
         const result = await Auth.login(email, password);
+        console.log('ログイン結果:', result);
         
         if (result.requires2FA) {
           // 2段階認証が必要な場合（ユーザー向けは通常不要だが念のため）
