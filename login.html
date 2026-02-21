@@ -242,6 +242,31 @@
         </div>
 
         <div class="form-group">
+          <label for="registerNameKana" class="form-label">氏名（カナ）</label>
+          <input type="text" id="registerNameKana" class="form-input" placeholder="ヤマダ タロウ">
+        </div>
+
+        <div class="form-group">
+          <label for="registerBirthDate" class="form-label">生年月日</label>
+          <input type="date" id="registerBirthDate" class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label for="registerPostalCode" class="form-label">郵便番号</label>
+          <input type="text" id="registerPostalCode" class="form-input" placeholder="123-4567">
+        </div>
+
+        <div class="form-group">
+          <label for="registerAddress" class="form-label">住所</label>
+          <input type="text" id="registerAddress" class="form-input" placeholder="東京都渋谷区...">
+        </div>
+
+        <div class="form-group">
+          <label for="registerLicenseNumber" class="form-label">免許証番号</label>
+          <input type="text" id="registerLicenseNumber" class="form-input" placeholder="123456789012">
+        </div>
+
+        <div class="form-group">
           <label for="registerPassword" class="form-label required">パスワード</label>
           <input type="password" id="registerPassword" class="form-input" placeholder="8文字以上" minlength="8" required>
           <span class="form-error">8文字以上のパスワードを入力してください</span>
@@ -376,8 +401,13 @@
       event.preventDefault();
       
       const name = document.getElementById('registerName').value;
+      const nameKana = document.getElementById('registerNameKana').value || undefined;
       const email = document.getElementById('registerEmail').value;
       const phone = document.getElementById('registerPhone').value;
+      const birthDate = document.getElementById('registerBirthDate').value || undefined;
+      const postalCode = document.getElementById('registerPostalCode').value || undefined;
+      const address = document.getElementById('registerAddress').value || undefined;
+      const licenseNumber = document.getElementById('registerLicenseNumber').value || undefined;
       const password = document.getElementById('registerPassword').value;
       const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
       const submitBtn = event.target.querySelector('button[type="submit"]');
@@ -392,7 +422,14 @@
       submitBtn.textContent = '登録中...';
       
       try {
-        const result = await Auth.register({ name, email, phone, password });
+        const registerData = { name, email, phone, password };
+        if (nameKana) registerData.nameKana = nameKana;
+        if (birthDate) registerData.birthDate = birthDate;
+        if (postalCode) registerData.postalCode = postalCode;
+        if (address) registerData.address = address;
+        if (licenseNumber) registerData.licenseNumber = licenseNumber;
+        
+        const result = await Auth.register(registerData);
         
         // メール確認画面へ遷移
         window.location.href = `verify-email.html?userId=${encodeURIComponent(result.userId)}&email=${encodeURIComponent(email)}`;
