@@ -938,8 +938,8 @@
       
       // 車両クラス選択済みの表示
       if (state.vehicleClass) {
-        const classNames = { compact: 'コンパクト', standard: 'スタンダード', minivan: 'ミニバン' };
-        document.getElementById('completed-class').textContent = classNames[state.vehicleClass];
+        const className = state.vehicleClassName || state.vehicleClass;
+        document.getElementById('completed-class').textContent = className;
         document.getElementById('completed-class').classList.add('show');
       } else {
         document.getElementById('completed-class').classList.remove('show');
@@ -1319,7 +1319,6 @@
       
       // セッションに保存
       const days = state.days;
-      const classNames = { compact: 'コンパクト', standard: 'スタンダード', minivan: 'ミニバン' };
       const paymentNames = { card: 'クレジットカード', onsite: '現地払い', local: '現地払い' };
       
       // 支払い方法をAPI形式に変換
@@ -1331,14 +1330,15 @@
         startDate: state.startDate,
         startTime: state.startTime,
         endDate: state.endDate,
-        carClassId: state.carClassId || state.vehicleClass,
+        carClassId: state.carClassId,
         vehicleClass: state.vehicleClass,
-        vehicleClassName: classNames[state.vehicleClass] || state.vehicleClass,
-        carClassName: classNames[state.vehicleClass] || state.vehicleClass,
+        vehicleClassName: state.vehicleClassName,
+        carClassName: state.vehicleClassName,
         pricingPlanId: state.pricingPlanId,
         classPrice: state.classPrice,
-        planPrice: state.classPrice * days,
-        insurance: state.insurance === 'full' ? 'premium' : state.insurance,
+        planPrice: state.classPrice,
+        insurance: state.insurance,
+        insurancePlanId: state.insurance,
         insuranceName: state.insuranceName || state.insurance,
         insurancePrice: state.insurancePrice,
         options: state.options.map(opt => ({
@@ -1350,7 +1350,7 @@
         paymentMethod: paymentMethod,
         payment: state.payment,
         paymentName: paymentNames[state.payment],
-        totalPrice: (state.classPrice + state.insurancePrice + state.optionsPrice) * days
+        totalPrice: state.classPrice + (state.insurancePrice * days) + (state.optionsPrice * days)
       });
       
       window.location.href = 'reserve-confirm.html';
