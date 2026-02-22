@@ -398,7 +398,15 @@
 
     function placeEventBlocks(days) {
       reservations.forEach(res => {
-        if (!res.vehicleId) return;
+        // vehicleIdがない場合はvehicleLicensePlateから車両を特定
+        let vehicleId = res.vehicleId;
+        if (!vehicleId && res.vehicleLicensePlate) {
+          const matchedVehicle = vehicles.find(v => v.licensePlate === res.vehicleLicensePlate);
+          if (matchedVehicle) {
+            vehicleId = matchedVehicle.id;
+          }
+        }
+        if (!vehicleId) return;
         
         const pickup = new Date(res.pickupAt);
         const returnAt = new Date(res.returnAt);
@@ -420,7 +428,7 @@
         if (spanDays <= 0) return;
 
         // セルを見つけてブロック配置
-        const row = document.querySelector(`tr[data-vehicle-id="${res.vehicleId}"]`);
+        const row = document.querySelector(`tr[data-vehicle-id="${vehicleId}"]`);
         if (!row) return;
 
         const cells = row.querySelectorAll('.day-cell');
@@ -445,8 +453,8 @@
         block.style.left = '2px';
         block.textContent = blockText;
         block.dataset.reservationId = res.id;
-        block.dataset.vehicleId = res.vehicleId;
-        block.dataset.classId = res.carClassId;
+        block.dataset.vehicleId = vehicleId;
+        block.dataset.classId = res.carClassId || '';
         block.dataset.pickupAt = res.pickupAt;
         block.dataset.returnAt = res.returnAt;
         
