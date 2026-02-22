@@ -206,10 +206,11 @@
         }
         
         // 直接ログイン成功（2FA無効の場合）
-        if (response.data && response.data.token) {
-          AdminAuth.saveTokens(response.data.token, response.data.refreshToken);
-          if (response.data.admin) {
-            AdminAuth.saveAdmin(response.data.admin);
+        // APIが自動的にdata.dataを展開するので、response.tokenを確認
+        if (response.token) {
+          AdminAuth.saveTokens(response.token, response.refreshToken);
+          if (response.admin) {
+            AdminAuth.saveAdmin(response.admin);
           }
           window.location.href = 'index.html';
           return;
