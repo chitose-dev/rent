@@ -89,7 +89,7 @@ const AdminAuth = {
         return true;
       }
       return false;
-    } catch {
+    } catch (e) {
       return false;
     }
   }
