@@ -96,7 +96,8 @@ const AdminAuth = {
 };
 
 // API通信ヘルパー（認証付き）
-const API = {
+// config.jsで定義されていない場合のみ定義
+const AdminAPI = {
   // 基本リクエスト
   async request(method, url, body = null) {
     const token = AdminAuth.getToken();
@@ -163,6 +164,11 @@ const API = {
     return this.request('DELETE', url);
   }
 };
+
+// 管理画面用APIエイリアス（config.jsのAPIがない場合）
+if (typeof API === 'undefined') {
+  var API = AdminAPI;
+}
 
 // 後方互換性のための関数
 function checkAdminAuth() {
