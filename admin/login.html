@@ -283,7 +283,8 @@
     });
 
     // 既にログイン済みならダッシュボードへ
-    if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+    // AdminAuth.isLoggedIn()を使って、adminTokenの有無で判定
+    if (AdminAuth.isLoggedIn()) {
       window.location.href = 'index.html';
     }
   </script>
