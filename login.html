@@ -206,13 +206,13 @@
       <form id="loginForm" class="login-form active" onsubmit="handleLogin(event)">
         <div class="form-group">
           <label for="loginEmail" class="form-label required">メールアドレス</label>
-          <input type="email" id="loginEmail" class="form-input" placeholder="example@example.com" required>
+          <input type="email" id="loginEmail" class="form-input" placeholder="example@example.com" autocomplete="email" required>
           <span class="form-error">メールアドレスを入力してください</span>
         </div>
 
         <div class="form-group">
           <label for="loginPassword" class="form-label required">パスワード</label>
-          <input type="password" id="loginPassword" class="form-input" placeholder="パスワード" required>
+          <input type="password" id="loginPassword" class="form-input" placeholder="パスワード" autocomplete="current-password" required>
           <span class="form-error">パスワードを入力してください</span>
         </div>
 
@@ -231,7 +231,7 @@
       <form id="registerForm" class="register-form" onsubmit="handleRegister(event)">
         <div class="form-group">
           <label for="registerName" class="form-label required">氏名</label>
-          <input type="text" id="registerName" class="form-input" placeholder="山田 太郎" required>
+          <input type="text" id="registerName" class="form-input" placeholder="山田 太郎" autocomplete="name" required>
           <span class="form-error">氏名を入力してください</span>
         </div>
 
@@ -242,34 +242,34 @@
 
         <div class="form-group">
           <label for="registerEmail" class="form-label required">メールアドレス</label>
-          <input type="email" id="registerEmail" class="form-input" placeholder="example@example.com" required>
+          <input type="email" id="registerEmail" class="form-input" placeholder="example@example.com" autocomplete="email" required>
           <span class="form-error">正しいメールアドレスを入力してください</span>
         </div>
 
         <div class="form-group">
           <label for="registerPhone" class="form-label required">電話番号</label>
-          <input type="tel" id="registerPhone" class="form-input" placeholder="09012345678" required>
+          <input type="tel" id="registerPhone" class="form-input" placeholder="09012345678" autocomplete="tel" required>
           <span class="form-error">電話番号を入力してください</span>
         </div>
 
         <div class="form-group">
           <label for="registerBirthDate" class="form-label">生年月日</label>
-          <input type="date" id="registerBirthDate" class="form-input">
+          <input type="date" id="registerBirthDate" class="form-input" autocomplete="bday">
         </div>
 
         <div class="form-group">
           <label for="registerPostalCode" class="form-label">郵便番号</label>
-          <input type="text" id="registerPostalCode" class="form-input" placeholder="123-4567">
+          <input type="text" id="registerPostalCode" class="form-input" placeholder="123-4567" autocomplete="postal-code">
         </div>
 
         <div class="form-group">
           <label for="registerAddress" class="form-label">住所</label>
-          <input type="text" id="registerAddress" class="form-input" placeholder="東京都渋谷区...">
+          <input type="text" id="registerAddress" class="form-input" placeholder="東京都渋谷区..." autocomplete="street-address">
         </div>
 
         <div class="form-group">
           <label for="registerPassword" class="form-label required">パスワード</label>
-          <input type="password" id="registerPassword" class="form-input" placeholder="8文字以上" minlength="8" required>
+          <input type="password" id="registerPassword" class="form-input" placeholder="8文字以上" autocomplete="new-password" minlength="8" required>
           <span class="form-error">8文字以上のパスワードを入力してください</span>
           <div class="password-requirements">
             ※ 8文字以上で、英数字を含めてください
@@ -278,7 +278,7 @@
 
         <div class="form-group">
           <label for="registerPasswordConfirm" class="form-label required">パスワード（確認）</label>
-          <input type="password" id="registerPasswordConfirm" class="form-input" placeholder="パスワード再入力" minlength="8" required>
+          <input type="password" id="registerPasswordConfirm" class="form-input" placeholder="パスワード再入力" autocomplete="new-password" minlength="8" required>
           <span class="form-error">パスワードが一致しません</span>
         </div>
 

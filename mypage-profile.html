@@ -55,7 +55,7 @@
       <form id="profileForm" onsubmit="saveProfile(event)">
         <div class="form-group">
           <label for="name" class="form-label required">氏名</label>
-          <input type="text" id="name" class="form-input" placeholder="山田 太郎" required>
+          <input type="text" id="name" class="form-input" placeholder="山田 太郎" autocomplete="name" required>
           <span class="form-error">氏名を入力してください</span>
         </div>
 
@@ -67,31 +67,31 @@
 
         <div class="form-group">
           <label for="email" class="form-label required">メールアドレス</label>
-          <input type="email" id="email" class="form-input" placeholder="example@example.com" required>
+          <input type="email" id="email" class="form-input" placeholder="example@example.com" autocomplete="email" required>
           <span class="form-error">正しいメールアドレスを入力してください</span>
         </div>
 
         <div class="form-group">
           <label for="phone" class="form-label required">電話番号</label>
-          <input type="tel" id="phone" class="form-input" placeholder="09012345678" required>
+          <input type="tel" id="phone" class="form-input" placeholder="09012345678" autocomplete="tel" required>
           <span class="form-error">正しい電話番号を入力してください</span>
         </div>
 
         <div class="form-group">
           <label for="birthDate" class="form-label required">生年月日</label>
-          <input type="date" id="birthDate" class="form-input" required>
+          <input type="date" id="birthDate" class="form-input" autocomplete="bday" required>
           <span class="form-error">生年月日を入力してください</span>
         </div>
 
         <div class="form-group">
           <label for="postalCode" class="form-label required">郵便番号</label>
-          <input type="text" id="postalCode" class="form-input" placeholder="1234567" maxlength="7" required>
+          <input type="text" id="postalCode" class="form-input" placeholder="1234567" maxlength="7" autocomplete="postal-code" required>
           <span class="form-error">郵便番号を入力してください（ハイフンなし）</span>
         </div>
 
         <div class="form-group">
           <label for="address" class="form-label required">住所</label>
-          <input type="text" id="address" class="form-input" placeholder="東京都渋谷区..." required>
+          <input type="text" id="address" class="form-input" placeholder="東京都渋谷区..." autocomplete="street-address" required>
           <span class="form-error">住所を入力してください</span>
         </div>
 
