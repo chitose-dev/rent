@@ -197,7 +197,7 @@
   
   <script src="common.js"></script>
   <script>
-    // config.jsから取得、またはローカルストレージから（開発用）
+    // common.jsのADMIN_API_BASEから取得
     const CURRENT_API_URL = API_BASE_URL || localStorage.getItem('apiUrl') || '';
 
     // JWT Secret生成
@@ -338,7 +338,7 @@
 
     // ページ読み込み時
     document.addEventListener('DOMContentLoaded', function() {
-      // config.jsから取得したURLを優先、なければlocalStorageから
+      // ADMIN_API_BASEを使用
       const apiUrl = CURRENT_API_URL || localStorage.getItem('apiUrl');
       if (apiUrl) {
         document.getElementById('apiUrl').value = apiUrl;

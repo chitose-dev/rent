@@ -1,5 +1,56 @@
 // 管理画面共通JavaScript
 
+// ========================================
+// エラーハンドラ
+// ========================================
+const ErrorHandler = {
+  messages: {
+    'INTERNAL_ERROR': 'システムエラーが発生しました',
+    'VALIDATION_ERROR': '入力内容に問題があります',
+    'UNAUTHORIZED': 'ログインが必要です',
+    'FORBIDDEN': 'アクセス権限がありません',
+    'NOT_FOUND': 'データが見つかりません',
+    'NETWORK_ERROR': 'ネットワークエラーです',
+  },
+  
+  getMessage(error) {
+    const code = error.code || '';
+    const message = error.message || '';
+    
+    if (code && this.messages[code]) {
+      return this.messages[code];
+    }
+    
+    if (message.includes('NetworkError') || message.includes('Failed to fetch')) {
+      return this.messages['NETWORK_ERROR'];
+    }
+    
+    return message || 'エラーが発生しました';
+  },
+  
+  show(error) {
+    alert(this.getMessage(error));
+  }
+};
+
+// ========================================
+// ローディング状態管理
+// ========================================
+const LoadingState = {
+  startButton(button, text = '処理中...') {
+    if (!button) return;
+    button.disabled = true;
+    button.dataset.originalText = button.textContent;
+    button.textContent = text;
+  },
+  
+  endButton(button) {
+    if (!button) return;
+    button.disabled = false;
+    button.textContent = button.dataset.originalText || 'Submit';
+  }
+};
+
 // API設定
 const ADMIN_API_BASE = typeof API_BASE_URL !== 'undefined' 
   ? API_BASE_URL 
