@@ -398,6 +398,9 @@
       reservations.forEach(r => {
         const st = statusLabels[r.status] || { text: r.status, class: 'status-pending' };
         
+        // 予約IDをエスケープ（onclick属性で使用するため）
+        const safeId = escapeHtml(r.id);
+        
         // 日付フォーマット
         const pickupDate = new Date(r.pickupAt);
         const returnDate = new Date(r.returnAt);
@@ -418,26 +421,26 @@
         card.className = 'rental-card';
         card.innerHTML = `
           <div class="rental-card-header">
-            <h2 class="rental-card-title">${r.carClassName || '車両クラス'}</h2>
-            <span class="status-badge ${st.class}">${st.text}</span>
+            <h2 class="rental-card-title">${escapeHtml(r.carClassName || '車両クラス')}</h2>
+            <span class="status-badge ${escapeHtml(st.class)}">${escapeHtml(st.text)}</span>
           </div>
           
           <div class="rental-card-body">
             <div class="rental-info-row">
               <span class="rental-info-label">予約番号</span>
-              <span class="rental-info-value">${r.id}</span>
+              <span class="rental-info-value">${safeId}</span>
             </div>
             <div class="rental-info-row">
               <span class="rental-info-label">受取日時</span>
-              <span class="rental-info-value">${pickupText}</span>
+              <span class="rental-info-value">${escapeHtml(pickupText)}</span>
             </div>
             <div class="rental-info-row">
               <span class="rental-info-label">返却期限</span>
-              <span class="rental-info-value">${returnText}</span>
+              <span class="rental-info-value">${escapeHtml(returnText)}</span>
             </div>
             <div class="rental-info-row">
               <span class="rental-info-label">決済方法</span>
-              <span class="rental-info-value">${paymentText}</span>
+              <span class="rental-info-value">${escapeHtml(paymentText)}</span>
             </div>
             <div class="rental-info-row">
               <span class="rental-info-label">料金</span>
@@ -448,9 +451,9 @@
             <div class="return-plan-row">
               <div class="return-plan-label">返却予定</div>
               <div class="return-plan-value">
-                <span id="plannedReturn-${r.id}">${plannedReturnText}</span>
+                <span id="plannedReturn-${safeId}">${escapeHtml(plannedReturnText)}</span>
                 ${r.status === 'picked_up' ? `
-                  <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openReturnPlanModal('${r.id}')">
+                  <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openReturnPlanModal('${safeId}')">
                     ${r.plannedReturnAt ? '変更' : '入力'}
                   </button>
                 ` : ''}
@@ -459,13 +462,13 @@
           </div>
           
           <div class="rental-card-actions">
-            <button class="btn btn-secondary" onclick="viewDetail('${r.id}')">
+            <button class="btn btn-secondary" onclick="viewDetail('${safeId}')">
               詳細を見る
             </button>
             ${r.status === 'cancel_requested' ? `
               <button class="btn btn-secondary" disabled>申請処理中</button>
             ` : ['confirmed', 'pending_payment'].includes(r.status) ? `
-              <button class="btn btn-danger" onclick="requestCancel('${r.id}')">
+              <button class="btn btn-danger" onclick="requestCancel('${safeId}')">
                 キャンセル申請
               </button>
             ` : ''}

@@ -226,28 +226,28 @@
         card.innerHTML = `
           <div class="history-card-header">
             <div>
-              <h2 class="history-card-title">${r.carClassName || '車両クラス'}</h2>
-              <div class="history-date">予約日: ${Utils.formatDateTimeJP(createdDate)}</div>
+              <h2 class="history-card-title">${escapeHtml(r.carClassName || '車両クラス')}</h2>
+              <div class="history-date">予約日: ${escapeHtml(Utils.formatDateTimeJP(createdDate))}</div>
             </div>
-            <span class="status-badge ${st.class}">${st.text}</span>
+            <span class="status-badge ${escapeHtml(st.class)}">${escapeHtml(st.text)}</span>
           </div>
           
           <div class="history-card-body">
             <div class="history-info-row">
               <span class="history-info-label">予約番号</span>
-              <span class="history-info-value">${r.id}</span>
+              <span class="history-info-value">${escapeHtml(r.id)}</span>
             </div>
             <div class="history-info-row">
               <span class="history-info-label">受取日時</span>
-              <span class="history-info-value">${Utils.formatDateTimeJP(pickupDate)}</span>
+              <span class="history-info-value">${escapeHtml(Utils.formatDateTimeJP(pickupDate))}</span>
             </div>
             <div class="history-info-row">
               <span class="history-info-label">返却日時</span>
-              <span class="history-info-value">${Utils.formatDateTimeJP(returnDate)}</span>
+              <span class="history-info-value">${escapeHtml(Utils.formatDateTimeJP(returnDate))}</span>
             </div>
             <div class="history-info-row">
               <span class="history-info-label">料金</span>
-              <span class="history-info-value">${Utils.formatPrice(r.totalAmount || 0)}</span>
+              <span class="history-info-value">${escapeHtml(Utils.formatPrice(r.totalAmount || 0))}</span>
             </div>
           </div>
         `;
