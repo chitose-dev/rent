@@ -328,7 +328,7 @@
 
         // 予約を取得（期間指定）
         // 全予約を取得してフロントエンドでフィルタ（Firestoreインデックス問題回避）
-        const resResult = await API.get('/v1/admin/reservations?limit=500');
+        const resResult = await API.get('/v1/admin/reservations?limit=100');
         let allReservations = Array.isArray(resResult) ? resResult : (resResult.data || []);
         
         // 表示期間内の予約のみフィルタ
