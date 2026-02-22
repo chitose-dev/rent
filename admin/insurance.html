@@ -80,8 +80,8 @@
   </div>
 
   <!-- 追加/編集モーダル -->
-  <div id="modal" class="modal" style="display:none;">
-    <div class="modal-content" style="max-width: 500px;">
+  <div id="modal" class="modal-overlay">
+    <div class="modal" style="max-width: 500px;">
       <div class="modal-header">
         <h2 id="modal-title">保険プラン追加</h2>
         <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -191,7 +191,7 @@
       document.getElementById('planId').disabled = false;
       document.getElementById('plan-form').reset();
       document.getElementById('planActive').checked = true;
-      document.getElementById('modal').style.display = 'flex';
+      document.getElementById('modal').classList.add('active');
     }
 
     function editPlan(planId) {
@@ -208,11 +208,11 @@
       document.getElementById('planDeductible').value = plan.deductible || '';
       document.getElementById('planSortOrder').value = plan.sortOrder || 0;
       document.getElementById('planActive').checked = plan.isActive !== false;
-      document.getElementById('modal').style.display = 'flex';
+      document.getElementById('modal').classList.add('active');
     }
 
     function closeModal() {
-      document.getElementById('modal').style.display = 'none';
+      document.getElementById('modal').classList.remove('active');
     }
 
     async function savePlan(event) {
