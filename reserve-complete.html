@@ -237,39 +237,119 @@
   <script src="common.js"></script>
   <script>
     // 予約データを取得
-    function loadReservationData() {
-      const data = ReservationStorage.get();
-      if (!data || !data.reservationId) {
-        alert('予約情報が見つかりません');
-        window.location.href = 'mypage-rental.html';
+    async function loadReservationData() {
+      // 認証チェック
+      if (!Auth.requireAuth()) return;
+      
+      // URLパラメータから予約IDを取得（Stripe決済後のリダイレクト対応）
+      const urlParams = new URLSearchParams(window.location.search);
+      const reservationId = urlParams.get('reservationId') || urlParams.get('reservation_id');
+      const sessionId = urlParams.get('session_id'); // Stripe Checkout session
+      
+      // ローカルストレージのデータ
+      const localData = ReservationStorage.get();
+      
+      // 予約IDがある場合はAPIから取得
+      if (reservationId) {
+        try {
+          const reservation = await API.get(`/v1/reservations/${reservationId}`);
+          displayReservationFromAPI(reservation);
+          ReservationStorage.clear(); // ローカルデータをクリア
+          return;
+        } catch (error) {
+          console.error('予約情報取得エラー:', error);
+        }
+      }
+      
+      // Stripe Checkoutから戻ってきた場合
+      if (sessionId && localData?.reservationId) {
+        try {
+          const reservation = await API.get(`/v1/reservations/${localData.reservationId}`);
+          displayReservationFromAPI(reservation);
+          ReservationStorage.clear();
+          return;
+        } catch (error) {
+          console.error('予約情報取得エラー:', error);
+        }
+      }
+      
+      // ローカルデータがある場合
+      if (localData && localData.reservationId) {
+        displaySummary(localData);
         return;
       }
       
-      displaySummary(data);
+      // データがない場合
+      alert('予約情報が見つかりません');
+      window.location.href = 'mypage-rental.html';
     }
 
-    // サマリー表示
+    // APIから取得した予約データを表示
+    function displayReservationFromAPI(reservation) {
+      // 予約番号
+      document.getElementById('reservationId').textContent = reservation.reservationNumber || reservation.id;
+      
+      // 車両情報
+      document.getElementById('summaryClass').textContent = reservation.carClassName || '-';
+      
+      // 日時情報
+      if (reservation.pickupAt) {
+        document.getElementById('summaryPickup').textContent = 
+          Utils.formatDateTimeJP(new Date(reservation.pickupAt));
+      }
+      if (reservation.returnAt) {
+        document.getElementById('summaryReturn').textContent = 
+          Utils.formatDateTimeJP(new Date(reservation.returnAt));
+      }
+      
+      // 決済情報
+      const paymentText = reservation.paymentMethod === 'card' 
+        ? 'クレジットカード' 
+        : '現地払い';
+      document.getElementById('summaryPayment').textContent = paymentText;
+      
+      // 合計金額
+      document.getElementById('summaryPrice').textContent = 
+        Utils.formatPrice(reservation.totalPrice || 0);
+      
+      // 現地払いの場合は決済ステップを非表示
+      if (reservation.paymentMethod === 'onsite') {
+        document.getElementById('paymentStep').style.display = 'none';
+      }
+      
+      // 決済済みの場合
+      if (reservation.paymentStatus === 'paid') {
+        document.getElementById('paymentStep').textContent = '決済は完了しています';
+      }
+    }
+
+    // サマリー表示（ローカルデータから）
     function displaySummary(data) {
       // 予約番号
       document.getElementById('reservationId').textContent = data.reservationId;
       
       // 車両情報
       const carClass = Utils.getCarClass(data.carClassId);
-      document.getElementById('summaryClass').textContent = carClass.name;
+      document.getElementById('summaryClass').textContent = carClass?.name || '-';
       
       // 日時情報
-      document.getElementById('summaryPickup').textContent = 
-        Utils.formatDateTimeJP(new Date(data.pickupDateTime));
-      document.getElementById('summaryReturn').textContent = 
-        Utils.formatDateTimeJP(new Date(data.returnDateTime));
+      if (data.pickupDateTime) {
+        document.getElementById('summaryPickup').textContent = 
+          Utils.formatDateTimeJP(new Date(data.pickupDateTime));
+      }
+      if (data.returnDateTime) {
+        document.getElementById('summaryReturn').textContent = 
+          Utils.formatDateTimeJP(new Date(data.returnDateTime));
+      }
       
       // 決済情報
       const paymentText = data.paymentMethod === 'card' 
         ? 'クレジットカード' 
         : '現地払い';
       document.getElementById('summaryPayment').textContent = paymentText;
-      // 合計金額（オプション込み）
-      const totalPrice = data.totalPrice || data.planPrice;
+      
+      // 合計金額
+      const totalPrice = data.totalPrice || data.planPrice || 0;
       document.getElementById('summaryPrice').textContent = 
         Utils.formatPrice(totalPrice);
       
@@ -281,12 +361,12 @@
 
     // マイページへ
     function goToMypage() {
+      ReservationStorage.clear();
       window.location.href = 'mypage-rental.html';
     }
 
     // 新規予約
     function makeNewReservation() {
-      // 現在の予約データをクリア
       ReservationStorage.clear();
       window.location.href = 'reserve.html';
     }
@@ -294,6 +374,7 @@
     // ログアウト
     function logout() {
       if (confirm('ログアウトしますか?')) {
+        Auth.logout();
         ReservationStorage.clear();
         window.location.href = 'login.html';
       }

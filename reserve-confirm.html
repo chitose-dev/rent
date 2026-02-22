@@ -431,12 +431,19 @@
           agreeCancelPolicy: true,
           reservationId: result.id || result.reservationId,
           reservationDate: new Date().toISOString(),
-          status: 'confirmed',
+          status: result.status || 'confirmed',
           apiResult: result
         });
         
-        // 完了ページへ
-        window.location.href = 'reserve-complete.html';
+        // カード決済の場合はStripe Checkoutへリダイレクト
+        if (result.stripeCheckoutUrl) {
+          // Stripe Checkoutページへ遷移
+          window.location.href = result.stripeCheckoutUrl;
+          return;
+        }
+        
+        // 現地払いの場合は完了ページへ
+        window.location.href = `reserve-complete.html?reservationId=${result.reservationId}`;
         
       } catch (error) {
         console.error('予約エラー:', error);
