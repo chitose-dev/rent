@@ -207,16 +207,25 @@
         
         // 直接ログイン成功（2FA無効の場合）
         // APIが自動的にdata.dataを展開するので、response.tokenを確認
-        if (response.token) {
-          AdminAuth.saveTokens(response.token, response.refreshToken);
-          if (response.admin) {
-            AdminAuth.saveAdmin(response.admin);
+        console.log('Full response:', JSON.stringify(response));
+        
+        // response.token または response.data.token をチェック
+        const token = response.token || response.data?.token;
+        const refreshToken = response.refreshToken || response.data?.refreshToken;
+        const admin = response.admin || response.data?.admin;
+        
+        if (token) {
+          console.log('Token found, saving...');
+          AdminAuth.saveTokens(token, refreshToken);
+          if (admin) {
+            AdminAuth.saveAdmin(admin);
           }
+          console.log('Saved. Checking: adminToken =', sessionStorage.getItem('adminToken'));
           window.location.href = 'index.html';
           return;
         }
         
-        throw new Error('予期しないレスポンス形式です');
+        throw new Error('予期しないレスポンス形式です: token not found in response');
       } catch (error) {
         console.error('Login failed:', error);
         errorEl.textContent = error.message || 'IDまたはパスワードが正しくありません';
