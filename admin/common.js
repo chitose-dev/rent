@@ -49,10 +49,7 @@ const AdminAuth = {
   
   // 認証チェック（ページ読み込み時）
   checkAuth() {
-    const token = this.getToken();
-    console.log('[AdminAuth.checkAuth] adminToken:', token ? token.substring(0, 20) + '...' : 'null');
     if (!this.isLoggedIn()) {
-      console.log('[AdminAuth.checkAuth] Not logged in, redirecting to login.html');
       window.location.href = 'login.html';
       return false;
     }
@@ -181,13 +178,9 @@ function adminLogout() {
   AdminAuth.logout();
 }
 
-// ページ読み込み時にログインチェック
-console.log('[common.js] pathname:', window.location.pathname);
+// ページ読み込み時にログインチェック（login.html以外）
 if (!window.location.pathname.endsWith('login.html')) {
-  console.log('[common.js] Not login.html, checking auth...');
   checkAdminAuth();
-} else {
-  console.log('[common.js] On login.html, skipping auth check');
 }
 
 // ハンバーガーメニュー

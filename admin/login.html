@@ -176,8 +176,47 @@
       </div>
     </div>
   </div>
-  <script src="common.js"></script>
+  
+  <!-- common.jsを読み込まない！ログイン画面専用のスクリプト -->
   <script>
+    // ============================================
+    // ログイン画面専用 - common.jsに依存しない
+    // ============================================
+    
+    const API_BASE = 'https://rentcar-backend-dgyxfpofua-an.a.run.app';
+    
+    // セッションストレージ操作
+    const Auth = {
+      saveTokens(token, refreshToken) {
+        sessionStorage.setItem('adminToken', token);
+        if (refreshToken) {
+          sessionStorage.setItem('adminRefreshToken', refreshToken);
+        }
+      },
+      saveAdmin(admin) {
+        sessionStorage.setItem('adminId', admin.id);
+        sessionStorage.setItem('adminEmail', admin.email);
+        sessionStorage.setItem('adminName', admin.name || '');
+      },
+      isLoggedIn() {
+        return !!sessionStorage.getItem('adminToken');
+      }
+    };
+    
+    // API呼び出し
+    async function apiPost(endpoint, body) {
+      const response = await fetch(`${API_BASE}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error?.message || data.message || `HTTP ${response.status}`);
+      }
+      return data;
+    }
+    
     let tempToken = null;
 
     // ステップ1: ログイン
@@ -193,7 +232,7 @@
       const password = document.getElementById('adminPassword').value;
       
       try {
-        const response = await API.post('/v1/admin/auth/login', { email, password });
+        const response = await apiPost('/v1/admin/auth/login', { email, password });
         console.log('Login response:', response);
         
         // 2FAが必要な場合
@@ -206,29 +245,27 @@
         }
         
         // 直接ログイン成功（2FA無効の場合）
-        // APIが自動的にdata.dataを展開するので、response.tokenを確認
-        console.log('Full response:', JSON.stringify(response));
+        // バックエンドは { data: { token, refreshToken, admin } } を返す
+        const token = response.data?.token || response.token;
+        const refreshToken = response.data?.refreshToken || response.refreshToken;
+        const admin = response.data?.admin || response.admin;
         
-        // response.token または response.data.token をチェック
-        const token = response.token || response.data?.token;
-        const refreshToken = response.refreshToken || response.data?.refreshToken;
-        const admin = response.admin || response.data?.admin;
+        console.log('Token:', token ? 'found' : 'NOT FOUND');
         
         if (token) {
-          console.log('Token found, saving...');
-          AdminAuth.saveTokens(token, refreshToken);
+          Auth.saveTokens(token, refreshToken);
           if (admin) {
-            AdminAuth.saveAdmin(admin);
+            Auth.saveAdmin(admin);
           }
-          console.log('Saved. Checking: adminToken =', sessionStorage.getItem('adminToken'));
+          console.log('Saved to sessionStorage. Redirecting...');
           window.location.href = 'index.html';
           return;
         }
         
-        throw new Error('予期しないレスポンス形式です: token not found in response');
+        throw new Error('トークンが見つかりません');
       } catch (error) {
         console.error('Login failed:', error);
-        errorEl.textContent = error.message || 'IDまたはパスワードが正しくありません';
+        errorEl.textContent = error.message || 'ログインに失敗しました';
         errorEl.classList.add('show');
       } finally {
         loginBtn.disabled = false;
@@ -248,22 +285,23 @@
       const code = document.getElementById('verifyCode').value;
       
       try {
-        const response = await API.post('/v1/admin/auth/verify-2fa', { 
-          tempToken, 
-          code 
-        });
+        const response = await apiPost('/v1/admin/auth/verify-2fa', { tempToken, code });
         console.log('2FA verify response:', response);
         
-        if (response.accessToken) {
-          AdminAuth.saveTokens(response.accessToken, response.refreshToken);
-          if (response.admin) {
-            AdminAuth.saveAdmin(response.admin);
+        const token = response.accessToken || response.data?.accessToken;
+        const refreshToken = response.refreshToken || response.data?.refreshToken;
+        const admin = response.admin || response.data?.admin;
+        
+        if (token) {
+          Auth.saveTokens(token, refreshToken);
+          if (admin) {
+            Auth.saveAdmin(admin);
           }
           window.location.href = 'index.html';
           return;
         }
         
-        throw new Error('予期しないレスポンス形式です');
+        throw new Error('トークンが見つかりません');
       } catch (error) {
         console.error('2FA verification failed:', error);
         errorEl.textContent = error.message || '認証コードが正しくありません';
@@ -291,9 +329,8 @@
       this.value = this.value.replace(/[^0-9]/g, '');
     });
 
-    // 既にログイン済みならダッシュボードへ
-    // AdminAuth.isLoggedIn()を使って、adminTokenの有無で判定
-    if (AdminAuth.isLoggedIn()) {
+    // 既にログイン済みならダッシュボードへ（シンプルなチェック）
+    if (Auth.isLoggedIn()) {
       window.location.href = 'index.html';
     }
   </script>
