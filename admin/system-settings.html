@@ -198,7 +198,7 @@
   <script src="common.js"></script>
   <script>
     // common.jsのADMIN_API_BASEから取得
-    const CURRENT_API_URL = API_BASE_URL || localStorage.getItem('apiUrl') || '';
+    const CURRENT_API_URL = (typeof ADMIN_API_BASE !== 'undefined' ? ADMIN_API_BASE : '') || localStorage.getItem('apiUrl') || '';
 
     // JWT Secret生成
     function generateJwtSecret() {
@@ -215,7 +215,7 @@
         const settings = await API.get('/v1/admin/settings/system');
 
         // フォームに反映（マスクされた値を表示）
-        document.getElementById('apiUrl').value = API_BASE_URL;
+        document.getElementById('apiUrl').value = CURRENT_API_URL;
         document.getElementById('frontendUrl').value = settings.frontendUrl || '';
         document.getElementById('emailFrom').value = settings.emailFrom || '';
         document.getElementById('adminEmail').value = settings.adminEmail || '';
