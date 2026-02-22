@@ -275,7 +275,7 @@
 
       try {
         await API.put('/v1/admin/settings/shop', shopData);
-        await API.put('/v1/admin/settings/cancellation-policy', cancelData);
+        await API.put('/v1/admin/settings/cancellation', cancelData);
         showMessage('設定を保存しました', 'success');
       } catch (error) {
         console.error('設定保存エラー:', error);
