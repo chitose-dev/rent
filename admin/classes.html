@@ -162,8 +162,8 @@
 
         tbody.innerHTML = carClasses.map(c => `
           <tr>
-            <td><strong>${c.name}</strong></td>
-            <td>${c.description || '-'}</td>
+            <td><strong>${escapeHtml(c.name)}</strong></td>
+            <td>${escapeHtml(c.description) || '-'}</td>
             <td>${c.totalVehicles || 0}台</td>
             <td>
               <span class="badge ${c.isActive !== false ? 'badge-success' : 'badge-secondary'}">${c.isActive !== false ? '有効' : '無効'}</span>
@@ -224,8 +224,14 @@
     function updateImagePreview() {
       const url = document.getElementById('edit-imageUrl').value;
       const preview = document.getElementById('image-preview');
-      if (url) {
-        preview.innerHTML = `<img src="${url}" style="max-width:200px;max-height:120px;border-radius:4px;" onerror="this.style.display='none'">`;
+      // XSS対策：http/https URLのみ許可
+      if (url && /^https?:\/\//i.test(url)) {
+        const img = document.createElement('img');
+        img.src = url;
+        img.style.cssText = 'max-width:200px;max-height:120px;border-radius:4px;';
+        img.onerror = function() { this.style.display = 'none'; };
+        preview.innerHTML = '';
+        preview.appendChild(img);
       } else {
         preview.innerHTML = '';
       }

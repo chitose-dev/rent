@@ -222,8 +222,14 @@
         const filter = document.getElementById('class-filter');
         const addSelect = document.getElementById('add-class');
         carClasses.forEach(c => {
-          filter.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-          addSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+          const opt1 = document.createElement('option');
+          opt1.value = c.id;
+          opt1.textContent = c.name;
+          filter.appendChild(opt1);
+          const opt2 = document.createElement('option');
+          opt2.value = c.id;
+          opt2.textContent = c.name;
+          addSelect.appendChild(opt2);
         });
       } catch (e) {
         console.error('車両クラス取得エラー:', e);
@@ -253,9 +259,9 @@
           const st = statusLabels[v.status] || { text: v.status, class: 'badge-secondary' };
           return `
             <tr>
-              <td><strong>${v.licensePlate}</strong></td>
-              <td>${v.model || '-'}</td>
-              <td>${v.carClassName || '-'}</td>
+              <td><strong>${escapeHtml(v.licensePlate)}</strong></td>
+              <td>${escapeHtml(v.model) || '-'}</td>
+              <td>${escapeHtml(v.carClassName) || '-'}</td>
               <td><span class="badge ${st.class}">${st.text}</span></td>
               <td class="actions">
                 ${v.status === 'maintenance' 

@@ -344,10 +344,14 @@
         reservationData.options.forEach(opt => {
           const row = document.createElement('div');
           row.className = 'confirm-row';
-          row.innerHTML = `
-            <span class="confirm-label">追加オプション</span>
-            <span class="confirm-value">${opt.optionName || opt.name} × ${opt.quantity || 1}</span>
-          `;
+          const label = document.createElement('span');
+          label.className = 'confirm-label';
+          label.textContent = '追加オプション';
+          const value = document.createElement('span');
+          value.className = 'confirm-value';
+          value.textContent = `${opt.optionName || opt.name} × ${opt.quantity || 1}`;
+          row.appendChild(label);
+          row.appendChild(value);
           container.appendChild(row);
         });
       }

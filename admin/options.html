@@ -134,8 +134,8 @@
 
         tbody.innerHTML = options.map(o => `
           <tr>
-            <td><strong>${o.name}</strong></td>
-            <td>${o.description || '-'}</td>
+            <td><strong>${escapeHtml(o.name)}</strong></td>
+            <td>${escapeHtml(o.description) || '-'}</td>
             <td>¥${o.pricePerDay.toLocaleString()}/日</td>
             <td>${o.maxQuantity}</td>
             <td><span class="badge ${o.isActive !== false ? 'badge-success' : 'badge-secondary'}">${o.isActive !== false ? '有効' : '無効'}</span></td>
