@@ -199,6 +199,11 @@ document.addEventListener('DOMContentLoaded', function() {
   
   const sidebar = document.querySelector('.admin-sidebar');
   
+  // サイドバーがない場合（ログイン画面等）は以降の処理をスキップ
+  if (!sidebar) {
+    return;
+  }
+  
   // メニュー開閉
   function toggleMenu() {
     menuToggle.classList.toggle('active');
