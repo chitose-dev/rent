@@ -59,7 +59,7 @@
               <tr>
                 <th>クラス名</th>
                 <th>説明</th>
-                <th>備考</th>
+                <th>車両数</th>
                 <th>ステータス</th>
                 <th>操作</th>
               </tr>
@@ -104,10 +104,39 @@
           <label class="form-label">表示順</label>
           <input type="number" id="edit-order" class="form-input" min="0" value="0">
         </div>
+        <div class="form-group">
+          <label class="form-label">
+            <input type="checkbox" id="edit-isActive" checked> 有効
+          </label>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('edit-modal')">キャンセル</button>
         <button class="btn btn-primary" onclick="saveClass()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 削除モーダル -->
+  <div class="modal-overlay" id="delete-modal">
+    <div class="modal" style="max-width:450px;">
+      <div class="modal-header">
+        <h3>車両クラスを削除</h3>
+        <button class="modal-close" onclick="closeModal('delete-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="delete-id">
+        <p><strong id="delete-class-name"></strong> を削除しますか？</p>
+        <div id="delete-vehicle-warning" style="display:none; background:#fff3cd; padding:12px; border-radius:4px; margin:12px 0;">
+          <strong>⚠️ このクラスには車両が存在します</strong>
+          <p style="margin:8px 0 0;">移行先のクラスを選択してください：</p>
+          <select id="migrate-to-class" class="form-select" style="margin-top:8px;"></select>
+        </div>
+        <p style="color:#c00; margin-top:12px;">この操作は取り消せません。</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('delete-modal')">キャンセル</button>
+        <button class="btn btn-danger" onclick="confirmDelete()">削除する</button>
       </div>
     </div>
   </div>
@@ -134,17 +163,29 @@
           <tr>
             <td><strong>${c.name}</strong></td>
             <td>${c.description || '-'}</td>
-            <td>${c.notes || '-'}</td>
-            <td><span class="badge ${c.isActive !== false ? 'badge-success' : 'badge-secondary'}">${c.isActive !== false ? '有効' : '無効'}</span></td>
+            <td>${c.totalVehicles || 0}台</td>
+            <td>
+              <span class="badge ${c.isActive !== false ? 'badge-success' : 'badge-secondary'}">${c.isActive !== false ? '有効' : '無効'}</span>
+            </td>
             <td class="actions">
               <button class="btn btn-sm btn-outline" data-edit-id="${c.id}">編集</button>
+              <button class="btn btn-sm ${c.isActive !== false ? 'btn-secondary' : 'btn-success'}" data-toggle-id="${c.id}">
+                ${c.isActive !== false ? '無効化' : '有効化'}
+              </button>
+              <button class="btn btn-sm btn-danger" data-delete-id="${c.id}">削除</button>
             </td>
           </tr>
         `).join('');
         
-        // イベント委譲で編集ボタンを処理
+        // イベント委譲
         tbody.querySelectorAll('[data-edit-id]').forEach(btn => {
           btn.addEventListener('click', () => openEditModal(btn.dataset.editId));
+        });
+        tbody.querySelectorAll('[data-toggle-id]').forEach(btn => {
+          btn.addEventListener('click', () => toggleStatus(btn.dataset.toggleId));
+        });
+        tbody.querySelectorAll('[data-delete-id]').forEach(btn => {
+          btn.addEventListener('click', () => openDeleteModal(btn.dataset.deleteId));
         });
       } catch (error) {
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:#c00;">エラー: ${error.message}</td></tr>`;
@@ -159,6 +200,7 @@
       document.getElementById('edit-notes').value = '';
       document.getElementById('edit-imageUrl').value = '';
       document.getElementById('edit-order').value = '0';
+      document.getElementById('edit-isActive').checked = true;
       document.getElementById('image-preview').innerHTML = '';
       openModal('edit-modal');
     }
@@ -173,6 +215,7 @@
       document.getElementById('edit-notes').value = c.notes || '';
       document.getElementById('edit-imageUrl').value = c.imageUrl || '';
       document.getElementById('edit-order').value = c.sortOrder || 0;
+      document.getElementById('edit-isActive').checked = c.isActive !== false;
       updateImagePreview();
       openModal('edit-modal');
     }
@@ -194,6 +237,7 @@
       const notes = document.getElementById('edit-notes').value;
       const imageUrl = document.getElementById('edit-imageUrl').value || null;
       const sortOrder = parseInt(document.getElementById('edit-order').value);
+      const isActive = document.getElementById('edit-isActive').checked;
 
       if (!name) {
         alert('クラス名を入力してください');
@@ -202,12 +246,79 @@
 
       try {
         if (id) {
-          await API.put(`/v1/admin/car-classes/${id}`, { name, description, notes, imageUrl, sortOrder });
+          await API.put(`/v1/admin/car-classes/${id}`, { name, description, notes, imageUrl, sortOrder, isActive });
         } else {
-          await API.post('/v1/admin/car-classes', { name, description, notes, imageUrl, sortOrder });
+          await API.post('/v1/admin/car-classes', { name, description, notes, imageUrl, sortOrder, isActive });
         }
         alert('保存しました');
         closeModal('edit-modal');
+        loadClasses();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    async function toggleStatus(id) {
+      const c = carClasses.find(x => x.id === id);
+      if (!c) return;
+      
+      const newStatus = c.isActive === false;
+      const action = newStatus ? '有効化' : '無効化';
+      
+      if (!confirm(`「${c.name}」を${action}しますか？`)) return;
+
+      try {
+        await API.put(`/v1/admin/car-classes/${id}`, { isActive: newStatus });
+        loadClasses();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    function openDeleteModal(id) {
+      const c = carClasses.find(x => x.id === id);
+      if (!c) return;
+
+      document.getElementById('delete-id').value = c.id;
+      document.getElementById('delete-class-name').textContent = c.name;
+
+      const warning = document.getElementById('delete-vehicle-warning');
+      const select = document.getElementById('migrate-to-class');
+
+      if (c.totalVehicles > 0) {
+        warning.style.display = 'block';
+        // 他のクラスをセレクトに追加
+        select.innerHTML = carClasses
+          .filter(x => x.id !== c.id)
+          .map(x => `<option value="${x.id}">${x.name}</option>`)
+          .join('');
+      } else {
+        warning.style.display = 'none';
+      }
+
+      openModal('delete-modal');
+    }
+
+    async function confirmDelete() {
+      const id = document.getElementById('delete-id').value;
+      const c = carClasses.find(x => x.id === id);
+      if (!c) return;
+
+      let url = `/v1/admin/car-classes/${id}`;
+      
+      if (c.totalVehicles > 0) {
+        const migrateToClassId = document.getElementById('migrate-to-class').value;
+        if (!migrateToClassId) {
+          alert('移行先のクラスを選択してください');
+          return;
+        }
+        url += `?migrateToClassId=${migrateToClassId}`;
+      }
+
+      try {
+        const result = await API.delete(url);
+        alert(result.message || '削除しました');
+        closeModal('delete-modal');
         loadClasses();
       } catch (error) {
         alert('エラー: ' + error.message);
