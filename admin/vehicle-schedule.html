@@ -327,10 +327,16 @@
         vehicles = Array.isArray(vehicleResult) ? vehicleResult : (vehicleResult.data || []);
 
         // 予約を取得（期間指定）
-        const resResult = await API.get(
-          `/v1/admin/reservations?pickupFrom=${startDate.toISOString()}&pickupTo=${endDate.toISOString()}&limit=500`
-        );
-        reservations = Array.isArray(resResult) ? resResult : (resResult.data || []);
+        // 全予約を取得してフロントエンドでフィルタ（Firestoreインデックス問題回避）
+        const resResult = await API.get('/v1/admin/reservations?limit=500');
+        let allReservations = Array.isArray(resResult) ? resResult : (resResult.data || []);
+        
+        // 表示期間内の予約のみフィルタ
+        reservations = allReservations.filter(res => {
+          const pickup = new Date(res.pickupAt);
+          const returnAt = new Date(res.returnAt);
+          return returnAt >= startDate && pickup <= endDate;
+        });
 
         renderSchedule(days);
       } catch (error) {
