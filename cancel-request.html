@@ -200,6 +200,14 @@
       try {
         await ReservationAPI.cancel(reservationData.id, reason);
         
+        // キャンセル申請情報を保存
+        ReservationStorage.save({
+          reservationId: reservationData.id,
+          carClassId: reservationData.carClassId,
+          pickupDateTime: reservationData.pickupAt,
+          cancelRequestDate: new Date().toISOString()
+        });
+        
         // 完了ページへ
         window.location.href = 'cancel-request-complete.html';
       } catch (error) {
