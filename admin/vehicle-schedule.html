@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>車両スケジュール - 管理画面</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .schedule-container {
+      overflow-x: auto;
+      padding-bottom: 16px;
+    }
+    .schedule-controls {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .schedule-table {
+      border-collapse: collapse;
+      min-width: 100%;
+    }
+    .schedule-table th,
+    .schedule-table td {
+      border: 1px solid #ddd;
+      padding: 0;
+      height: 36px;
+      min-width: 40px;
+      position: relative;
+    }
+    .schedule-table th {
+      background: #f5f5f5;
+      font-weight: 500;
+      font-size: 12px;
+      padding: 4px;
+    }
+    .schedule-table th.vehicle-col {
+      min-width: 150px;
+      text-align: left;
+      padding-left: 12px;
+      position: sticky;
+      left: 0;
+      background: #f5f5f5;
+      z-index: 10;
+    }
+    .schedule-table td.vehicle-cell {
+      text-align: left;
+      padding-left: 12px;
+      font-size: 13px;
+      background: #fff;
+      position: sticky;
+      left: 0;
+      z-index: 5;
+    }
+    .schedule-table td.day-cell {
+      background: #fafafa;
+    }
+    .schedule-table td.day-cell.weekend {
+      background: #fff5f5;
+    }
+    .schedule-table td.day-cell.today {
+      background: #e3f2fd;
+    }
+    .class-header {
+      background: #e8e8e8 !important;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .class-header td {
+      padding: 8px 12px !important;
+      background: #e8e8e8;
+    }
+    
+    /* 予約・イベントブロック */
+    .event-block {
+      position: absolute;
+      top: 2px;
+      bottom: 2px;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 11px;
+      color: #fff;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .event-block:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .event-block.reservation {
+      background: #4CAF50;
+    }
+    .event-block.reservation.pending {
+      background: #FF9800;
+    }
+    .event-block.rented {
+      background: #2196F3;
+    }
+    .event-block.maintenance {
+      background: #9E9E9E;
+    }
+    .event-block.dragging {
+      opacity: 0.7;
+      z-index: 100;
+    }
+    .event-block.draggable {
+      cursor: grab;
+    }
+    .event-block.draggable:active {
+      cursor: grabbing;
+    }
+    
+    /* ドロップ可能エリア */
+    .drop-target {
+      background: #c8e6c9 !important;
+    }
+    .drop-invalid {
+      background: #ffcdd2 !important;
+    }
+    
+    /* 詳細モーダル */
+    .detail-row {
+      display: flex;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+    .detail-label {
+      width: 100px;
+      color: #666;
+      flex-shrink: 0;
+    }
+    .detail-value {
+      flex: 1;
+    }
+    
+    /* 凡例 */
+    .legend {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-logo">予約管理<small>管理画面</small></a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><a href="index.html" class="nav-item">ダッシュボード</a></div>
+        <div class="nav-section">
+          <div class="nav-section-title">予約管理</div>
+          <a href="reservations.html" class="nav-item">予約一覧</a>
+          <a href="vehicle-schedule.html" class="nav-item active">車両スケジュール</a>
+          <a href="members.html" class="nav-item">会員管理</a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">車両・サービス</div>
+          <a href="classes.html" class="nav-item">車両クラス</a>
+          <a href="pricing.html" class="nav-item">料金設定</a>
+          <a href="vehicles.html" class="nav-item">車両・在庫</a>
+          <a href="options.html" class="nav-item">オプション</a>
+          <a href="insurance.html" class="nav-item">保険プラン</a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">設定</div>
+          <a href="settings.html" class="nav-item">店舗設定</a>
+          <a href="system-settings.html" class="nav-item">システム設定</a>
+          <a href="documents.html" class="nav-item">法的文書</a>
+        </div>
+        <div class="nav-section">
+          <a href="../index.html" class="nav-item" target="_blank">予約サイトへ →</a>
+          <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
+        </div>
+        <div class="nav-section nav-section-bottom">
+          <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <div class="admin-header">
+        <div>
+          <h1 class="admin-title">車両スケジュール</h1>
+          <p class="admin-breadcrumb"><a href="index.html">ダッシュボード</a> / 車両スケジュール</p>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <div class="card-body">
+          <!-- 凡例 -->
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-color" style="background:#4CAF50;"></div>
+              <span>予約済み</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background:#FF9800;"></div>
+              <span>支払い待ち</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background:#2196F3;"></div>
+              <span>レンタル中</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background:#9E9E9E;"></div>
+              <span>メンテナンス</span>
+            </div>
+          </div>
+          
+          <!-- コントロール -->
+          <div class="schedule-controls">
+            <button class="btn btn-outline btn-sm" onclick="changeWeek(-1)">← 前週</button>
+            <input type="date" id="start-date" class="form-input" style="width:150px;" onchange="loadSchedule()">
+            <button class="btn btn-outline btn-sm" onclick="changeWeek(1)">次週 →</button>
+            <button class="btn btn-secondary btn-sm" onclick="goToToday()">今日</button>
+            <select id="view-days" class="form-select" style="width:100px;" onchange="loadSchedule()">
+              <option value="7">1週間</option>
+              <option value="14">2週間</option>
+              <option value="30">1ヶ月</option>
+            </select>
+          </div>
+          
+          <!-- スケジュール表 -->
+          <div class="schedule-container">
+            <table class="schedule-table" id="schedule-table">
+              <thead id="schedule-header"></thead>
+              <tbody id="schedule-body">
+                <tr><td colspan="10" style="text-align:center;padding:40px;">読み込み中...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 詳細モーダル -->
+  <div class="modal-overlay" id="detail-modal">
+    <div class="modal" style="max-width:450px;">
+      <div class="modal-header">
+        <h3 id="detail-modal-title">詳細</h3>
+        <button class="modal-close" onclick="closeModal('detail-modal')">&times;</button>
+      </div>
+      <div class="modal-body" id="detail-modal-body"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('detail-modal')">閉じる</button>
+        <a id="detail-link" href="#" class="btn btn-primary" style="display:none;">予約詳細を見る</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    let carClasses = [];
+    let vehicles = [];
+    let reservations = [];
+    let startDate = new Date();
+    let dragData = null;
+
+    // 初期化
+    document.addEventListener('DOMContentLoaded', () => {
+      // 今日を起点に
+      startDate = new Date();
+      startDate.setHours(0, 0, 0, 0);
+      document.getElementById('start-date').value = formatDateInput(startDate);
+      loadSchedule();
+    });
+
+    function formatDateInput(d) {
+      return d.toISOString().split('T')[0];
+    }
+
+    function changeWeek(delta) {
+      const days = parseInt(document.getElementById('view-days').value);
+      startDate.setDate(startDate.getDate() + (delta * days));
+      document.getElementById('start-date').value = formatDateInput(startDate);
+      loadSchedule();
+    }
+
+    function goToToday() {
+      startDate = new Date();
+      startDate.setHours(0, 0, 0, 0);
+      document.getElementById('start-date').value = formatDateInput(startDate);
+      loadSchedule();
+    }
+
+    async function loadSchedule() {
+      const dateInput = document.getElementById('start-date').value;
+      if (dateInput) {
+        startDate = new Date(dateInput);
+      }
+      const days = parseInt(document.getElementById('view-days').value);
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + days);
+
+      try {
+        // 車両クラスと車両を取得
+        const [classResult, vehicleResult] = await Promise.all([
+          API.get('/v1/admin/car-classes'),
+          API.get('/v1/admin/vehicles?limit=200')
+        ]);
+        
+        carClasses = Array.isArray(classResult) ? classResult : (classResult.data || []);
+        carClasses = carClasses.filter(c => c.isActive !== false);
+        vehicles = Array.isArray(vehicleResult) ? vehicleResult : (vehicleResult.data || []);
+
+        // 予約を取得（期間指定）
+        const resResult = await API.get(
+          `/v1/admin/reservations?fromDate=${startDate.toISOString()}&toDate=${endDate.toISOString()}&limit=500`
+        );
+        reservations = Array.isArray(resResult) ? resResult : (resResult.data || []);
+
+        renderSchedule(days);
+      } catch (error) {
+        document.getElementById('schedule-body').innerHTML = 
+          `<tr><td colspan="10" style="text-align:center;padding:40px;color:#c00;">エラー: ${error.message}</td></tr>`;
+      }
+    }
+
+    function renderSchedule(days) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // ヘッダー生成
+      const header = document.getElementById('schedule-header');
+      let headerHtml = '<tr><th class="vehicle-col">車両</th>';
+      for (let i = 0; i < days; i++) {
+        const d = new Date(startDate);
+        d.setDate(d.getDate() + i);
+        const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+        const isToday = d.getTime() === today.getTime();
+        const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+        headerHtml += `<th class="${isWeekend ? 'weekend' : ''} ${isToday ? 'today' : ''}" data-date="${formatDateInput(d)}">
+          ${d.getMonth() + 1}/${d.getDate()}<br><small>${dayNames[d.getDay()]}</small>
+        </th>`;
+      }
+      headerHtml += '</tr>';
+      header.innerHTML = headerHtml;
+
+      // ボディ生成
+      const body = document.getElementById('schedule-body');
+      let bodyHtml = '';
+
+      carClasses.forEach(cls => {
+        const classVehicles = vehicles.filter(v => v.carClassId === cls.id);
+        if (classVehicles.length === 0) return;
+
+        // クラスヘッダー
+        bodyHtml += `<tr class="class-header"><td colspan="${days + 1}">${cls.name} (${classVehicles.length}台)</td></tr>`;
+
+        // 各車両
+        classVehicles.forEach(vehicle => {
+          bodyHtml += `<tr data-vehicle-id="${vehicle.id}" data-class-id="${cls.id}">`;
+          bodyHtml += `<td class="vehicle-cell">${vehicle.licensePlate}</td>`;
+          
+          for (let i = 0; i < days; i++) {
+            const d = new Date(startDate);
+            d.setDate(d.getDate() + i);
+            const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+            const isToday = d.getTime() === today.getTime();
+            bodyHtml += `<td class="day-cell ${isWeekend ? 'weekend' : ''} ${isToday ? 'today' : ''}" 
+              data-date="${formatDateInput(d)}" data-vehicle-id="${vehicle.id}"></td>`;
+          }
+          bodyHtml += '</tr>';
+        });
+      });
+
+      body.innerHTML = bodyHtml;
+
+      // イベントブロックを配置
+      placeEventBlocks(days);
+
+      // ドロップターゲット設定
+      setupDropTargets();
+    }
+
+    function placeEventBlocks(days) {
+      reservations.forEach(res => {
+        if (!res.vehicleId) return;
+        
+        const pickup = new Date(res.pickupAt);
+        const returnAt = new Date(res.returnAt);
+        
+        // 表示期間内にあるか
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + days);
+        
+        if (returnAt < startDate || pickup > endDate) return;
+
+        // 開始日のセルを見つける
+        const displayStart = pickup < startDate ? startDate : pickup;
+        const displayEnd = returnAt > endDate ? endDate : returnAt;
+        
+        const startDayIndex = Math.floor((displayStart - startDate) / (1000 * 60 * 60 * 24));
+        const endDayIndex = Math.ceil((displayEnd - startDate) / (1000 * 60 * 60 * 24));
+        const spanDays = endDayIndex - startDayIndex;
+
+        if (spanDays <= 0) return;
+
+        // セルを見つけてブロック配置
+        const row = document.querySelector(`tr[data-vehicle-id="${res.vehicleId}"]`);
+        if (!row) return;
+
+        const cells = row.querySelectorAll('.day-cell');
+        if (startDayIndex >= cells.length) return;
+
+        const cell = cells[startDayIndex];
+        const cellWidth = 40; // min-width
+        
+        let blockClass = 'reservation';
+        let blockText = res.userName || '予約';
+        
+        if (res.status === 'picked_up') {
+          blockClass = 'rented';
+          blockText = res.userName || 'レンタル中';
+        } else if (res.status === 'pending_payment') {
+          blockClass += ' pending';
+        }
+
+        const block = document.createElement('div');
+        block.className = `event-block ${blockClass} draggable`;
+        block.style.width = `calc(${spanDays * 100}% - 4px)`;
+        block.style.left = '2px';
+        block.textContent = blockText;
+        block.dataset.reservationId = res.id;
+        block.dataset.vehicleId = res.vehicleId;
+        block.dataset.classId = res.carClassId;
+        block.dataset.pickupAt = res.pickupAt;
+        block.dataset.returnAt = res.returnAt;
+        
+        block.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showReservationDetail(res);
+        });
+
+        // ドラッグ設定
+        block.draggable = true;
+        block.addEventListener('dragstart', handleDragStart);
+        block.addEventListener('dragend', handleDragEnd);
+
+        cell.appendChild(block);
+      });
+
+      // メンテナンス表示
+      vehicles.forEach(v => {
+        if (v.status !== 'maintenance' || !v.nextMaintenanceStart) return;
+        
+        const maintStart = new Date(v.nextMaintenanceStart);
+        const maintEnd = v.nextMaintenanceEnd ? new Date(v.nextMaintenanceEnd) : new Date(maintStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + days);
+        
+        if (maintEnd < startDate || maintStart > endDate) return;
+
+        const displayStart = maintStart < startDate ? startDate : maintStart;
+        const displayEnd = maintEnd > endDate ? endDate : maintEnd;
+        
+        const startDayIndex = Math.floor((displayStart - startDate) / (1000 * 60 * 60 * 24));
+        const endDayIndex = Math.ceil((displayEnd - startDate) / (1000 * 60 * 60 * 24));
+        const spanDays = endDayIndex - startDayIndex;
+
+        if (spanDays <= 0) return;
+
+        const row = document.querySelector(`tr[data-vehicle-id="${v.id}"]`);
+        if (!row) return;
+
+        const cells = row.querySelectorAll('.day-cell');
+        if (startDayIndex >= cells.length) return;
+
+        const cell = cells[startDayIndex];
+
+        const block = document.createElement('div');
+        block.className = 'event-block maintenance';
+        block.style.width = `calc(${spanDays * 100}% - 4px)`;
+        block.style.left = '2px';
+        block.textContent = 'メンテナンス';
+        
+        block.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showMaintenanceDetail(v);
+        });
+
+        cell.appendChild(block);
+      });
+    }
+
+    function showReservationDetail(res) {
+      document.getElementById('detail-modal-title').textContent = '予約詳細';
+      document.getElementById('detail-modal-body').innerHTML = `
+        <div class="detail-row"><div class="detail-label">予約番号</div><div class="detail-value">${res.id}</div></div>
+        <div class="detail-row"><div class="detail-label">お客様名</div><div class="detail-value">${res.userName || '-'}</div></div>
+        <div class="detail-row"><div class="detail-label">車両</div><div class="detail-value">${res.vehiclePlate || '-'} (${res.carClassName || '-'})</div></div>
+        <div class="detail-row"><div class="detail-label">貸出日時</div><div class="detail-value">${new Date(res.pickupAt).toLocaleString('ja-JP')}</div></div>
+        <div class="detail-row"><div class="detail-label">返却日時</div><div class="detail-value">${new Date(res.returnAt).toLocaleString('ja-JP')}</div></div>
+        <div class="detail-row"><div class="detail-label">ステータス</div><div class="detail-value">${getStatusLabel(res.status)}</div></div>
+        <div class="detail-row"><div class="detail-label">合計金額</div><div class="detail-value">¥${(res.totalPrice || 0).toLocaleString()}</div></div>
+      `;
+      document.getElementById('detail-link').href = `reservations.html?id=${res.id}`;
+      document.getElementById('detail-link').style.display = 'inline-block';
+      openModal('detail-modal');
+    }
+
+    function showMaintenanceDetail(vehicle) {
+      document.getElementById('detail-modal-title').textContent = 'メンテナンス詳細';
+      document.getElementById('detail-modal-body').innerHTML = `
+        <div class="detail-row"><div class="detail-label">車両</div><div class="detail-value">${vehicle.licensePlate} (${vehicle.model})</div></div>
+        <div class="detail-row"><div class="detail-label">開始日時</div><div class="detail-value">${vehicle.nextMaintenanceStart ? new Date(vehicle.nextMaintenanceStart).toLocaleString('ja-JP') : '-'}</div></div>
+        <div class="detail-row"><div class="detail-label">終了日時</div><div class="detail-value">${vehicle.nextMaintenanceEnd ? new Date(vehicle.nextMaintenanceEnd).toLocaleString('ja-JP') : '-'}</div></div>
+      `;
+      document.getElementById('detail-link').style.display = 'none';
+      openModal('detail-modal');
+    }
+
+    function getStatusLabel(status) {
+      const labels = {
+        pending_payment: '支払い待ち',
+        confirmed: '予約確定',
+        picked_up: 'レンタル中',
+        returned: '返却済み',
+        cancelled: 'キャンセル',
+        cancel_requested: 'キャンセル申請中'
+      };
+      return labels[status] || status;
+    }
+
+    // ドラッグ&ドロップ
+    function handleDragStart(e) {
+      dragData = {
+        reservationId: e.target.dataset.reservationId,
+        vehicleId: e.target.dataset.vehicleId,
+        classId: e.target.dataset.classId,
+        pickupAt: e.target.dataset.pickupAt,
+        returnAt: e.target.dataset.returnAt
+      };
+      e.target.classList.add('dragging');
+      
+      // 同じクラスの車両行をハイライト
+      document.querySelectorAll(`tr[data-class-id="${dragData.classId}"]`).forEach(row => {
+        if (row.dataset.vehicleId !== dragData.vehicleId) {
+          row.querySelectorAll('.day-cell').forEach(cell => {
+            cell.classList.add('drop-target');
+          });
+        }
+      });
+    }
+
+    function handleDragEnd(e) {
+      e.target.classList.remove('dragging');
+      document.querySelectorAll('.drop-target, .drop-invalid').forEach(el => {
+        el.classList.remove('drop-target', 'drop-invalid');
+      });
+      dragData = null;
+    }
+
+    function setupDropTargets() {
+      document.querySelectorAll('.day-cell').forEach(cell => {
+        cell.addEventListener('dragover', (e) => {
+          if (!dragData) return;
+          e.preventDefault();
+        });
+
+        cell.addEventListener('drop', async (e) => {
+          e.preventDefault();
+          if (!dragData) return;
+
+          const targetVehicleId = e.target.closest('tr')?.dataset.vehicleId;
+          const targetClassId = e.target.closest('tr')?.dataset.classId;
+
+          if (!targetVehicleId || targetVehicleId === dragData.vehicleId) return;
+          if (targetClassId !== dragData.classId) {
+            alert('同じ車両クラス内でのみ変更できます');
+            return;
+          }
+
+          // 確認
+          const targetVehicle = vehicles.find(v => v.id === targetVehicleId);
+          if (!confirm(`予約を「${targetVehicle?.licensePlate}」に変更しますか？`)) return;
+
+          // API呼び出しで予約の車両を変更
+          try {
+            await API.patch(`/v1/admin/reservations/${dragData.reservationId}`, {
+              vehicleId: targetVehicleId
+            });
+            loadSchedule();
+          } catch (error) {
+            alert('エラー: ' + error.message);
+          }
+        });
+      });
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+  </script>
+</body>
+</html>
