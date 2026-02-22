@@ -328,7 +328,7 @@
 
         // 予約を取得（期間指定）
         const resResult = await API.get(
-          `/v1/admin/reservations?fromDate=${startDate.toISOString()}&toDate=${endDate.toISOString()}&limit=500`
+          `/v1/admin/reservations?pickupFrom=${startDate.toISOString()}&pickupTo=${endDate.toISOString()}&limit=500`
         );
         reservations = Array.isArray(resResult) ? resResult : (resResult.data || []);
 
