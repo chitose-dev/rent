@@ -154,9 +154,9 @@
           const st = statusLabels[r.status] || { text: r.status, class: 'badge-secondary' };
           return `
             <tr>
-              <td><strong>${r.id}</strong></td>
-              <td>${r.userName || '-'}</td>
-              <td>${r.carClassName || '-'}</td>
+              <td><strong>${escapeHtml(r.id)}</strong></td>
+              <td>${escapeHtml(r.userName) || '-'}</td>
+              <td>${escapeHtml(r.carClassName) || '-'}</td>
               <td>${formatTime(r.pickupAt)} 〜 ${formatTime(r.returnAt)}</td>
               <td><span class="badge ${st.class}">${st.text}</span></td>
               <td><a href="reservations.html" class="btn btn-sm btn-outline">詳細</a></td>

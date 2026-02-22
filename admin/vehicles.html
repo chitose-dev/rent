@@ -387,12 +387,12 @@
             // 予約一覧
             document.getElementById('delete-reservations-list').innerHTML = 
               deleteCheckResult.reservations.map(r => 
-                `<div>・${new Date(r.pickupAt).toLocaleDateString('ja-JP')} 〜 ${new Date(r.returnAt).toLocaleDateString('ja-JP')} (${r.userName})</div>`
+                `<div>・${new Date(r.pickupAt).toLocaleDateString('ja-JP')} 〜 ${new Date(r.returnAt).toLocaleDateString('ja-JP')} (${escapeHtml(r.userName)})</div>`
               ).join('');
             // 振り替え先選択肢
             document.getElementById('transfer-to').innerHTML = 
               deleteCheckResult.transferOptions.map(t => 
-                `<option value="${t.id}">${t.plateNumber} (${t.model})</option>`
+                `<option value="${escapeHtml(t.id)}">${escapeHtml(t.plateNumber)} (${escapeHtml(t.model)})</option>`
               ).join('');
           } else {
             document.getElementById('delete-no-transfer-warning').style.display = 'block';

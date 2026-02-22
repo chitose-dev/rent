@@ -303,18 +303,18 @@
         
         body.innerHTML = `
           <table style="width:100%;border-collapse:collapse;">
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;width:120px;">予約番号</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.id}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;width:120px;">予約番号</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.id)}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">ステータス</th><td style="padding:8px;border-bottom:1px solid #eee;"><span class="badge ${status.class}">${status.text}</span></td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">会員名</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.userName || '-'}</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">メール</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.userEmail || '-'}</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">電話番号</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.userPhone || '-'}</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">車両クラス</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.carClassName || '-'}</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">車両</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.vehicleLicensePlate || '未割当'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">会員名</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.userName) || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">メール</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.userEmail) || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">電話番号</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.userPhone) || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">車両クラス</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.carClassName) || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">車両</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.vehicleLicensePlate) || '未割当'}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">受取日時</th><td style="padding:8px;border-bottom:1px solid #eee;">${new Date(r.pickupAt).toLocaleString('ja-JP')}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">返却日時</th><td style="padding:8px;border-bottom:1px solid #eee;">${new Date(r.returnAt).toLocaleString('ja-JP')}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">金額</th><td style="padding:8px;border-bottom:1px solid #eee;">${formatPrice(r.totalPrice || 0)}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">決済方法</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.paymentMethod === 'card' ? 'カード' : '現地払い'}</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">保険</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.insuranceType || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">保険</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.insuranceType) || '-'}</td></tr>
           </table>
         `;
       } catch (error) {
