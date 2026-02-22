@@ -192,7 +192,7 @@
       data[type] = content;
 
       try {
-        await API.put('/v1/admin/settings/legal-documents', data);
+        await API.put('/v1/admin/settings/legal', data);
         showMessage(type === 'terms' ? '利用規約を保存しました' : 'プライバシーポリシーを保存しました', 'success');
         loadDocuments(); // 更新日時を反映
       } catch (error) {
