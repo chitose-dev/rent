@@ -1,6 +1,6 @@
 # トクノリレンタカー 開発プラン
 
-最終更新: 2026-02-22 05:00 JST
+最終更新: 2026-02-22 09:00 JST
 
 ## 現状サマリー
 - **バックエンド**: ✅ 完成（Cloud Run稼働中）
@@ -107,3 +107,17 @@
 ## 本番URL
 - フロント: https://chitose-dev.github.io/rent/
 - API: https://rentcar-backend-dgyxfpofua-an.a.run.app
+
+---
+
+## 最新テスト結果
+
+### 2026-02-22 09:00 定期テスト
+- ✅ API Health: OK
+- ✅ ユーザーログイン: OK (`user@demo.tokunori.com`)
+- ✅ 管理者ログイン: OK (`admin@demo.tokunori.com` via `/v1/admin/auth/login`)
+- ✅ 車両クラス: 4件取得、availableVehicles正常
+- ✅ オプション: 4件取得
+- ✅ 保険プラン: 3件取得
+- 📝 シード実行: パスワードリセット完了
+- 🔄 未コミット変更: なし（両リポジトリ）
