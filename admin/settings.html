@@ -200,8 +200,8 @@
         const shop = data.shop || {};
         const cancel = data.cancellationPolicy || {};
 
-        // 基本情報
-        document.getElementById('shopName').value = shop.name || '';
+        // 基本情報（旧フィールド名との互換性対応）
+        document.getElementById('shopName').value = shop.name || shop.shopName || '';
         document.getElementById('phone').value = shop.phone || '';
         document.getElementById('email').value = shop.email || '';
         document.getElementById('address').value = shop.address || '';
@@ -209,7 +209,7 @@
         // 営業時間
         document.getElementById('openTime').value = shop.openTime || '08:00';
         document.getElementById('closeTime').value = shop.closeTime || '20:00';
-        document.getElementById('timeSlot').value = shop.timeSlotMinutes || 30;
+        document.getElementById('timeSlot').value = shop.timeSlotMinutes || shop.timeStepMinutes || 30;
 
         // 定休日
         const closedDays = shop.closedDays || [];
