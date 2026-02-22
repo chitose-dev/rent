@@ -127,7 +127,7 @@
         if (status) url += `&status=${status}`;
 
         const result = await API.get(url);
-        const members = result.data || [];
+        const members = Array.isArray(result) ? result : (result.data || []);
 
         if (members.length === 0) {
           tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;">会員がいません</td></tr>';

@@ -141,7 +141,7 @@
       try {
         const today = new Date().toISOString().split('T')[0];
         const result = await API.get(`/v1/admin/reservations?pickupFrom=${today}T00:00:00&pickupTo=${today}T23:59:59&limit=10`);
-        const reservations = result.data || [];
+        const reservations = Array.isArray(result) ? result : (result.data || []);
 
         if (reservations.length === 0) {
           tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">本日の予約はありません</td></tr>';

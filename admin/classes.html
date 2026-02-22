@@ -116,7 +116,7 @@
 
       try {
         const result = await API.get('/v1/admin/car-classes');
-        carClasses = result.data || [];
+        carClasses = Array.isArray(result) ? result : (result.data || []);
 
         if (carClasses.length === 0) {
           tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;">車両クラスがありません</td></tr>';

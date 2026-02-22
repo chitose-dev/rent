@@ -126,7 +126,7 @@
     async function loadCarClasses() {
       try {
         const result = await API.get('/v1/admin/car-classes');
-        carClasses = result.data || [];
+        carClasses = Array.isArray(result) ? result : (result.data || []);
         const filter = document.getElementById('class-filter');
         const editSelect = document.getElementById('edit-class');
         carClasses.forEach(c => {
@@ -144,7 +144,7 @@
 
       try {
         const result = await API.get('/v1/admin/pricing');
-        pricingPlans = result.data || [];
+        pricingPlans = Array.isArray(result) ? result : (result.data || []);
 
         const carClassId = document.getElementById('class-filter').value;
         let filtered = pricingPlans;

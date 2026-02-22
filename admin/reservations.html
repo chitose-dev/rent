@@ -195,7 +195,7 @@
         }
         
         const result = await API.get(url);
-        const reservations = result.data || [];
+        const reservations = Array.isArray(result) ? result : (result.data || []);
         
         if (reservations.length === 0) {
           tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;">予約がありません</td></tr>';
