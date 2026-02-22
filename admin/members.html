@@ -168,7 +168,7 @@
 
         if (result.pagination) renderPagination(result.pagination);
       } catch (error) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:#c00;">エラー: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:#c00;">エラー: ${escapeHtml(error.message)}</td></tr>`;
       }
     }
 
@@ -207,7 +207,7 @@
           </table>
         `;
       } catch (error) {
-        body.innerHTML = `<p style="color:#c00;">エラー: ${error.message}</p>`;
+        body.innerHTML = `<p style="color:#c00;">エラー: ${escapeHtml(error.message)}</p>`;
       }
     }
 

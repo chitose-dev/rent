@@ -330,7 +330,7 @@
         `;
         resultDiv.innerHTML = html;
       } catch (error) {
-        resultDiv.innerHTML = `<div class="alert alert-danger">エラー: ${error.message}</div>`;
+        resultDiv.innerHTML = `<div class="alert alert-danger">エラー: ${escapeHtml(error.message)}</div>`;
       } finally {
         btn.disabled = false;
         btn.textContent = '重複データを削除';

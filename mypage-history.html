@@ -205,7 +205,7 @@
         renderHistoryCards(historyData);
       } catch (error) {
         console.error('履歴取得エラー:', error);
-        container.innerHTML = `<p style="text-align:center;padding:40px;color:#c00;">エラー: ${error.message}</p>`;
+        container.innerHTML = `<p style="text-align:center;padding:40px;color:#c00;">エラー: ${escapeHtml(error.message)}</p>`;
       }
     }
 

@@ -189,7 +189,7 @@
           btn.addEventListener('click', () => openDeleteModal(btn.dataset.deleteId));
         });
       } catch (error) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:#c00;">エラー: ${error.message}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:#c00;">エラー: ${escapeHtml(error.message)}</td></tr>`;
       }
     }
 
