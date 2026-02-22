@@ -319,7 +319,7 @@
         // 車両クラスと車両を取得
         const [classResult, vehicleResult] = await Promise.all([
           API.get('/v1/admin/car-classes'),
-          API.get('/v1/admin/vehicles?limit=200')
+          API.get('/v1/admin/vehicles?limit=100')
         ]);
         
         carClasses = Array.isArray(classResult) ? classResult : (classResult.data || []);
