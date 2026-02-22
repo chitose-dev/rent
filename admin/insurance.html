@@ -62,7 +62,6 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>プラン名</th>
                 <th>説明</th>
                 <th>日額料金</th>
@@ -73,7 +72,7 @@
               </tr>
             </thead>
             <tbody id="plans-table">
-              <tr><td colspan="8" style="text-align:center;">読み込み中...</td></tr>
+              <tr><td colspan="7" style="text-align:center;">読み込み中...</td></tr>
             </tbody>
           </table>
         </div>
@@ -89,12 +88,8 @@
         <button class="modal-close" onclick="closeModal()">&times;</button>
       </div>
       <form id="plan-form" onsubmit="savePlan(event)">
+        <input type="hidden" id="planId">
         <div class="modal-body">
-          <div class="form-group">
-            <label class="form-label">プランID（半角英数）</label>
-            <input type="text" id="planId" class="form-input" required pattern="[a-z0-9_-]+" placeholder="例: standard">
-            <small style="color:#666;">※作成後は変更できません</small>
-          </div>
           <div class="form-group">
             <label class="form-label">プラン名</label>
             <input type="text" id="planName" class="form-input" required placeholder="例: スタンダード補償">
@@ -151,22 +146,21 @@
       } catch (error) {
         console.error('保険プラン読み込みエラー:', error);
         document.getElementById('plans-table').innerHTML = 
-          '<tr><td colspan="8" style="text-align:center;color:red;">読み込みに失敗しました</td></tr>';
+          '<tr><td colspan="7" style="text-align:center;color:red;">読み込みに失敗しました</td></tr>';
       }
     }
 
     function renderPlans() {
       const tbody = document.getElementById('plans-table');
       if (plans.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">保険プランがありません</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">保険プランがありません</td></tr>';
         return;
       }
 
       tbody.innerHTML = plans.map(plan => `
         <tr>
-          <td><code>${plan.id}</code></td>
-          <td><strong>${plan.name}</strong></td>
-          <td>${plan.description || '-'}</td>
+          <td><strong>${escapeHtml(plan.name)}</strong></td>
+          <td>${escapeHtml(plan.description) || '-'}</td>
           <td>¥${(plan.pricePerDay || 0).toLocaleString()}/日</td>
           <td>${plan.deductible !== null ? '¥' + plan.deductible.toLocaleString() : '免責なし'}</td>
           <td>${plan.sortOrder || 0}</td>
@@ -177,20 +171,24 @@
           </td>
           <td>
             <button class="btn btn-sm btn-outline" data-edit-id="${plan.id}">編集</button>
+            <button class="btn btn-sm btn-danger" data-delete-id="${plan.id}">削除</button>
           </td>
         </tr>
       `).join('');
       
-      // イベント委譲で編集ボタンを処理
+      // イベント委譲で編集・削除ボタンを処理
       tbody.querySelectorAll('[data-edit-id]').forEach(btn => {
         btn.addEventListener('click', () => editPlan(btn.dataset.editId));
+      });
+      tbody.querySelectorAll('[data-delete-id]').forEach(btn => {
+        btn.addEventListener('click', () => deletePlan(btn.dataset.deleteId));
       });
     }
 
     function showAddModal() {
       editingPlanId = null;
       document.getElementById('modal-title').textContent = '保険プラン追加';
-      document.getElementById('planId').disabled = false;
+      document.getElementById('planId').value = '';
       document.getElementById('plan-form').reset();
       document.getElementById('planActive').checked = true;
       document.getElementById('modal').classList.add('active');
@@ -203,7 +201,6 @@
       editingPlanId = planId;
       document.getElementById('modal-title').textContent = '保険プラン編集';
       document.getElementById('planId').value = plan.id;
-      document.getElementById('planId').disabled = true;
       document.getElementById('planName').value = plan.name;
       document.getElementById('planDescription').value = plan.description || '';
       document.getElementById('planPrice').value = plan.pricePerDay || 0;
@@ -224,7 +221,6 @@
       saveBtn.textContent = '保存中...';
 
       const data = {
-        id: document.getElementById('planId').value.trim(),
         name: document.getElementById('planName').value.trim(),
         description: document.getElementById('planDescription').value.trim(),
         pricePerDay: parseInt(document.getElementById('planPrice').value) || 0,
@@ -246,6 +242,22 @@
       } finally {
         saveBtn.disabled = false;
         saveBtn.textContent = '保存';
+      }
+    }
+
+    async function deletePlan(planId) {
+      const plan = plans.find(p => p.id === planId);
+      if (!plan) return;
+
+      if (!confirm(`「${plan.name}」を削除しますか？\n\n※既存の予約には影響しません（予約時点の情報が保存されています）`)) {
+        return;
+      }
+
+      try {
+        await API.delete(`/v1/admin/insurance-plans/${planId}`);
+        loadPlans();
+      } catch (error) {
+        alert('削除に失敗しました: ' + error.message);
       }
     }
   </script>
