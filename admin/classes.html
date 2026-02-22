@@ -276,7 +276,7 @@
       }
     }
 
-    function openDeleteModal(id) {
+    async function openDeleteModal(id) {
       const c = carClasses.find(x => x.id === id);
       if (!c) return;
 
@@ -286,15 +286,29 @@
       const warning = document.getElementById('delete-vehicle-warning');
       const select = document.getElementById('migrate-to-class');
 
-      if (c.totalVehicles > 0) {
-        warning.style.display = 'block';
-        // 他のクラスをセレクトに追加
-        select.innerHTML = carClasses
-          .filter(x => x.id !== c.id)
-          .map(x => `<option value="${x.id}">${x.name}</option>`)
-          .join('');
-      } else {
+      // 実際の車両数をAPIで取得
+      try {
+        const vehiclesResult = await API.get(`/v1/admin/vehicles?carClassId=${id}&limit=100`);
+        const vehicles = Array.isArray(vehiclesResult) ? vehiclesResult : (vehiclesResult.data || []);
+        const vehicleCount = vehicles.length;
+        
+        // 車両数をクラスオブジェクトに保存（confirmDeleteで使用）
+        c._vehicleCount = vehicleCount;
+
+        if (vehicleCount > 0) {
+          warning.style.display = 'block';
+          warning.querySelector('strong').textContent = `⚠️ このクラスには${vehicleCount}台の車両があります`;
+          // 他のクラスをセレクトに追加
+          select.innerHTML = carClasses
+            .filter(x => x.id !== c.id && x.isActive !== false)
+            .map(x => `<option value="${x.id}">${x.name}</option>`)
+            .join('');
+        } else {
+          warning.style.display = 'none';
+        }
+      } catch (e) {
         warning.style.display = 'none';
+        c._vehicleCount = 0;
       }
 
       openModal('delete-modal');
@@ -307,7 +321,7 @@
 
       let url = `/v1/admin/car-classes/${id}`;
       
-      if (c.totalVehicles > 0) {
+      if (c._vehicleCount > 0) {
         const migrateToClassId = document.getElementById('migrate-to-class').value;
         if (!migrateToClassId) {
           alert('移行先のクラスを選択してください');
