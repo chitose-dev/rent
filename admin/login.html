@@ -147,6 +147,12 @@
             <label for="adminPassword">パスワード</label>
             <input type="password" id="adminPassword" name="adminPassword" required autocomplete="current-password">
           </div>
+          <div class="form-group" style="margin-bottom:20px;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:normal;">
+              <input type="checkbox" id="rememberMe" style="width:16px;height:16px;">
+              <span>ログインを保持</span>
+            </label>
+          </div>
           <button type="submit" class="login-btn" id="loginBtn">ログイン</button>
         </form>
       </div>
@@ -185,21 +191,40 @@
     
     const API_BASE = 'https://rentcar-backend-dgyxfpofua-an.a.run.app';
     
-    // セッションストレージ操作
+    // ストレージ操作（ログイン保持対応）
     const Auth = {
+      REMEMBER_KEY: 'adminRememberMe',
+      
+      getStorage() {
+        if (localStorage.getItem(this.REMEMBER_KEY) === 'true') {
+          return localStorage;
+        }
+        return sessionStorage;
+      },
+      
+      setRememberMe(remember) {
+        if (remember) {
+          localStorage.setItem(this.REMEMBER_KEY, 'true');
+        } else {
+          localStorage.removeItem(this.REMEMBER_KEY);
+        }
+      },
+      
       saveTokens(token, refreshToken) {
-        sessionStorage.setItem('adminToken', token);
+        const storage = this.getStorage();
+        storage.setItem('adminToken', token);
         if (refreshToken) {
-          sessionStorage.setItem('adminRefreshToken', refreshToken);
+          storage.setItem('adminRefreshToken', refreshToken);
         }
       },
       saveAdmin(admin) {
-        sessionStorage.setItem('adminId', admin.id);
-        sessionStorage.setItem('adminEmail', admin.email);
-        sessionStorage.setItem('adminName', admin.name || '');
+        const storage = this.getStorage();
+        storage.setItem('adminId', admin.id);
+        storage.setItem('adminEmail', admin.email);
+        storage.setItem('adminName', admin.name || '');
       },
       isLoggedIn() {
-        return !!sessionStorage.getItem('adminToken');
+        return !!(localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken'));
       }
     };
     
@@ -230,6 +255,10 @@
       
       const email = document.getElementById('adminId').value;
       const password = document.getElementById('adminPassword').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
+      
+      // ログイン保持設定
+      Auth.setRememberMe(rememberMe);
       
       try {
         const response = await apiPost('/v1/admin/auth/login', { email, password });

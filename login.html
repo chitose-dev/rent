@@ -214,8 +214,12 @@
           <span class="form-error">パスワードを入力してください</span>
         </div>
 
-        <div class="forgot-password">
-          <a href="#" onclick="showForgotPassword(); return false;">パスワードをお忘れですか？</a>
+        <div class="login-options" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--spacing-md);">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="rememberMe" style="width:16px;height:16px;">
+            <span style="font-size:14px;">ログインを保持</span>
+          </label>
+          <a href="#" onclick="showForgotPassword(); return false;" style="font-size:14px;">パスワードをお忘れですか？</a>
         </div>
 
         <button type="submit" class="btn btn-primary btn-full">ログイン</button>
@@ -335,6 +339,7 @@
       
       const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
       const submitBtn = event.target.querySelector('button[type="submit"]');
       
       // 入力チェック
@@ -342,6 +347,9 @@
         alert('メールアドレスとパスワードを入力してください');
         return;
       }
+      
+      // ログイン保持設定
+      Auth.setRememberMe(rememberMe);
       
       submitBtn.disabled = true;
       submitBtn.textContent = 'ログイン中...';

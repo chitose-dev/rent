@@ -614,33 +614,59 @@ const Auth = {
   TOKEN_KEY: 'authToken',
   REFRESH_KEY: 'refreshToken',
   USER_KEY: 'userData',
+  REMEMBER_KEY: 'rememberMe',
+  
+  // ストレージ取得（rememberMe状態に応じて）
+  getStorage() {
+    // rememberMeフラグがlocalStorageにあればlocalStorageを使用
+    if (localStorage.getItem(this.REMEMBER_KEY) === 'true') {
+      return localStorage;
+    }
+    // localStorageにトークンがあればlocalStorageを使用（既存ユーザー対応）
+    if (localStorage.getItem(this.TOKEN_KEY)) {
+      return localStorage;
+    }
+    return sessionStorage;
+  },
+  
+  // ログイン保持設定
+  setRememberMe(remember) {
+    if (remember) {
+      localStorage.setItem(this.REMEMBER_KEY, 'true');
+    } else {
+      localStorage.removeItem(this.REMEMBER_KEY);
+    }
+  },
   
   // トークン保存
   saveTokens(accessToken, refreshToken) {
-    sessionStorage.setItem(this.TOKEN_KEY, accessToken);
+    const storage = this.getStorage();
+    storage.setItem(this.TOKEN_KEY, accessToken);
     if (refreshToken) {
-      sessionStorage.setItem(this.REFRESH_KEY, refreshToken);
+      storage.setItem(this.REFRESH_KEY, refreshToken);
     }
   },
   
   // ユーザー情報保存
   saveUser(user) {
-    sessionStorage.setItem(this.USER_KEY, JSON.stringify(user));
+    const storage = this.getStorage();
+    storage.setItem(this.USER_KEY, JSON.stringify(user));
   },
   
   // トークン取得
   getToken() {
-    return sessionStorage.getItem(this.TOKEN_KEY);
+    // 両方のストレージをチェック
+    return localStorage.getItem(this.TOKEN_KEY) || sessionStorage.getItem(this.TOKEN_KEY);
   },
   
   // リフレッシュトークン取得
   getRefreshToken() {
-    return sessionStorage.getItem(this.REFRESH_KEY);
+    return localStorage.getItem(this.REFRESH_KEY) || sessionStorage.getItem(this.REFRESH_KEY);
   },
   
   // ユーザー情報取得
   getUser() {
-    const data = sessionStorage.getItem(this.USER_KEY);
+    const data = localStorage.getItem(this.USER_KEY) || sessionStorage.getItem(this.USER_KEY);
     return data ? JSON.parse(data) : null;
   },
   
@@ -651,9 +677,14 @@ const Auth = {
   
   // ログアウト
   logout() {
+    // 両方のストレージからクリア
     sessionStorage.removeItem(this.TOKEN_KEY);
     sessionStorage.removeItem(this.REFRESH_KEY);
     sessionStorage.removeItem(this.USER_KEY);
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.REFRESH_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    localStorage.removeItem(this.REMEMBER_KEY);
     ReservationStorage.clear();
   },
   

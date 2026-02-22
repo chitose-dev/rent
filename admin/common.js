@@ -80,38 +80,62 @@ const ADMIN_API_BASE = typeof API_BASE_URL !== 'undefined'
 
 // 管理者認証管理
 const AdminAuth = {
+  REMEMBER_KEY: 'adminRememberMe',
+  
+  // ストレージ取得（rememberMe状態に応じて）
+  getStorage() {
+    if (localStorage.getItem(this.REMEMBER_KEY) === 'true') {
+      return localStorage;
+    }
+    if (localStorage.getItem('adminToken')) {
+      return localStorage;
+    }
+    return sessionStorage;
+  },
+  
+  // ログイン保持設定
+  setRememberMe(remember) {
+    if (remember) {
+      localStorage.setItem(this.REMEMBER_KEY, 'true');
+    } else {
+      localStorage.removeItem(this.REMEMBER_KEY);
+    }
+  },
+  
   // トークンを取得
   getToken() {
-    return sessionStorage.getItem('adminToken');
+    return localStorage.getItem('adminToken') || sessionStorage.getItem('adminToken');
   },
   
   // リフレッシュトークンを取得
   getRefreshToken() {
-    return sessionStorage.getItem('adminRefreshToken');
+    return localStorage.getItem('adminRefreshToken') || sessionStorage.getItem('adminRefreshToken');
   },
   
   // トークンを保存
   saveTokens(token, refreshToken) {
-    sessionStorage.setItem('adminToken', token);
-    sessionStorage.setItem('adminLoggedIn', 'true');
+    const storage = this.getStorage();
+    storage.setItem('adminToken', token);
+    storage.setItem('adminLoggedIn', 'true');
     if (refreshToken) {
-      sessionStorage.setItem('adminRefreshToken', refreshToken);
+      storage.setItem('adminRefreshToken', refreshToken);
     }
   },
   
   // 管理者情報を保存
   saveAdmin(admin) {
-    sessionStorage.setItem('adminId', admin.id);
-    sessionStorage.setItem('adminEmail', admin.email);
-    sessionStorage.setItem('adminName', admin.name || '');
+    const storage = this.getStorage();
+    storage.setItem('adminId', admin.id);
+    storage.setItem('adminEmail', admin.email);
+    storage.setItem('adminName', admin.name || '');
   },
   
   // 管理者情報を取得
   getAdmin() {
     return {
-      id: sessionStorage.getItem('adminId'),
-      email: sessionStorage.getItem('adminEmail'),
-      name: sessionStorage.getItem('adminName'),
+      id: localStorage.getItem('adminId') || sessionStorage.getItem('adminId'),
+      email: localStorage.getItem('adminEmail') || sessionStorage.getItem('adminEmail'),
+      name: localStorage.getItem('adminName') || sessionStorage.getItem('adminName'),
     };
   },
   
@@ -131,12 +155,12 @@ const AdminAuth = {
   
   // ログアウト
   logout() {
-    sessionStorage.removeItem('adminToken');
-    sessionStorage.removeItem('adminRefreshToken');
-    sessionStorage.removeItem('adminLoggedIn');
-    sessionStorage.removeItem('adminId');
-    sessionStorage.removeItem('adminEmail');
-    sessionStorage.removeItem('adminName');
+    // 両方のストレージからクリア
+    ['adminToken', 'adminRefreshToken', 'adminLoggedIn', 'adminId', 'adminEmail', 'adminName'].forEach(key => {
+      sessionStorage.removeItem(key);
+      localStorage.removeItem(key);
+    });
+    localStorage.removeItem(this.REMEMBER_KEY);
     window.location.href = 'login.html';
   },
   
