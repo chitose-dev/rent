@@ -39,8 +39,8 @@ const API = {
       ...options.headers
     };
     
-    // 認証トークンがあれば追加
-    const token = sessionStorage.getItem('authToken');
+    // 認証トークンがあれば追加（localStorage と sessionStorage 両方チェック）
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -56,10 +56,14 @@ const API = {
       if (refreshed) {
         return this.request(endpoint, options, true);
       }
-      // リフレッシュ失敗時はログアウト
+      // リフレッシュ失敗時はログアウト（両方のストレージをクリア）
       sessionStorage.removeItem('authToken');
       sessionStorage.removeItem('refreshToken');
       sessionStorage.removeItem('userData');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userData');
+      localStorage.removeItem('rememberMe');
       window.location.href = 'login.html';
       throw new Error('セッションが期限切れです。再度ログインしてください。');
     }
@@ -76,13 +80,18 @@ const API = {
   },
   
   async tryRefreshToken() {
-    const refreshToken = sessionStorage.getItem('refreshToken');
+    // 両方のストレージをチェック
+    const refreshToken = localStorage.getItem('refreshToken') || sessionStorage.getItem('refreshToken');
     if (!refreshToken) return false;
     
     // 既にリフレッシュ中なら待つ
     if (this._isRefreshing) {
       return this._refreshPromise;
     }
+    
+    // どちらのストレージを使うか判定
+    const useLocalStorage = localStorage.getItem('rememberMe') === 'true' || localStorage.getItem('authToken');
+    const storage = useLocalStorage ? localStorage : sessionStorage;
     
     this._isRefreshing = true;
     this._refreshPromise = (async () => {
@@ -97,14 +106,14 @@ const API = {
         
         const data = await response.json();
         if (data.accessToken) {
-          sessionStorage.setItem('authToken', data.accessToken);
+          storage.setItem('authToken', data.accessToken);
           if (data.refreshToken) {
-            sessionStorage.setItem('refreshToken', data.refreshToken);
+            storage.setItem('refreshToken', data.refreshToken);
           }
           return true;
         }
         return false;
-      } catch {
+      } catch (e) {
         return false;
       } finally {
         this._isRefreshing = false;
