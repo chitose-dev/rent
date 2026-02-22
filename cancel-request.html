@@ -163,9 +163,13 @@
         
         // キャンセル料金
         const { fee, rate } = calculateCancellationFee(reservationData.pickupAt, reservationData.totalAmount || 0);
-        const feeText = fee === 0 ? '無料' : Utils.formatPrice(fee);
-        const rateText = rate === 0 ? '' : ` (${rate * 100}%)`;
-        document.getElementById('cancellationFee').textContent = feeText + rateText;
+        let feeText;
+        if (rate === 0) {
+          feeText = '無料';
+        } else {
+          feeText = `${Utils.formatPrice(fee)} (${Math.round(rate * 100)}%)`;
+        }
+        document.getElementById('cancellationFee').textContent = feeText;
       } catch (error) {
         console.error('予約取得エラー:', error);
         alert('予約情報の取得に失敗しました: ' + error.message);
