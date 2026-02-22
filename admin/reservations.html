@@ -234,19 +234,21 @@
 
     // アクションボタン生成
     function getActionButtons(reservation) {
-      const buttons = [`<button class="btn btn-sm btn-outline" data-action="detail" data-id="${reservation.id}">詳細</button>`];
+      // data-id属性へのXSS対策：IDをエスケープ
+      const safeId = escapeHtml(reservation.id);
+      const buttons = [`<button class="btn btn-sm btn-outline" data-action="detail" data-id="${safeId}">詳細</button>`];
       
       switch (reservation.status) {
         case 'confirmed':
-          buttons.push(`<button class="btn btn-sm btn-success" data-action="pickup" data-id="${reservation.id}">受取処理</button>`);
+          buttons.push(`<button class="btn btn-sm btn-success" data-action="pickup" data-id="${safeId}">受取処理</button>`);
           break;
         case 'picked_up':
-          buttons.push(`<button class="btn btn-sm btn-warning" data-action="extend" data-id="${reservation.id}">延長</button>`);
-          buttons.push(`<button class="btn btn-sm btn-success" data-action="return" data-id="${reservation.id}">返却処理</button>`);
+          buttons.push(`<button class="btn btn-sm btn-warning" data-action="extend" data-id="${safeId}">延長</button>`);
+          buttons.push(`<button class="btn btn-sm btn-success" data-action="return" data-id="${safeId}">返却処理</button>`);
           break;
         case 'cancel_requested':
-          buttons.push(`<button class="btn btn-sm btn-success" data-action="approve-cancel" data-id="${reservation.id}">承認</button>`);
-          buttons.push(`<button class="btn btn-sm btn-danger" data-action="reject-cancel" data-id="${reservation.id}">却下</button>`);
+          buttons.push(`<button class="btn btn-sm btn-success" data-action="approve-cancel" data-id="${safeId}">承認</button>`);
+          buttons.push(`<button class="btn btn-sm btn-danger" data-action="reject-cancel" data-id="${safeId}">却下</button>`);
           break;
       }
       

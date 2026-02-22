@@ -136,9 +136,12 @@
           return;
         }
 
-        tbody.innerHTML = members.map(m => `
+        tbody.innerHTML = members.map(m => {
+          // data-id属性へのXSS対策
+          const safeId = escapeHtml(m.id);
+          return `
           <tr>
-            <td><small>${escapeHtml(m.id)}</small></td>
+            <td><small>${safeId}</small></td>
             <td><strong>${escapeHtml(m.name) || '-'}</strong></td>
             <td>${escapeHtml(m.email)}</td>
             <td>${escapeHtml(m.phone) || '-'}</td>
@@ -146,14 +149,14 @@
             <td><span class="badge ${m.status === 'active' ? 'badge-success' : 'badge-danger'}">${m.status === 'active' ? '有効' : '停止'}</span></td>
             <td>${formatDate(m.createdAt)}</td>
             <td class="actions">
-              <button class="btn btn-sm btn-outline" data-action="detail" data-id="${m.id}">詳細</button>
+              <button class="btn btn-sm btn-outline" data-action="detail" data-id="${safeId}">詳細</button>
               ${m.status === 'active' 
-                ? `<button class="btn btn-sm btn-danger" data-action="suspend" data-id="${m.id}">停止</button>`
-                : `<button class="btn btn-sm btn-success" data-action="unsuspend" data-id="${m.id}">解除</button>`
+                ? `<button class="btn btn-sm btn-danger" data-action="suspend" data-id="${safeId}">停止</button>`
+                : `<button class="btn btn-sm btn-success" data-action="unsuspend" data-id="${safeId}">解除</button>`
               }
             </td>
           </tr>
-        `).join('');
+        `}).join('');
         
         // イベント委譲でアクションボタンを処理
         tbody.querySelectorAll('[data-action]').forEach(btn => {

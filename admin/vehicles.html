@@ -257,18 +257,20 @@
 
         tbody.innerHTML = vehicles.map(v => {
           const st = statusLabels[v.status] || { text: v.status, class: 'badge-secondary' };
+          // data-id属性へのXSS対策
+          const safeId = escapeHtml(v.id);
           return `
             <tr>
               <td><strong>${escapeHtml(v.licensePlate)}</strong></td>
               <td>${escapeHtml(v.model) || '-'}</td>
               <td>${escapeHtml(v.carClassName) || '-'}</td>
-              <td><span class="badge ${st.class}">${st.text}</span></td>
+              <td><span class="badge ${escapeHtml(st.class)}">${escapeHtml(st.text)}</span></td>
               <td class="actions">
                 ${v.status === 'maintenance' 
-                  ? `<button class="btn btn-sm btn-success" data-action="clear-maint" data-id="${v.id}">メンテ解除</button>`
-                  : `<button class="btn btn-sm btn-warning" data-action="set-maint" data-id="${v.id}">メンテ設定</button>`
+                  ? `<button class="btn btn-sm btn-success" data-action="clear-maint" data-id="${safeId}">メンテ解除</button>`
+                  : `<button class="btn btn-sm btn-warning" data-action="set-maint" data-id="${safeId}">メンテ設定</button>`
                 }
-                <button class="btn btn-sm btn-danger" data-action="delete" data-id="${v.id}">削除</button>
+                <button class="btn btn-sm btn-danger" data-action="delete" data-id="${safeId}">削除</button>
               </td>
             </tr>
           `;
