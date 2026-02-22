@@ -165,10 +165,9 @@ const AdminAPI = {
   }
 };
 
-// 管理画面用APIエイリアス（config.jsのAPIがない場合）
-if (typeof API === 'undefined') {
-  var API = AdminAPI;
-}
+// 管理画面用APIエイリアス（常にAdminAPIを使う）
+// config.jsのAPIはユーザー用（authToken）なので、管理画面では上書き必須
+var API = AdminAPI;
 
 // 後方互換性のための関数
 function checkAdminAuth() {
