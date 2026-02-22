@@ -528,9 +528,9 @@
     function showReservationDetail(res) {
       document.getElementById('detail-modal-title').textContent = '予約詳細';
       document.getElementById('detail-modal-body').innerHTML = `
-        <div class="detail-row"><div class="detail-label">予約番号</div><div class="detail-value">${res.id}</div></div>
-        <div class="detail-row"><div class="detail-label">お客様名</div><div class="detail-value">${res.userName || '-'}</div></div>
-        <div class="detail-row"><div class="detail-label">車両</div><div class="detail-value">${res.vehiclePlate || '-'} (${res.carClassName || '-'})</div></div>
+        <div class="detail-row"><div class="detail-label">予約番号</div><div class="detail-value">${escapeHtml(res.id)}</div></div>
+        <div class="detail-row"><div class="detail-label">お客様名</div><div class="detail-value">${escapeHtml(res.userName) || '-'}</div></div>
+        <div class="detail-row"><div class="detail-label">車両</div><div class="detail-value">${escapeHtml(res.vehiclePlate) || '-'} (${escapeHtml(res.carClassName) || '-'})</div></div>
         <div class="detail-row"><div class="detail-label">貸出日時</div><div class="detail-value">${new Date(res.pickupAt).toLocaleString('ja-JP')}</div></div>
         <div class="detail-row"><div class="detail-label">返却日時</div><div class="detail-value">${new Date(res.returnAt).toLocaleString('ja-JP')}</div></div>
         <div class="detail-row"><div class="detail-label">ステータス</div><div class="detail-value">${getStatusLabel(res.status)}</div></div>

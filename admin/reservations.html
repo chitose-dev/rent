@@ -210,9 +210,9 @@
           
           return `
             <tr>
-              <td><strong>${r.id}</strong></td>
-              <td>${r.userName || '-'}<br><small class="text-muted">${r.userEmail || ''}</small></td>
-              <td>${r.carClassName || '-'}</td>
+              <td><strong>${escapeHtml(r.id)}</strong></td>
+              <td>${escapeHtml(r.userName) || '-'}<br><small class="text-muted">${escapeHtml(r.userEmail) || ''}</small></td>
+              <td>${escapeHtml(r.carClassName) || '-'}</td>
               <td>${formatDateTime(r.pickupAt)}<br>〜${formatDateTime(r.returnAt)}</td>
               <td>${formatPrice(r.totalPrice || 0)}</td>
               <td><span class="badge ${r.paymentMethod === 'card' ? 'badge-info' : 'badge-secondary'}">${r.paymentMethod === 'card' ? 'カード' : '現地払い'}</span></td>

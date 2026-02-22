@@ -1,6 +1,28 @@
 // 管理画面共通JavaScript
 
 // ========================================
+// XSS対策：HTMLエスケープ
+// ========================================
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// 安全なinnerHTML設定（テンプレートリテラル内で使用）
+function safeHtml(strings, ...values) {
+  return strings.reduce((result, str, i) => {
+    const value = values[i - 1];
+    const escaped = (typeof value === 'string') ? escapeHtml(value) : (value ?? '');
+    return result + escaped + str;
+  });
+}
+
+// ========================================
 // エラーハンドラ
 // ========================================
 const ErrorHandler = {

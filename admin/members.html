@@ -138,10 +138,10 @@
 
         tbody.innerHTML = members.map(m => `
           <tr>
-            <td><small>${m.id}</small></td>
-            <td><strong>${m.name || '-'}</strong></td>
-            <td>${m.email}</td>
-            <td>${m.phone || '-'}</td>
+            <td><small>${escapeHtml(m.id)}</small></td>
+            <td><strong>${escapeHtml(m.name) || '-'}</strong></td>
+            <td>${escapeHtml(m.email)}</td>
+            <td>${escapeHtml(m.phone) || '-'}</td>
             <td>${m.totalReservations || 0}件</td>
             <td><span class="badge ${m.status === 'active' ? 'badge-success' : 'badge-danger'}">${m.status === 'active' ? '有効' : '停止'}</span></td>
             <td>${formatDate(m.createdAt)}</td>
