@@ -143,6 +143,16 @@
           <input type="datetime-local" id="maint-end" class="form-input">
         </div>
         <div class="form-group">
+          <label class="form-label">理由</label>
+          <select id="maint-reason" class="form-input">
+            <option value="inspection">点検</option>
+            <option value="repair">修理</option>
+            <option value="cleaning">清掃</option>
+            <option value="tire">タイヤ交換</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label class="form-label">備考</label>
           <textarea id="maint-notes" class="form-textarea" rows="2"></textarea>
         </div>
@@ -311,12 +321,22 @@
 
     async function setMaintenance() {
       const vehicleId = document.getElementById('maint-vehicle-id').value;
-      const startAt = document.getElementById('maint-start').value;
-      const endAt = document.getElementById('maint-end').value;
+      const startInput = document.getElementById('maint-start').value;
+      const endInput = document.getElementById('maint-end').value;
+      const reason = document.getElementById('maint-reason').value;
       const notes = document.getElementById('maint-notes').value;
 
+      if (!startInput || !endInput) {
+        alert('開始日時と終了日時を入力してください');
+        return;
+      }
+
+      // datetime-localをISO形式に変換（タイムゾーン付き）
+      const startDate = new Date(startInput).toISOString();
+      const endDate = new Date(endInput).toISOString();
+
       try {
-        await API.post(`/v1/admin/vehicles/${vehicleId}/maintenance`, { startAt, endAt, notes });
+        await API.post(`/v1/admin/vehicles/${vehicleId}/maintenance`, { startDate, endDate, reason, notes });
         alert('メンテナンスを設定しました');
         closeModal('maintenance-modal');
         loadVehicles();
