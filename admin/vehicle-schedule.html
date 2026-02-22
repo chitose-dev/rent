@@ -458,9 +458,13 @@
         block.style.width = `calc(${spanDays * 100}% - 4px)`;
         block.style.left = '2px';
         block.textContent = blockText;
+        // carClassIdを車両から取得（APIレスポンスにない場合のフォールバック）
+        const matchedVehicle = vehicles.find(v => v.id === vehicleId);
+        const classId = res.carClassId || matchedVehicle?.carClassId || '';
+        
         block.dataset.reservationId = res.id;
         block.dataset.vehicleId = vehicleId;
-        block.dataset.classId = res.carClassId || '';
+        block.dataset.classId = classId;
         block.dataset.pickupAt = res.pickupAt;
         block.dataset.returnAt = res.returnAt;
         
