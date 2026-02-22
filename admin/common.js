@@ -220,6 +220,19 @@ const AdminAPI = {
 // グローバルにAPIを設定（constでの再定義問題を回避）
 window.API = AdminAPI;
 
+// ========================================
+// モーダル操作（共通）
+// ========================================
+function openModal(id) {
+  const modal = document.getElementById(id);
+  if (modal) modal.classList.add('active');
+}
+
+function closeModal(id) {
+  const modal = document.getElementById(id);
+  if (modal) modal.classList.remove('active');
+}
+
 // 後方互換性のための関数
 function checkAdminAuth() {
   return AdminAuth.checkAuth();
