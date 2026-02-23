@@ -142,38 +142,35 @@
             <h2 class="card-title">キャンセルポリシー</h2>
           </div>
           <div class="card-body">
-            <p style="color:#666;margin-bottom:16px;">予約日からの日数に応じたキャンセル料率を設定します。</p>
+            <p style="color:#666;margin-bottom:16px;">キャンセル料の発生条件を設定します。</p>
             
-            <table class="admin-table" style="max-width:500px;">
+            <table class="admin-table" style="max-width:600px;">
               <thead>
                 <tr>
-                  <th>期間</th>
+                  <th>条件</th>
                   <th style="width:120px;">キャンセル料</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>7日前まで</td>
-                  <td><input type="number" class="form-input" id="cancelRate7" style="width:80px;" min="0" max="100" value="0">%</td>
+                  <td>
+                    ご利用日の
+                    <input type="number" class="form-input" id="cancelDaysBefore" style="width:60px;display:inline-block;" min="1" max="30" value="3">
+                    日前より発生
+                  </td>
+                  <td>基本料金の <input type="number" class="form-input" id="cancelRate" style="width:60px;" min="0" max="100" value="50">%</td>
                 </tr>
                 <tr>
-                  <td>3〜6日前</td>
-                  <td><input type="number" class="form-input" id="cancelRate3" style="width:80px;" min="0" max="100" value="30">%</td>
-                </tr>
-                <tr>
-                  <td>1〜2日前</td>
-                  <td><input type="number" class="form-input" id="cancelRate1" style="width:80px;" min="0" max="100" value="50">%</td>
-                </tr>
-                <tr>
-                  <td>当日</td>
-                  <td><input type="number" class="form-input" id="cancelRate0" style="width:80px;" min="0" max="100" value="100">%</td>
-                </tr>
-                <tr>
-                  <td>無断キャンセル</td>
-                  <td><input type="number" class="form-input" id="noShowRate" style="width:80px;" min="0" max="100" value="100">%</td>
+                  <td>無断キャンセル（ノーショー）</td>
+                  <td>基本料金の <input type="number" class="form-input" id="noShowRate" style="width:60px;" min="0" max="100" value="100">%</td>
                 </tr>
               </tbody>
             </table>
+
+            <div style="margin-top:12px;padding:12px;background:#f8f9fa;border-radius:6px;">
+              <strong>現在の設定:</strong><br>
+              <span id="cancelPolicyPreview">ご利用日の3日前より、基本料金の50%のキャンセル料が発生します。</span>
+            </div>
 
             <div style="margin-top:20px;">
               <button type="button" class="btn btn-primary" onclick="saveCancelPolicy()">保存</button>
@@ -214,27 +211,34 @@
         }
 
         // キャンセルポリシー
-        if (cancel.policies) {
-          const p = cancel.policies;
-          document.getElementById('cancelRate7').value = p['7'] || 0;
-          document.getElementById('cancelRate3').value = p['3'] || 30;
-          document.getElementById('cancelRate1').value = p['1'] || 50;
-          document.getElementById('cancelRate0').value = p['0'] || 100;
-        }
+        document.getElementById('cancelDaysBefore').value = cancel.daysBefore || 3;
+        document.getElementById('cancelRate').value = cancel.rate || 50;
         document.getElementById('noShowRate').value = cancel.noShowRate || 100;
+        updateCancelPreview();
       } catch (error) {
         console.error('文書読み込みエラー:', error);
       }
     }
 
+    function updateCancelPreview() {
+      const days = document.getElementById('cancelDaysBefore').value;
+      const rate = document.getElementById('cancelRate').value;
+      document.getElementById('cancelPolicyPreview').textContent = 
+        `ご利用日の${days}日前より、基本料金の${rate}%のキャンセル料が発生します。`;
+    }
+
+    // プレビュー更新イベント
+    document.addEventListener('DOMContentLoaded', () => {
+      const daysInput = document.getElementById('cancelDaysBefore');
+      const rateInput = document.getElementById('cancelRate');
+      if (daysInput) daysInput.addEventListener('input', updateCancelPreview);
+      if (rateInput) rateInput.addEventListener('input', updateCancelPreview);
+    });
+
     async function saveCancelPolicy() {
       const cancelData = {
-        policies: {
-          '7': parseInt(document.getElementById('cancelRate7').value) || 0,
-          '3': parseInt(document.getElementById('cancelRate3').value) || 0,
-          '1': parseInt(document.getElementById('cancelRate1').value) || 0,
-          '0': parseInt(document.getElementById('cancelRate0').value) || 0,
-        },
+        daysBefore: parseInt(document.getElementById('cancelDaysBefore').value) || 3,
+        rate: parseInt(document.getElementById('cancelRate').value) || 50,
         noShowRate: parseInt(document.getElementById('noShowRate').value) || 100,
       };
 
