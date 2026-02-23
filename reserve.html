@@ -1094,12 +1094,22 @@
       updateSections();
     }
     
-    // 返却日を自動計算
+    // 返却日を自動計算（定休日を考慮して実際の返却期限日を設定）
     function calculateEndDate() {
       if (selectedStartDate && state.days) {
-        const endDate = new Date(selectedStartDate);
-        endDate.setDate(endDate.getDate() + state.days - 1);
-        state.endDate = formatDate(endDate);
+        // 元々の返却日（レンタル期間の最終日）
+        const originalEndDate = new Date(selectedStartDate);
+        originalEndDate.setDate(originalEndDate.getDate() + state.days - 1);
+        
+        // 実際の返却期限日（定休日を避けて前の営業日に調整）
+        let actualReturnDate = new Date(originalEndDate);
+        while (isClosedDay(actualReturnDate) && actualReturnDate > selectedStartDate) {
+          actualReturnDate.setDate(actualReturnDate.getDate() - 1);
+        }
+        
+        // 元の返却日と実際の返却日を保存
+        state.originalEndDate = formatDate(originalEndDate);
+        state.endDate = formatDate(actualReturnDate); // 実際の返却期限
       }
     }
     
@@ -1137,11 +1147,10 @@
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
-      // 返却期限日（開始日 + 日数 - 1）
+      // 返却期限日（定休日を考慮した実際の返却日）
       let endDate = null;
-      if (selectedStartDate && state.days) {
-        endDate = new Date(selectedStartDate);
-        endDate.setDate(endDate.getDate() + state.days - 1);
+      if (selectedStartDate && state.days && state.endDate) {
+        endDate = new Date(state.endDate);
       }
       
       // 日付セル
@@ -1243,19 +1252,35 @@
       const warningText = document.getElementById('closedDateWarningText');
       
       if (selectedStartDate && state.days) {
-        const endDate = new Date(selectedStartDate);
-        endDate.setDate(endDate.getDate() + state.days - 1);
+        // 元々の返却日（レンタル期間の最終日）
+        const originalEndDate = new Date(selectedStartDate);
+        originalEndDate.setDate(originalEndDate.getDate() + state.days - 1);
+        
+        // 実際の返却期限日（定休日を避けて前の営業日に調整）
+        let actualReturnDate = new Date(originalEndDate);
+        let closedDateFound = null;
+        
+        // 返却日が定休日なら、前の営業日を探す
+        while (isClosedDay(actualReturnDate) && actualReturnDate > selectedStartDate) {
+          if (!closedDateFound) {
+            closedDateFound = new Date(actualReturnDate);
+          }
+          actualReturnDate.setDate(actualReturnDate.getDate() - 1);
+        }
+        
+        // 実際の返却期限日を保存（予約時に使用）
+        state.actualReturnDate = actualReturnDate;
         
         document.getElementById('infoStartDate').textContent = formatJP(selectedStartDate);
-        document.getElementById('infoEndDate').textContent = formatJP(endDate);
+        document.getElementById('infoEndDate').textContent = formatJP(actualReturnDate);
         document.getElementById('infoDays').textContent = `${state.days}日間`;
         document.getElementById('dateInfoBox').style.display = 'block';
         
         // 定休日警告チェック
-        // 返却日が定休日かチェック
-        if (isClosedDay(endDate)) {
-          const dateStr = `${endDate.getFullYear()}年${endDate.getMonth()+1}月${endDate.getDate()}日`;
-          warningText.textContent = `${dateStr}は定休日のため返却できません。別の日程をお選びください。`;
+        if (closedDateFound) {
+          const dateStr = `${closedDateFound.getFullYear()}年${closedDateFound.getMonth()+1}月${closedDateFound.getDate()}日`;
+          const returnStr = `${actualReturnDate.getFullYear()}年${actualReturnDate.getMonth()+1}月${actualReturnDate.getDate()}日`;
+          warningText.textContent = `${dateStr}は定休日のため返却できません。${returnStr}までに事前返却が必要です。`;
           warningEl.style.display = 'block';
         } else {
           warningEl.style.display = 'none';
@@ -1264,6 +1289,7 @@
         document.getElementById('infoStartDate').textContent = '-';
         document.getElementById('infoEndDate').textContent = '-';
         document.getElementById('infoDays').textContent = '-';
+        state.actualReturnDate = null;
         warningEl.style.display = 'none';
       }
     }
