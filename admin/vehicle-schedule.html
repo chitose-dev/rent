@@ -457,6 +457,11 @@
 
     function placeEventBlocks(days) {
       reservations.forEach(res => {
+        // キャンセル系のステータスは表示しない
+        if (['cancelled', 'cancel_requested'].includes(res.status)) {
+          return;
+        }
+        
         // vehicleIdがない場合はvehicleLicensePlateから車両を特定
         let vehicleId = res.vehicleId;
         if (!vehicleId && res.vehicleLicensePlate) {
