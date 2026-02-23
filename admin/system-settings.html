@@ -96,6 +96,14 @@
         </div>
         <div class="card-body">
           <div class="form-group">
+            <label class="form-label">Stripe公開キー（Publishable Key）</label>
+            <div class="input-with-status">
+              <input type="text" class="form-input" id="stripePublishableKey" placeholder="pk_live_...または新しいキーを入力">
+              <span class="current-value" id="stripePublishableKeyStatus"></span>
+            </div>
+            <p class="form-hint">フロントエンドで使用する公開キー</p>
+          </div>
+          <div class="form-group">
             <label class="form-label">Stripe Secret Key</label>
             <div class="input-with-status">
               <input type="password" class="form-input" id="stripeSecretKey" placeholder="sk_live_...または新しいキーを入力">
@@ -227,6 +235,7 @@
         document.getElementById('refreshTokenExpiresIn').value = settings.refreshTokenExpiresIn || '30d';
 
         // マスクされた値をステータス表示
+        setStatus('stripePublishableKey', settings.stripePublishableKey);
         setStatus('stripeSecretKey', settings.stripeSecretKey);
         setStatus('stripeWebhookSecret', settings.stripeWebhookSecret);
         setStatus('resendApiKey', settings.resendApiKey);
@@ -262,6 +271,7 @@
 
       const settings = {
         frontendUrl: document.getElementById('frontendUrl').value || undefined,
+        stripePublishableKey: document.getElementById('stripePublishableKey').value || undefined,
         stripeSecretKey: document.getElementById('stripeSecretKey').value || undefined,
         stripeWebhookSecret: document.getElementById('stripeWebhookSecret').value || undefined,
         resendApiKey: document.getElementById('resendApiKey').value || undefined,
@@ -291,6 +301,7 @@
         alert('設定を保存しました');
         
         // 入力フィールドをクリア（セキュリティのため）
+        document.getElementById('stripePublishableKey').value = '';
         document.getElementById('stripeSecretKey').value = '';
         document.getElementById('stripeWebhookSecret').value = '';
         document.getElementById('resendApiKey').value = '';

@@ -467,9 +467,16 @@
             <button type="button" class="btn btn-secondary" onclick="viewDetail('${safeId}')">
               詳細を見る
             </button>
-            ${r.status === 'cancel_requested' ? `
+            ${r.status === 'pending_payment' ? `
+              <button type="button" class="btn btn-primary" onclick="goToPayment('${safeId}')">
+                決済へ進む
+              </button>
+              <button type="button" class="btn btn-danger" onclick="requestCancel('${safeId}')">
+                キャンセル
+              </button>
+            ` : r.status === 'cancel_requested' ? `
               <button type="button" class="btn btn-secondary" disabled>申請処理中</button>
-            ` : ['confirmed', 'pending_payment'].includes(r.status) ? `
+            ` : r.status === 'confirmed' ? `
               <button type="button" class="btn btn-danger" onclick="requestCancel('${safeId}')">
                 キャンセル申請
               </button>
@@ -490,6 +497,24 @@
     function requestCancel(reservationId) {
       if (confirm('キャンセル申請を行いますか?\n申請後、店舗にて内容を確認いたします。')) {
         window.location.href = `cancel-request.html?id=${reservationId}`;
+      }
+    }
+
+    // 決済へ進む
+    async function goToPayment(reservationId) {
+      try {
+        LoadingState.show('決済ページを準備中...');
+        const result = await API.post(`/v1/reservations/${reservationId}/checkout`);
+        
+        if (result.url) {
+          window.location.href = result.url;
+        } else {
+          throw new Error('決済URLの取得に失敗しました');
+        }
+      } catch (error) {
+        alert('決済の準備に失敗しました: ' + error.message);
+      } finally {
+        LoadingState.hide();
       }
     }
 
