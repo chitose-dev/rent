@@ -193,7 +193,10 @@
 
     function goToPage(page) { currentPage = page; loadMembers(); }
 
+    let currentMemberId = null;
+
     async function showDetail(id) {
+      currentMemberId = id;
       openModal('detail-modal');
       const body = document.getElementById('detail-modal-body');
       body.innerHTML = '読み込み中...';
@@ -201,19 +204,35 @@
         const m = await API.get(`/v1/admin/members/${id}`);
         body.innerHTML = `
           <table style="width:100%;border-collapse:collapse;">
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;width:120px;">ID</th><td style="padding:8px;border-bottom:1px solid #eee;">${m.id}</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">氏名</th><td style="padding:8px;border-bottom:1px solid #eee;">${m.name || '-'}</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">メール</th><td style="padding:8px;border-bottom:1px solid #eee;">${m.email}</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">電話番号</th><td style="padding:8px;border-bottom:1px solid #eee;">${m.phone || '-'}</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">ステータス</th><td style="padding:8px;border-bottom:1px solid #eee;">${m.status}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;width:120px;">ID</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(m.id)}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">氏名</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(m.name) || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">メール</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(m.email)}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">電話番号</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(m.phone) || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">ステータス</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(m.status)}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">予約数</th><td style="padding:8px;border-bottom:1px solid #eee;">${m.totalReservations || 0}件</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">利用金額</th><td style="padding:8px;border-bottom:1px solid #eee;">¥${(m.totalSpent || 0).toLocaleString()}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">登録日</th><td style="padding:8px;border-bottom:1px solid #eee;">${formatDate(m.createdAt)}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">最終ログイン</th><td style="padding:8px;border-bottom:1px solid #eee;">${formatDate(m.lastLoginAt)}</td></tr>
           </table>
+          <div style="margin-top:16px;">
+            <label style="font-weight:600;display:block;margin-bottom:8px;">管理者メモ</label>
+            <textarea id="member-notes" class="form-textarea" rows="3" placeholder="この会員に関するメモ...">${escapeHtml(m.adminNotes || '')}</textarea>
+            <button type="button" class="btn btn-primary btn-sm" style="margin-top:8px;" onclick="saveNotes()">メモを保存</button>
+          </div>
         `;
       } catch (error) {
         body.innerHTML = `<p style="color:#c00;">エラー: ${escapeHtml(error.message)}</p>`;
+      }
+    }
+
+    async function saveNotes() {
+      if (!currentMemberId) return;
+      const notes = document.getElementById('member-notes').value;
+      try {
+        await API.put(`/v1/admin/members/${currentMemberId}/notes`, { notes });
+        alert('メモを保存しました');
+      } catch (error) {
+        alert('エラー: ' + error.message);
       }
     }
 
