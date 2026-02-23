@@ -326,10 +326,11 @@
       // 日時情報
       const startDate = new Date(reservationData.startDate);
       const endDate = new Date(reservationData.endDate);
+      const returnTime = reservationData.endTime || reservationData.startTime;
       document.getElementById('confirmPickup').textContent = 
         `${startDate.getFullYear()}年${startDate.getMonth()+1}月${startDate.getDate()}日 ${reservationData.startTime}`;
       document.getElementById('confirmReturn').textContent = 
-        `${endDate.getFullYear()}年${endDate.getMonth()+1}月${endDate.getDate()}日まで（営業時間内）`;
+        `${endDate.getFullYear()}年${endDate.getMonth()+1}月${endDate.getDate()}日 ${returnTime}まで`;
       
       // オプション情報
       let hasOptions = false;
@@ -406,8 +407,9 @@
       try {
         // 受取日時をISO8601形式に変換
         const pickupDateTime = new Date(`${reservationData.startDate}T${reservationData.startTime}:00`);
-        // 返却日時（終日の最終時間として18:00を設定）
-        const returnDateTime = new Date(`${reservationData.endDate}T18:00:00`);
+        // 返却日時（受取時間と同じ時間を使用）
+        const returnTime = reservationData.endTime || reservationData.startTime;
+        const returnDateTime = new Date(`${reservationData.endDate}T${returnTime}:00`);
         
         // タイムゾーンオフセットを付与（JST: +09:00）
         const formatWithOffset = (date) => {

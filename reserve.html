@@ -351,6 +351,43 @@
       white-space: nowrap;
     }
     
+    .class-card.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: var(--bg-light);
+    }
+    
+    .class-card.disabled:hover {
+      border-color: var(--border-color);
+      background: var(--bg-light);
+    }
+    
+    .class-card-unavailable {
+      color: #c00;
+      font-size: var(--font-sm);
+      margin-top: 4px;
+      font-weight: bold;
+    }
+    
+    .availability-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: var(--font-xs);
+      font-weight: bold;
+      margin-left: 8px;
+    }
+    
+    .availability-badge.available {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    
+    .availability-badge.unavailable {
+      background: #ffebee;
+      color: #c62828;
+    }
+    
     /* オプション */
     .option-group {
       margin-bottom: var(--spacing-lg);
@@ -789,6 +826,9 @@
     // 店舗設定
     let shopSettings = null;
     
+    // 在庫確認済みの車両クラス
+    let availableCarClasses = [];
+    
     // 初期化
     async function init() {
       // 認証チェック
@@ -907,16 +947,45 @@
       return closedInPeriod;
     }
     
-    // 車両クラスを動的生成
+    // 在庫確認付きで車両クラスを取得
+    async function loadAvailableCarClasses() {
+      if (!state.startDate || !state.startTime || !state.endDate) {
+        return;
+      }
+      
+      const container = document.getElementById('class-grid');
+      container.innerHTML = '<div class="loading">在庫を確認中...</div>';
+      
+      try {
+        // 受取日時と返却日時を構築
+        const pickupAt = new Date(`${state.startDate}T${state.startTime}:00`);
+        // 返却時間は受取時間と同じ
+        const returnAt = new Date(`${state.endDate}T${state.startTime}:00`);
+        
+        // 在庫確認付きで車両クラスを取得
+        const res = await API.get(`/v1/shop/car-classes?pickupAt=${pickupAt.toISOString()}&returnAt=${returnAt.toISOString()}`);
+        availableCarClasses = res.data || res || [];
+        
+        renderCarClasses();
+      } catch (e) {
+        console.error('在庫確認に失敗:', e);
+        container.innerHTML = '<p style="color:#c00;">在庫確認に失敗しました。再度お試しください。</p>';
+      }
+    }
+    
+    // 車両クラスを動的生成（在庫確認結果を反映）
     function renderCarClasses() {
       const container = document.getElementById('class-grid');
       
-      if (!AppConfig.carClasses || AppConfig.carClasses.length === 0) {
+      // 在庫確認済みのデータがあればそれを使用
+      const carClasses = availableCarClasses.length > 0 ? availableCarClasses : AppConfig.carClasses;
+      
+      if (!carClasses || carClasses.length === 0) {
         container.innerHTML = '<p>車両クラスがありません</p>';
         return;
       }
       
-      container.innerHTML = AppConfig.carClasses.map(carClass => {
+      container.innerHTML = carClasses.map(carClass => {
         // 料金プランから1日あたりの基本料金を計算（最小のプランから）
         const plans = AppConfig.pricingPlans.filter(p => p.carClassId === carClass.id);
         let dailyPrice = 0;
@@ -926,13 +995,30 @@
           dailyPrice = Math.round(firstPlan.price / firstPlan.days);
         }
         
+        // 在庫確認結果を反映
+        const isAvailable = carClass.available !== false; // undefinedはtrue扱い
+        const availableCount = carClass.availableCount !== undefined ? carClass.availableCount : null;
+        const disabledClass = isAvailable ? '' : ' disabled';
+        const onClickAttr = isAvailable ? 'onclick="selectClass(this)"' : '';
+        
+        // 在庫状況の表示テキスト
+        let availabilityText = '';
+        if (availableCount !== null) {
+          if (availableCount > 0) {
+            availabilityText = `<span class="availability-badge available">残り${availableCount}台</span>`;
+          } else {
+            availabilityText = `<span class="availability-badge unavailable">在庫なし</span>`;
+          }
+        }
+        
         return `
-          <div class="class-card" data-class-id="${escapeHtml(carClass.id)}" data-class-name="${escapeHtml(carClass.name)}" data-daily-price="${dailyPrice}" onclick="selectClass(this)">
+          <div class="class-card${disabledClass}" data-class-id="${escapeHtml(carClass.id)}" data-class-name="${escapeHtml(carClass.name)}" data-daily-price="${dailyPrice}" ${onClickAttr}>
             <div class="class-card-image">${carClass.imageUrl ? `<img src="${escapeHtml(carClass.imageUrl)}" alt="${escapeHtml(carClass.name)}">` : '車両画像'}</div>
             <div class="class-card-info">
-              <div class="class-card-name">${escapeHtml(carClass.name)}</div>
+              <div class="class-card-name">${escapeHtml(carClass.name)} ${availabilityText}</div>
               <div class="class-card-desc">${escapeHtml(carClass.description || '')}</div>
               ${carClass.notes ? `<div class="class-card-desc">${escapeHtml(carClass.notes)}</div>` : ''}
+              ${!isAvailable ? '<div class="class-card-unavailable">この期間はご予約いただけません</div>' : ''}
             </div>
             <div class="class-card-price">¥${dailyPrice.toLocaleString()}/日〜</div>
           </div>
@@ -1075,7 +1161,7 @@
     }
     
     // 日数選択（プラン選択）
-    function selectDays(days) {
+    async function selectDays(days) {
       state.days = days;
       document.querySelectorAll('.days-btn').forEach(btn => {
         btn.classList.toggle('selected', btn.dataset.days == days);
@@ -1088,6 +1174,16 @@
       if (selectedStartDate) {
         calculateEndDate();
         updateDateInfo();
+        
+        // 日数が変わったら在庫確認をリセット
+        availableCarClasses = [];
+        state.vehicleClass = null;
+        state.carClassId = null;
+        
+        // 時間も選択済みなら在庫確認を実行
+        if (state.startTime) {
+          await loadAvailableCarClasses();
+        }
       }
       
       renderCalendar();
@@ -1237,7 +1333,7 @@
     }
     
     // 日付選択（1回タップで開始日選択、返却日は自動計算）
-    function selectDate(date) {
+    async function selectDate(date) {
       selectedStartDate = date;
       state.startDate = formatDate(date);
       
@@ -1247,8 +1343,19 @@
       // 時間選択を表示
       document.getElementById('timeSection').style.display = 'block';
       
+      // 日付が変わったら在庫確認をリセット
+      availableCarClasses = [];
+      state.vehicleClass = null;
+      state.carClassId = null;
+      
       updateDateInfo();
       renderCalendar();
+      
+      // 時間が既に選択されていれば在庫確認を実行
+      if (state.startTime) {
+        await loadAvailableCarClasses();
+      }
+      
       updateSections();
     }
     
@@ -1310,8 +1417,14 @@
     }
     
     // 期間セクション完了チェック
-    function checkPeriodComplete() {
+    async function checkPeriodComplete() {
       state.startTime = document.getElementById('startTime').value;
+      
+      // 期間が全て揃ったら在庫確認を実行
+      if (state.days && state.startDate && state.startTime && state.endDate) {
+        await loadAvailableCarClasses();
+      }
+      
       updateSections();
     }
     
@@ -1323,6 +1436,11 @@
       document.querySelectorAll('.class-card').forEach(card => {
         const classId = card.dataset.classId;
         const priceEl = card.querySelector('.class-card-price');
+        
+        // 在庫なしの場合はスキップ
+        if (card.classList.contains('disabled')) {
+          return;
+        }
         
         // このクラスの料金プランを取得
         const plans = AppConfig.pricingPlans.filter(p => p.carClassId === classId);
@@ -1426,7 +1544,7 @@
     }
     
     // 確認画面へ
-    function goConfirm() {
+    async function goConfirm() {
       // バリデーション
       if (!state.days) {
         alert('レンタル日数を選択してください');
@@ -1448,6 +1566,15 @@
         document.getElementById('section-class').scrollIntoView({ behavior: 'smooth' });
         return;
       }
+      
+      // 選択したクラスが本当に利用可能か再確認
+      const selectedCard = document.querySelector(`.class-card[data-class-id="${state.carClassId}"]`);
+      if (selectedCard && selectedCard.classList.contains('disabled')) {
+        alert('選択した車両クラスはこの期間に利用できません。別のクラスを選択してください。');
+        document.getElementById('section-class').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      
       if (state.insurance === null) {
         alert('免責補償を選択してください');
         document.getElementById('section-options').scrollIntoView({ behavior: 'smooth' });
@@ -1466,12 +1593,16 @@
       // 支払い方法をAPI形式に変換
       const paymentMethod = state.payment === 'local' ? 'onsite' : state.payment;
       
+      // 返却時間は受取時間と同じにする（在庫確認と整合性を取るため）
+      const returnTime = state.startTime;
+      
       ReservationStorage.save({
         planDays: days,
         planLabel: days + '日',
         startDate: state.startDate,
         startTime: state.startTime,
         endDate: state.endDate,
+        endTime: returnTime,
         carClassId: state.carClassId,
         vehicleClass: state.vehicleClass,
         vehicleClassName: state.vehicleClassName,
