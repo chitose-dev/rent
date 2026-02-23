@@ -110,6 +110,11 @@
           <input type="number" id="edit-order" class="form-input" min="0" value="0">
         </div>
         <div class="form-group">
+          <label class="form-label">延長1日料金（税込）</label>
+          <input type="number" id="edit-extensionRate" class="form-input" min="0" step="100" placeholder="5000">
+          <small style="color:#666;">未設定の場合はデフォルト5,000円</small>
+        </div>
+        <div class="form-group">
           <label class="form-label">
             <input type="checkbox" id="edit-isActive" checked> 有効
           </label>
@@ -204,6 +209,7 @@
       document.getElementById('edit-description').value = '';
       document.getElementById('edit-notes').value = '';
       document.getElementById('edit-imageUrl').value = '';
+      document.getElementById('edit-extensionRate').value = '';
       document.getElementById('edit-order').value = '0';
       document.getElementById('edit-isActive').checked = true;
       document.getElementById('image-preview').innerHTML = '';
@@ -220,6 +226,7 @@
       document.getElementById('edit-notes').value = c.notes || '';
       document.getElementById('edit-imageUrl').value = c.imageUrl || '';
       document.getElementById('edit-order').value = c.sortOrder || 0;
+      document.getElementById('edit-extensionRate').value = c.extensionDailyRate || '';
       document.getElementById('edit-isActive').checked = c.isActive !== false;
       updateImagePreview();
       openModal('edit-modal');
@@ -248,6 +255,7 @@
       const notes = document.getElementById('edit-notes').value;
       const imageUrl = document.getElementById('edit-imageUrl').value || null;
       const sortOrder = parseInt(document.getElementById('edit-order').value);
+      const extensionDailyRate = document.getElementById('edit-extensionRate').value ? parseInt(document.getElementById('edit-extensionRate').value) : null;
       const isActive = document.getElementById('edit-isActive').checked;
 
       if (!name) {
@@ -257,9 +265,9 @@
 
       try {
         if (id) {
-          await API.put(`/v1/admin/car-classes/${id}`, { name, description, notes, imageUrl, sortOrder, isActive });
+          await API.put(`/v1/admin/car-classes/${id}`, { name, description, notes, imageUrl, sortOrder, isActive, extensionDailyRate });
         } else {
-          await API.post('/v1/admin/car-classes', { name, description, notes, imageUrl, sortOrder, isActive });
+          await API.post('/v1/admin/car-classes', { name, description, notes, imageUrl, sortOrder, extensionDailyRate });
         }
         alert('保存しました');
         closeModal('edit-modal');
