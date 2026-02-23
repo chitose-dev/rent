@@ -161,36 +161,24 @@
           <h2 class="card-title">キャンセル料設定</h2>
         </div>
         <div class="card-body">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>期間</th>
-                <th>キャンセル料率</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>7日前まで</td>
-                <td><input type="number" class="form-input" id="cancelRate7" style="width: 80px;" min="0" max="100" value="0">%</td>
-              </tr>
-              <tr>
-                <td>3〜6日前</td>
-                <td><input type="number" class="form-input" id="cancelRate3" style="width: 80px;" min="0" max="100" value="30">%</td>
-              </tr>
-              <tr>
-                <td>前日〜2日前</td>
-                <td><input type="number" class="form-input" id="cancelRate1" style="width: 80px;" min="0" max="100" value="50">%</td>
-              </tr>
-              <tr>
-                <td>当日</td>
-                <td><input type="number" class="form-input" id="cancelRate0" style="width: 80px;" min="0" max="100" value="100">%</td>
-              </tr>
-              <tr>
-                <td>無断キャンセル</td>
-                <td><input type="number" class="form-input" id="noShowRate" style="width: 80px;" min="0" max="100" value="100">%</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="form-group">
+            <label class="form-label">キャンセル料発生タイミング</label>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              ご利用日の
+              <input type="number" class="form-input" id="cancelDaysBefore" style="width:70px;" min="1" max="30" value="3">
+              日前より、基本料金の
+              <input type="number" class="form-input" id="cancelRate" style="width:70px;" min="0" max="100" value="50">
+              %
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">無断キャンセル（ノーショー）</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              基本料金の
+              <input type="number" class="form-input" id="noShowRate" style="width:70px;" min="0" max="100" value="100">
+              %
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -281,13 +269,8 @@
         document.getElementById('maxAdvanceDays').value = shop.maxAdvanceDays || 90;
 
         // キャンセルポリシー
-        if (cancel.policies) {
-          const p = cancel.policies;
-          document.getElementById('cancelRate7').value = p['7'] || 0;
-          document.getElementById('cancelRate3').value = p['3'] || 30;
-          document.getElementById('cancelRate1').value = p['1'] || 50;
-          document.getElementById('cancelRate0').value = p['0'] || 100;
-        }
+        document.getElementById('cancelDaysBefore').value = cancel.daysBefore || 3;
+        document.getElementById('cancelRate').value = cancel.rate || 50;
         document.getElementById('noShowRate').value = cancel.noShowRate || 100;
 
       } catch (error) {
@@ -325,18 +308,14 @@
       };
 
       const cancelData = {
-        policies: {
-          '7': parseInt(document.getElementById('cancelRate7').value),
-          '3': parseInt(document.getElementById('cancelRate3').value),
-          '1': parseInt(document.getElementById('cancelRate1').value),
-          '0': parseInt(document.getElementById('cancelRate0').value),
-        },
-        noShowRate: parseInt(document.getElementById('noShowRate').value),
+        daysBefore: parseInt(document.getElementById('cancelDaysBefore').value) || 3,
+        rate: parseInt(document.getElementById('cancelRate').value) || 50,
+        noShowRate: parseInt(document.getElementById('noShowRate').value) || 100,
       };
 
       try {
         await API.put('/v1/admin/settings/shop', shopData);
-        await API.put('/v1/admin/settings/cancellation', cancelData);
+        await API.put('/v1/admin/settings/cancel', cancelData);
         showMessage('設定を保存しました', 'success');
       } catch (error) {
         console.error('設定保存エラー:', error);
