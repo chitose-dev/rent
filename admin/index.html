@@ -107,26 +107,52 @@
         </div>
       </div>
 
-      <!-- 今日の予約 -->
+      <!-- 本日受取予定 -->
       <div class="admin-card">
         <div class="card-header">
-          <h2 class="card-title">本日の予約</h2>
+          <h2 class="card-title">🚗 本日受取予定</h2>
           <a href="reservations.html" class="btn btn-sm btn-outline">すべて見る</a>
         </div>
         <div class="card-body" style="padding: 0;">
           <table class="admin-table">
             <thead>
               <tr>
+                <th>受取時間</th>
                 <th>予約番号</th>
                 <th>会員</th>
-                <th>車両クラス</th>
-                <th>時間</th>
+                <th>車両</th>
+                <th>精算額</th>
                 <th>ステータス</th>
                 <th>操作</th>
               </tr>
             </thead>
-            <tbody id="today-reservations">
-              <tr><td colspan="6" style="text-align:center;padding:40px;">読み込み中...</td></tr>
+            <tbody id="pickup-reservations">
+              <tr><td colspan="7" style="text-align:center;padding:40px;">読み込み中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 本日返却予定 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">🔑 本日返却予定</h2>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>返却時間</th>
+                <th>予約番号</th>
+                <th>会員</th>
+                <th>車両</th>
+                <th>精算額</th>
+                <th>ステータス</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="return-reservations">
+              <tr><td colspan="7" style="text-align:center;padding:40px;">読み込み中...</td></tr>
             </tbody>
           </table>
         </div>
@@ -188,6 +214,37 @@
       }
     }
 
+    function formatAmount(amount) {
+      if (!amount && amount !== 0) return '-';
+      return '¥' + Number(amount).toLocaleString();
+    }
+
+    // 受取処理
+    async function processPickup(reservationId) {
+      if (!confirm('この予約の受取処理を行いますか？')) return;
+      
+      try {
+        await API.patch(`/v1/admin/reservations/${reservationId}`, { status: 'picked_up' });
+        alert('受取処理が完了しました');
+        loadDashboard();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    // 返却処理
+    async function processReturn(reservationId) {
+      if (!confirm('この予約の返却処理を行いますか？')) return;
+      
+      try {
+        await API.patch(`/v1/admin/reservations/${reservationId}`, { status: 'returned' });
+        alert('返却処理が完了しました');
+        loadDashboard();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
     async function loadDashboard() {
       // 遅延アラートを先に読み込む
       await loadOverdueReservations();
@@ -202,15 +259,73 @@
         console.error('ダッシュボード統計エラー:', error);
       }
 
-      // 本日の予約
-      const tbody = document.getElementById('today-reservations');
+      const today = new Date().toISOString().split('T')[0];
+      
+      // 本日受取予定を読み込む
+      await loadPickupReservations(today);
+      
+      // 本日返却予定を読み込む
+      await loadReturnReservations(today);
+    }
+
+    async function loadPickupReservations(today) {
+      const tbody = document.getElementById('pickup-reservations');
       try {
-        const today = new Date().toISOString().split('T')[0];
-        const result = await API.get(`/v1/admin/reservations?pickupFrom=${today}T00:00:00&pickupTo=${today}T23:59:59&limit=10`);
-        const reservations = Array.isArray(result) ? result : (result.data || []);
+        const result = await API.get(`/v1/admin/reservations?pickupFrom=${today}T00:00:00&pickupTo=${today}T23:59:59&limit=50`);
+        let reservations = Array.isArray(result) ? result : (result.data || []);
+        
+        // 受取待ち/決済待ちのみ（レンタル中は除外）
+        reservations = reservations.filter(r => ['confirmed', 'pending_payment'].includes(r.status));
+        
+        // 時間順でソート
+        reservations.sort((a, b) => new Date(a.pickupAt) - new Date(b.pickupAt));
 
         if (reservations.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">本日の予約はありません</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#888;">本日の受取予定はありません</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = reservations.map(r => {
+          const st = statusLabels[r.status] || { text: r.status, class: 'badge-secondary' };
+          const canPickup = r.status === 'confirmed';
+          return `
+            <tr>
+              <td style="font-weight:bold;font-size:16px;">${formatTime(r.pickupAt)}</td>
+              <td>${escapeHtml(r.id)}</td>
+              <td>${escapeHtml(r.userName) || '-'}</td>
+              <td>${escapeHtml(r.carClassName) || '-'}<br><small>${escapeHtml(r.vehicleLicensePlate || '')}</small></td>
+              <td style="font-weight:bold;">${formatAmount(r.totalAmount)}</td>
+              <td><span class="badge ${st.class}">${st.text}</span></td>
+              <td>
+                ${canPickup ? `<button type="button" class="btn btn-sm btn-success" onclick="processPickup('${escapeHtml(r.id)}')">受取処理</button>` : ''}
+                ${r.status === 'pending_payment' ? '<span style="color:#f59e0b;font-size:12px;">決済待ち</span>' : ''}
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (error) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:#c00;">エラー: ${escapeHtml(error.message)}</td></tr>`;
+      }
+    }
+
+    async function loadReturnReservations(today) {
+      const tbody = document.getElementById('return-reservations');
+      try {
+        // レンタル中の予約を取得
+        const result = await API.get(`/v1/admin/reservations?status=picked_up&limit=50`);
+        let reservations = Array.isArray(result) ? result : (result.data || []);
+        
+        // 本日返却予定のみフィルタ
+        reservations = reservations.filter(r => {
+          const returnDate = new Date(r.returnAt).toISOString().split('T')[0];
+          return returnDate === today;
+        });
+        
+        // 時間順でソート
+        reservations.sort((a, b) => new Date(a.returnAt) - new Date(b.returnAt));
+
+        if (reservations.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:#888;">本日の返却予定はありません</td></tr>';
           return;
         }
 
@@ -218,17 +333,20 @@
           const st = statusLabels[r.status] || { text: r.status, class: 'badge-secondary' };
           return `
             <tr>
-              <td><strong>${escapeHtml(r.id)}</strong></td>
+              <td style="font-weight:bold;font-size:16px;">${formatTime(r.returnAt)}</td>
+              <td>${escapeHtml(r.id)}</td>
               <td>${escapeHtml(r.userName) || '-'}</td>
-              <td>${escapeHtml(r.carClassName) || '-'}</td>
-              <td>${formatTime(r.pickupAt)} 〜 ${formatTime(r.returnAt)}</td>
+              <td>${escapeHtml(r.carClassName) || '-'}<br><small>${escapeHtml(r.vehicleLicensePlate || '')}</small></td>
+              <td style="font-weight:bold;">${formatAmount(r.totalAmount)}</td>
               <td><span class="badge ${st.class}">${st.text}</span></td>
-              <td><a href="reservations.html" class="btn btn-sm btn-outline">詳細</a></td>
+              <td>
+                <button type="button" class="btn btn-sm btn-primary" onclick="processReturn('${escapeHtml(r.id)}')">返却処理</button>
+              </td>
             </tr>
           `;
         }).join('');
       } catch (error) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#c00;">エラー: ${escapeHtml(error.message)}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:#c00;">エラー: ${escapeHtml(error.message)}</td></tr>`;
       }
     }
 
