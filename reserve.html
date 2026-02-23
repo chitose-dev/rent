@@ -816,7 +816,7 @@
     // 店舗設定を読み込み
     async function loadShopSettings() {
       try {
-        const res = await API.get('/v1/settings');
+        const res = await API.get('/v1/shop/settings');
         shopSettings = res;
       } catch (e) {
         console.error('店舗設定の読み込みに失敗:', e);
