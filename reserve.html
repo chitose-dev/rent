@@ -713,9 +713,8 @@
               <option value="">選択してください</option>
             </select>
             <p class="form-hint" id="businessHoursHint">営業時間内にご来店ください</p>
-            <p class="form-hint" style="color: var(--primary-dark);">※返却時間は受取時間と同じになります</p>
           </div>
-          <!-- 返却時間は受取時間と同じ（hidden） -->
+          <!-- 返却時間は営業終了時間で自動設定（hidden） -->
           <select class="form-select" id="endTime" style="display:none;"></select>
         </div>
       </div>
@@ -1446,9 +1445,10 @@
     // 期間セクション完了チェック
     async function checkPeriodComplete() {
       state.startTime = document.getElementById('startTime').value;
-      // 返却時間は受取時間と同じに自動設定
-      state.endTime = state.startTime;
-      document.getElementById('endTime').value = state.startTime;
+      // 返却時間は営業終了時間に自動設定
+      const closeTime = shopSettings?.closeTime || '18:00';
+      state.endTime = closeTime;
+      document.getElementById('endTime').value = closeTime;
       
       // 期間が全て揃ったら在庫確認を実行
       if (state.days && state.startDate && state.startTime && state.endDate && state.endTime) {
@@ -1591,8 +1591,8 @@
         document.getElementById('section-period').scrollIntoView({ behavior: 'smooth' });
         return;
       }
-      // 返却時間は受取時間と同じに自動設定
-      state.endTime = state.startTime;
+      // 返却時間は営業終了時間に自動設定
+      state.endTime = shopSettings?.closeTime || '18:00';
       if (!state.vehicleClass) {
         alert('車両クラスを選択してください');
         document.getElementById('section-class').scrollIntoView({ behavior: 'smooth' });
