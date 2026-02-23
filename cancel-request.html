@@ -156,10 +156,10 @@
         document.getElementById('cancelCarClass').textContent = reservationData.carClassName || '車両クラス';
         document.getElementById('cancelPickup').textContent = 
           Utils.formatDateTimeJP(new Date(reservationData.pickupAt));
-        document.getElementById('cancelPrice').textContent = Utils.formatPrice(reservationData.totalAmount || 0);
+        document.getElementById('cancelPrice').textContent = Utils.formatPrice(reservationData.totalPrice || 0);
         
         // キャンセル料金
-        const { fee, rate } = calculateCancellationFee(reservationData.pickupAt, reservationData.totalAmount || 0);
+        const { fee, rate } = calculateCancellationFee(reservationData.pickupAt, reservationData.totalPrice || 0);
         let feeText;
         if (rate === 0) {
           feeText = '無料';
