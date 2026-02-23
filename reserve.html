@@ -648,6 +648,37 @@
       }
     }
   </style>
+  <!-- 構造化データ (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "AutoRental",
+    "name": "トクノリレンタカー",
+    "description": "お得な料金でレンタカーを予約。軽自動車からミニバンまで幅広いラインナップ。",
+    "url": "https://chitose-dev.github.io/rent/",
+    "logo": "https://chitose-dev.github.io/rent/images/logo-icon.png",
+    "image": "https://chitose-dev.github.io/rent/images/logo-icon.png",
+    "priceRange": "¥¥",
+    "currenciesAccepted": "JPY",
+    "paymentAccepted": "クレジットカード",
+    "openingHours": "Mo-Su 08:00-20:00",
+    "potentialAction": {
+      "@type": "ReserveAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://chitose-dev.github.io/rent/reserve.html",
+        "actionPlatform": [
+          "http://schema.org/DesktopWebPlatform",
+          "http://schema.org/MobileWebPlatform"
+        ]
+      },
+      "result": {
+        "@type": "Reservation",
+        "name": "レンタカー予約"
+      }
+    }
+  }
+  </script>
 </head>
 <body>
   <!-- ヘッダー -->
