@@ -304,7 +304,7 @@
       
       // オプション一覧
       const optionsHtml = (r.options && r.options.length > 0)
-        ? r.options.map(o => `<li>${escapeHtml(o.name)} × ${o.quantity} - ¥${(o.price * o.quantity).toLocaleString()}</li>`).join('')
+        ? r.options.map(o => `<li>${escapeHtml(o.name)} × ${o.quantity} - ¥${(o.subtotal || (o.pricePerDay || 0) * o.quantity).toLocaleString()}</li>`).join('')
         : '<li style="color:#888;">なし</li>';
 
       // 保険プラン
