@@ -449,8 +449,8 @@
               <td>${amountDisplay}</td>
               <td><span class="badge ${st.class}">${st.text}</span></td>
               <td style="white-space:nowrap;">
-                <button type="button" class="btn btn-sm btn-outline" onclick="showDetail('${escapeHtml(r.id)}')" style="margin-right:4px;">詳細</button>
-                ${canPickup ? `<button type="button" class="btn btn-sm btn-success" onclick="processPickup('${escapeHtml(r.id)}')">受取</button>` : ''}
+                <button type="button" class="btn btn-sm btn-outline detail-btn" data-id="${escapeHtml(r.id)}" style="margin-right:4px;">詳細</button>
+                ${canPickup ? `<button type="button" class="btn btn-sm btn-success pickup-btn" data-id="${escapeHtml(r.id)}">受取</button>` : ''}
                 ${r.status === 'pending_payment' ? '<span style="color:#f59e0b;font-size:12px;">決済待ち</span>' : ''}
               </td>
             </tr>
@@ -500,8 +500,8 @@
               <td>${amountDisplay}</td>
               <td><span class="badge ${st.class}">${st.text}</span></td>
               <td style="white-space:nowrap;">
-                <button type="button" class="btn btn-sm btn-outline" onclick="showDetail('${escapeHtml(r.id)}')" style="margin-right:4px;">詳細</button>
-                <button type="button" class="btn btn-sm btn-primary" onclick="processReturn('${escapeHtml(r.id)}')">返却</button>
+                <button type="button" class="btn btn-sm btn-outline detail-btn" data-id="${escapeHtml(r.id)}" style="margin-right:4px;">詳細</button>
+                <button type="button" class="btn btn-sm btn-primary return-btn" data-id="${escapeHtml(r.id)}">返却</button>
               </td>
             </tr>
           `;
@@ -510,6 +510,29 @@
         tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:#c00;">エラー: ${escapeHtml(error.message)}</td></tr>`;
       }
     }
+
+    // イベント委譲でボタンクリックをハンドリング
+    document.addEventListener('click', function(e) {
+      const target = e.target;
+      
+      // 詳細ボタン
+      if (target.classList.contains('detail-btn')) {
+        const id = target.getAttribute('data-id');
+        if (id) showDetail(id);
+      }
+      
+      // 受取ボタン
+      if (target.classList.contains('pickup-btn')) {
+        const id = target.getAttribute('data-id');
+        if (id) processPickup(id);
+      }
+      
+      // 返却ボタン
+      if (target.classList.contains('return-btn')) {
+        const id = target.getAttribute('data-id');
+        if (id) processReturn(id);
+      }
+    });
 
     document.addEventListener('DOMContentLoaded', loadDashboard);
   </script>
