@@ -691,16 +691,23 @@
           <span id="closedDateWarningText"></span>
         </div>
         
-        <!-- 受取時間選択（日付選択後に表示） -->
+        <!-- 時間選択（日付選択後に表示） -->
         <div id="timeSection" style="display: none;">
-          <div class="form-group">
-            <label class="form-label">受取時間</label>
-            <select class="form-select" id="startTime" onchange="checkPeriodComplete()">
-              <option value="">選択してください</option>
-              <!-- 営業時間に基づいて動的に生成 -->
-            </select>
-            <p class="form-hint" id="businessHoursHint">営業時間内にご来店ください</p>
+          <div class="time-row">
+            <div class="form-group">
+              <label class="form-label">受取時間</label>
+              <select class="form-select" id="startTime" onchange="checkPeriodComplete()">
+                <option value="">選択してください</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">返却時間</label>
+              <select class="form-select" id="endTime" onchange="checkPeriodComplete()">
+                <option value="">選択してください</option>
+              </select>
+            </div>
           </div>
+          <p class="form-hint" id="businessHoursHint">営業時間内にご来店ください</p>
         </div>
       </div>
       
@@ -807,6 +814,7 @@
       startDate: null,
       startTime: null,
       endDate: null, // 自動計算
+      endTime: null,
       vehicleClass: null,
       carClassId: null,
       pricingPlanId: null,
@@ -873,7 +881,8 @@
     
     // 営業時間に基づいて時間選択肢を生成
     function renderTimeOptions() {
-      const select = document.getElementById('startTime');
+      const startSelect = document.getElementById('startTime');
+      const endSelect = document.getElementById('endTime');
       const openTime = shopSettings?.openTime || '09:00';
       const closeTime = shopSettings?.closeTime || '18:00';
       const stepMinutes = shopSettings?.timeStepMinutes || 30;
@@ -885,8 +894,11 @@
       }
       
       // 既存のオプションをクリア（最初の「選択してください」は残す）
-      while (select.options.length > 1) {
-        select.remove(1);
+      while (startSelect.options.length > 1) {
+        startSelect.remove(1);
+      }
+      while (endSelect.options.length > 1) {
+        endSelect.remove(1);
       }
       
       // 営業時間内の時間を生成
@@ -898,10 +910,18 @@
       
       while (currentHour < closeHour || (currentHour === closeHour && currentMin <= closeMin)) {
         const timeStr = `${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`;
-        const option = document.createElement('option');
-        option.value = timeStr;
-        option.textContent = timeStr;
-        select.appendChild(option);
+        
+        // 受取時間オプション
+        const startOption = document.createElement('option');
+        startOption.value = timeStr;
+        startOption.textContent = timeStr;
+        startSelect.appendChild(startOption);
+        
+        // 返却時間オプション
+        const endOption = document.createElement('option');
+        endOption.value = timeStr;
+        endOption.textContent = timeStr;
+        endSelect.appendChild(endOption);
         
         // 次の時間に進む
         currentMin += stepMinutes;
@@ -949,7 +969,7 @@
     
     // 在庫確認付きで車両クラスを取得
     async function loadAvailableCarClasses() {
-      if (!state.startDate || !state.startTime || !state.endDate) {
+      if (!state.startDate || !state.startTime || !state.endDate || !state.endTime) {
         return;
       }
       
@@ -959,8 +979,7 @@
       try {
         // 受取日時と返却日時を構築
         const pickupAt = new Date(`${state.startDate}T${state.startTime}:00`);
-        // 返却時間は受取時間と同じ
-        const returnAt = new Date(`${state.endDate}T${state.startTime}:00`);
+        const returnAt = new Date(`${state.endDate}T${state.endTime}:00`);
         
         // 在庫確認付きで車両クラスを取得
         const res = await API.get(`/v1/shop/car-classes?pickupAt=${pickupAt.toISOString()}&returnAt=${returnAt.toISOString()}`);
@@ -1090,7 +1109,7 @@
     // セクションのロック/アンロック制御
     function updateSections() {
       // セクション2: 車両クラス（レンタル期間が完了したら表示）
-      const periodComplete = state.days && state.startDate && state.startTime;
+      const periodComplete = state.days && state.startDate && state.startTime && state.endTime;
       toggleSection('class', periodComplete);
       if (periodComplete) {
         const startDateObj = new Date(state.startDate);
@@ -1419,9 +1438,10 @@
     // 期間セクション完了チェック
     async function checkPeriodComplete() {
       state.startTime = document.getElementById('startTime').value;
+      state.endTime = document.getElementById('endTime').value;
       
       // 期間が全て揃ったら在庫確認を実行
-      if (state.days && state.startDate && state.startTime && state.endDate) {
+      if (state.days && state.startDate && state.startTime && state.endDate && state.endTime) {
         await loadAvailableCarClasses();
       }
       
@@ -1561,6 +1581,11 @@
         document.getElementById('section-period').scrollIntoView({ behavior: 'smooth' });
         return;
       }
+      if (!state.endTime) {
+        alert('返却時間を選択してください');
+        document.getElementById('section-period').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
       if (!state.vehicleClass) {
         alert('車両クラスを選択してください');
         document.getElementById('section-class').scrollIntoView({ behavior: 'smooth' });
@@ -1593,8 +1618,8 @@
       // 支払い方法をAPI形式に変換
       const paymentMethod = state.payment === 'local' ? 'onsite' : state.payment;
       
-      // 返却時間は受取時間と同じにする（在庫確認と整合性を取るため）
-      const returnTime = state.startTime;
+      // 選択された返却時間を使用
+      const returnTime = state.endTime;
       
       ReservationStorage.save({
         planDays: days,
