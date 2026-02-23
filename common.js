@@ -308,12 +308,6 @@ const AppConfig = {
       });
       
       this._loaded = true;
-      console.log('Master data loaded:', {
-        carClasses: this.carClasses.length,
-        pricingPlans: this.pricingPlans.length,
-        options: this.options.length,
-        insurancePlans: this.insurancePlans.length
-      });
     } catch (error) {
       console.error('Failed to load master data:', error);
       // フォールバック: ローカルのデフォルト値を使用
@@ -355,7 +349,6 @@ const AppConfig = {
       { id: 'premium', name: 'プレミアム補償', description: 'フル補償 + NOC + ロードサービス', pricePerDay: 2200, deductible: 0 }
     ];
     this._loaded = true;
-    console.log('Using fallback master data');
   }
 };
 

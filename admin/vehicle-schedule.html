@@ -668,17 +668,13 @@
           const targetRow = targetCell.closest('tr');
           
           if (!targetRow) {
-            console.log('ドロップ先の行が見つかりません');
             return;
           }
           
           const targetVehicleId = targetRow.dataset.vehicleId;
           const targetClassId = targetRow.dataset.classId;
 
-          console.log('ドロップ:', { targetVehicleId, targetClassId, dragClassId: dragData.classId });
-
           if (!targetVehicleId || targetVehicleId === dragData.vehicleId) {
-            console.log('同じ車両へのドロップはスキップ');
             return;
           }
           if (targetClassId !== dragData.classId) {
