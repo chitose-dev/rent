@@ -756,14 +756,27 @@ textarea {
 }
 
 /* ========================================
-   共通フッター
+   共通フッター（画面下端固定）
    ======================================== */
+
+html, body {
+  min-height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.container, .login-container {
+  flex: 1;
+}
 
 .site-footer {
   background: var(--secondary-color);
   color: #fff;
   padding: var(--spacing-lg) var(--spacing-md);
-  margin-top: var(--spacing-xl);
+  margin-top: auto;
 }
 
 .footer-container {
