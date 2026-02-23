@@ -202,17 +202,38 @@
       body.innerHTML = '読み込み中...';
       try {
         const m = await API.get(`/v1/admin/members/${id}`);
+        const statusLabel = m.status === 'active' ? '有効' : m.status === 'suspended' ? '停止中' : m.status;
+        const emailVerifiedLabel = m.emailVerified ? '✅ 確認済み' : '❌ 未確認';
+        const twoFaLabel = m.twoFactorEnabled ? '有効' : '無効';
+        
         body.innerHTML = `
-          <table style="width:100%;border-collapse:collapse;">
+          <h4 style="margin:0 0 12px;border-bottom:2px solid #333;padding-bottom:8px;">基本情報</h4>
+          <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;width:120px;">ID</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(m.id)}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">氏名</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(m.name) || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">氏名（カナ）</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(m.nameKana) || '-'}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">メール</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(m.email)}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">電話番号</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(m.phone) || '-'}</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">ステータス</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(m.status)}</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">予約数</th><td style="padding:8px;border-bottom:1px solid #eee;">${m.totalReservations || 0}件</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">利用金額</th><td style="padding:8px;border-bottom:1px solid #eee;">¥${(m.totalSpent || 0).toLocaleString()}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">生年月日</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(m.birthDate) || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">郵便番号</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(m.postalCode) || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">住所</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(m.address) || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">免許証番号</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(m.licenseNumber) || '-'}</td></tr>
+          </table>
+          
+          <h4 style="margin:0 0 12px;border-bottom:2px solid #333;padding-bottom:8px;">アカウント状態</h4>
+          <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;width:120px;">ステータス</th><td style="padding:8px;border-bottom:1px solid #eee;">${statusLabel}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">メール確認</th><td style="padding:8px;border-bottom:1px solid #eee;">${emailVerifiedLabel}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">2段階認証</th><td style="padding:8px;border-bottom:1px solid #eee;">${twoFaLabel}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">登録日</th><td style="padding:8px;border-bottom:1px solid #eee;">${formatDate(m.createdAt)}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">更新日</th><td style="padding:8px;border-bottom:1px solid #eee;">${formatDate(m.updatedAt)}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">最終ログイン</th><td style="padding:8px;border-bottom:1px solid #eee;">${formatDate(m.lastLoginAt)}</td></tr>
+          </table>
+          
+          <h4 style="margin:0 0 12px;border-bottom:2px solid #333;padding-bottom:8px;">利用状況</h4>
+          <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;width:120px;">予約数</th><td style="padding:8px;border-bottom:1px solid #eee;">${m.totalReservations || 0}件</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">利用金額</th><td style="padding:8px;border-bottom:1px solid #eee;">¥${(m.totalSpent || 0).toLocaleString()}</td></tr>
           </table>
           <div style="margin-top:16px;">
             <label style="font-weight:600;display:block;margin-bottom:8px;">管理者メモ</label>
