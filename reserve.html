@@ -1048,6 +1048,20 @@
           }
         }
         
+        // 日数が決まっている場合は合計金額を表示
+        let priceDisplay = `¥${dailyPrice.toLocaleString()}/日〜`;
+        if (state.days && plans.length > 0) {
+          // 該当日数のプランを探す
+          const matchingPlan = plans.find(p => p.days === state.days);
+          if (matchingPlan) {
+            priceDisplay = `${state.days}日間: ¥${matchingPlan.price.toLocaleString()}（税込）`;
+          } else {
+            // 該当日数のプランがない場合は1日料金×日数
+            const totalPrice = dailyPrice * state.days;
+            priceDisplay = `${state.days}日間: ¥${totalPrice.toLocaleString()}（税込）`;
+          }
+        }
+        
         return `
           <div class="class-card${disabledClass}" data-class-id="${escapeHtml(carClass.id)}" data-class-name="${escapeHtml(carClass.name)}" data-daily-price="${dailyPrice}" ${onClickAttr}>
             <div class="class-card-image">${carClass.imageUrl ? `<img src="${escapeHtml(carClass.imageUrl)}" alt="${escapeHtml(carClass.name)}">` : '車両画像'}</div>
@@ -1057,7 +1071,7 @@
               ${carClass.notes ? `<div class="class-card-desc">${escapeHtml(carClass.notes)}</div>` : ''}
               ${!isAvailable ? '<div class="class-card-unavailable">この期間はご予約いただけません</div>' : ''}
             </div>
-            <div class="class-card-price">¥${dailyPrice.toLocaleString()}/日〜</div>
+            <div class="class-card-price">${priceDisplay}</div>
           </div>
         `;
       }).join('');
