@@ -66,9 +66,8 @@
       
       <div style="background-color: var(--bg-light); padding: var(--spacing-md); border-radius: 4px; margin-top: var(--spacing-md);">
         <ul style="padding-left: var(--spacing-lg); line-height: 1.8;">
-          <li>利用日の7日前まで: 無料</li>
-          <li>利用日の3〜6日前: 料金の30%</li>
-          <li>利用日の前日〜当日: 料金の50%</li>
+          <li>利用日の3日前まで: 無料</li>
+          <li>利用日の3日前以降: 料金の50%</li>
           <li>無断キャンセル: 料金の100%</li>
         </ul>
       </div>
@@ -127,14 +126,10 @@
       const daysUntilPickup = Math.ceil((pickupDate - now) / (1000 * 60 * 60 * 24));
       
       let rate = 0;
-      if (daysUntilPickup >= 7) {
-        rate = 0; // 無料
-      } else if (daysUntilPickup >= 3) {
-        rate = 0.3; // 30%
-      } else if (daysUntilPickup >= 1) {
-        rate = 0.5; // 50%
+      if (daysUntilPickup > 3) {
+        rate = 0; // 3日前まで無料
       } else {
-        rate = 0.5; // 当日50%
+        rate = 0.5; // 3日前以降は50%
       }
       
       const fee = Math.floor(totalAmount * rate);
