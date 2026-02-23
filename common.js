@@ -856,6 +856,11 @@ function insertFooter() {
     return;
   }
   
+  // マイページでは挿入しない
+  if (window.location.pathname.includes('mypage')) {
+    return;
+  }
+  
   // 既にフッターがある場合は挿入しない
   if (document.querySelector('.site-footer')) {
     return;
