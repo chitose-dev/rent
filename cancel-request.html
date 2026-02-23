@@ -201,6 +201,7 @@
         ReservationStorage.save({
           reservationId: reservationData.id,
           carClassId: reservationData.carClassId,
+          carClassName: reservationData.carClassName,
           pickupDateTime: reservationData.pickupAt,
           cancelRequestDate: new Date().toISOString()
         });

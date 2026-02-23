@@ -157,13 +157,11 @@
         return;
       }
       
-      const carClass = Utils.getCarClass(data.carClassId);
-      
       // 申請内容
       document.getElementById('summaryReservationId').textContent = data.reservationId;
-      document.getElementById('summaryCarClass').textContent = carClass.name;
+      document.getElementById('summaryCarClass').textContent = data.carClassName || '-';
       document.getElementById('summaryPickup').textContent = 
-        Utils.formatDateTimeJP(new Date(data.pickupDateTime));
+        data.pickupDateTime ? Utils.formatDateTimeJP(new Date(data.pickupDateTime)) : '-';
       document.getElementById('summaryRequestDate').textContent = 
         data.cancelRequestDate ? Utils.formatDateTimeJP(new Date(data.cancelRequestDate)) : '-';
     }
