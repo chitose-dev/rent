@@ -160,6 +160,22 @@
     </main>
   </div>
 
+  <!-- 予約詳細モーダル -->
+  <div class="modal-overlay" id="detail-modal" style="display:none;">
+    <div class="modal" style="max-width:600px;">
+      <div class="modal-header">
+        <h3 class="modal-title">予約詳細</h3>
+        <button type="button" class="modal-close" onclick="closeDetailModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="detail-modal-content">
+        <!-- 動的に生成 -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeDetailModal()">閉じる</button>
+      </div>
+    </div>
+  </div>
+
   
   <script src="common.js"></script>
   <script>
@@ -172,10 +188,28 @@
       cancelled: { text: 'キャンセル済', class: 'badge-secondary' },
     };
 
+    // 予約キャッシュ
+    let reservationCache = {};
+
     function formatTime(isoString) {
       if (!isoString) return '-';
       const d = new Date(isoString);
       return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+
+    function formatDate(isoString) {
+      if (!isoString) return '-';
+      const d = new Date(isoString);
+      return `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+
+    function calculateDays(pickupAt, returnAt) {
+      const start = new Date(pickupAt);
+      const end = new Date(returnAt);
+      const diffMs = end - start;
+      const hours = Math.ceil(diffMs / (1000 * 60 * 60));
+      const days = Math.ceil(hours / 24);
+      return days;
     }
 
     async function loadOverdueReservations() {
@@ -245,6 +279,115 @@
       }
     }
 
+    // 詳細モーダル表示
+    async function showDetail(reservationId) {
+      const modal = document.getElementById('detail-modal');
+      const content = document.getElementById('detail-modal-content');
+      
+      // キャッシュから取得、なければAPI呼び出し
+      let r = reservationCache[reservationId];
+      if (!r) {
+        try {
+          r = await API.get(`/v1/admin/reservations/${reservationId}`);
+          reservationCache[reservationId] = r;
+        } catch (error) {
+          alert('詳細の取得に失敗しました: ' + error.message);
+          return;
+        }
+      }
+
+      const days = calculateDays(r.pickupAt, r.returnAt);
+      const st = statusLabels[r.status] || { text: r.status, class: 'badge-secondary' };
+      
+      // オプション一覧
+      const optionsHtml = (r.options && r.options.length > 0)
+        ? r.options.map(o => `<li>${escapeHtml(o.name)} × ${o.quantity} - ¥${(o.price * o.quantity).toLocaleString()}</li>`).join('')
+        : '<li style="color:#888;">なし</li>';
+
+      // 保険プラン
+      const insuranceHtml = r.insuranceName
+        ? `${escapeHtml(r.insuranceName)}（¥${r.insurancePricePerDay?.toLocaleString() || 0}/日）`
+        : '<span style="color:#888;">なし</span>';
+
+      content.innerHTML = `
+        <div style="display:grid;gap:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid #eee;">
+            <div>
+              <strong style="font-size:18px;">${escapeHtml(r.id)}</strong>
+              <span class="badge ${st.class}" style="margin-left:8px;">${st.text}</span>
+            </div>
+            <div>
+              ${r.paymentMethod === 'onsite' ? '<span class="badge badge-warning">現地払い</span>' : '<span class="badge badge-success">カード決済済み</span>'}
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+              <div style="color:#666;font-size:12px;">会員</div>
+              <div style="font-weight:bold;">${escapeHtml(r.userName)}</div>
+              <div style="font-size:12px;">${escapeHtml(r.userPhone || '')}</div>
+            </div>
+            <div>
+              <div style="color:#666;font-size:12px;">車両</div>
+              <div style="font-weight:bold;">${escapeHtml(r.carClassName)}</div>
+              <div style="font-size:12px;">${escapeHtml(r.vehicleModel || '')} / ${escapeHtml(r.vehicleLicensePlate || '')}</div>
+            </div>
+          </div>
+
+          <div style="background:#f8f9fa;padding:12px;border-radius:8px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div>
+                <div style="color:#666;font-size:12px;">受取</div>
+                <div style="font-weight:bold;">${formatDate(r.pickupAt)}</div>
+              </div>
+              <div>
+                <div style="color:#666;font-size:12px;">返却</div>
+                <div style="font-weight:bold;">${formatDate(r.returnAt)}</div>
+              </div>
+            </div>
+            <div style="margin-top:8px;text-align:center;font-size:14px;color:#666;">
+              <strong>${days}日間</strong>
+            </div>
+          </div>
+
+          <div>
+            <div style="color:#666;font-size:12px;margin-bottom:4px;">保険プラン</div>
+            <div>${insuranceHtml}</div>
+          </div>
+
+          <div>
+            <div style="color:#666;font-size:12px;margin-bottom:4px;">オプション</div>
+            <ul style="margin:0;padding-left:20px;">${optionsHtml}</ul>
+          </div>
+
+          <div style="border-top:1px solid #eee;padding-top:12px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <span>基本料金</span>
+              <span>¥${(r.basePrice || 0).toLocaleString()}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <span>保険料</span>
+              <span>¥${(r.insurancePrice || 0).toLocaleString()}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span>オプション</span>
+              <span>¥${(r.optionsPrice || 0).toLocaleString()}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:bold;padding-top:8px;border-top:2px solid #333;">
+              <span>合計</span>
+              <span>¥${(r.totalPrice || r.totalAmount || 0).toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      modal.style.display = 'flex';
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detail-modal').style.display = 'none';
+    }
+
     async function loadDashboard() {
       // 遅延アラートを先に読み込む
       await loadOverdueReservations();
@@ -285,19 +428,27 @@
           return;
         }
 
+        // キャッシュに保存
+        reservations.forEach(r => { reservationCache[r.id] = r; });
+
         tbody.innerHTML = reservations.map(r => {
           const st = statusLabels[r.status] || { text: r.status, class: 'badge-secondary' };
           const canPickup = r.status === 'confirmed';
+          const isOnsite = r.paymentMethod === 'onsite';
+          const amountDisplay = isOnsite
+            ? `<span style="color:#c00;font-weight:bold;">¥${(r.totalAmount || 0).toLocaleString()}</span>`
+            : '<span style="color:#10b981;font-size:12px;">カード済</span>';
           return `
             <tr>
               <td style="font-weight:bold;font-size:16px;">${formatTime(r.pickupAt)}</td>
               <td>${escapeHtml(r.id)}</td>
               <td>${escapeHtml(r.userName) || '-'}</td>
               <td>${escapeHtml(r.carClassName) || '-'}<br><small>${escapeHtml(r.vehicleLicensePlate || '')}</small></td>
-              <td style="font-weight:bold;">${formatAmount(r.totalAmount)}</td>
+              <td>${amountDisplay}</td>
               <td><span class="badge ${st.class}">${st.text}</span></td>
-              <td>
-                ${canPickup ? `<button type="button" class="btn btn-sm btn-success" onclick="processPickup('${escapeHtml(r.id)}')">受取処理</button>` : ''}
+              <td style="white-space:nowrap;">
+                <button type="button" class="btn btn-sm btn-outline" onclick="showDetail('${escapeHtml(r.id)}')" style="margin-right:4px;">詳細</button>
+                ${canPickup ? `<button type="button" class="btn btn-sm btn-success" onclick="processPickup('${escapeHtml(r.id)}')">受取</button>` : ''}
                 ${r.status === 'pending_payment' ? '<span style="color:#f59e0b;font-size:12px;">決済待ち</span>' : ''}
               </td>
             </tr>
@@ -329,18 +480,26 @@
           return;
         }
 
+        // キャッシュに保存
+        reservations.forEach(r => { reservationCache[r.id] = r; });
+
         tbody.innerHTML = reservations.map(r => {
           const st = statusLabels[r.status] || { text: r.status, class: 'badge-secondary' };
+          const isOnsite = r.paymentMethod === 'onsite';
+          const amountDisplay = isOnsite
+            ? `<span style="color:#c00;font-weight:bold;">¥${(r.totalAmount || 0).toLocaleString()}</span>`
+            : '<span style="color:#10b981;font-size:12px;">カード済</span>';
           return `
             <tr>
               <td style="font-weight:bold;font-size:16px;">${formatTime(r.returnAt)}</td>
               <td>${escapeHtml(r.id)}</td>
               <td>${escapeHtml(r.userName) || '-'}</td>
               <td>${escapeHtml(r.carClassName) || '-'}<br><small>${escapeHtml(r.vehicleLicensePlate || '')}</small></td>
-              <td style="font-weight:bold;">${formatAmount(r.totalAmount)}</td>
+              <td>${amountDisplay}</td>
               <td><span class="badge ${st.class}">${st.text}</span></td>
-              <td>
-                <button type="button" class="btn btn-sm btn-primary" onclick="processReturn('${escapeHtml(r.id)}')">返却処理</button>
+              <td style="white-space:nowrap;">
+                <button type="button" class="btn btn-sm btn-outline" onclick="showDetail('${escapeHtml(r.id)}')" style="margin-right:4px;">詳細</button>
+                <button type="button" class="btn btn-sm btn-primary" onclick="processReturn('${escapeHtml(r.id)}')">返却</button>
               </td>
             </tr>
           `;
