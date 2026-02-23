@@ -226,6 +226,8 @@
     let selectedClassId = null;
     let planDays = 0;
 
+    let reservationData = null;
+
     // 予約データを取得
     function loadReservationData() {
       // 認証チェック
@@ -238,6 +240,7 @@
         return;
       }
       
+      reservationData = data;
       planDays = data.planDays;
       
       // サマリー表示
@@ -253,12 +256,40 @@
       }
     }
 
+    // 在庫付きで車両クラスを取得
+    async function loadCarClassesWithAvailability() {
+      if (!reservationData) return;
+      
+      const pickupAt = `${reservationData.startDate}T${reservationData.pickupTime || '10:00'}:00`;
+      const returnAt = `${reservationData.endDate}T${reservationData.returnTime || '10:00'}:00`;
+      
+      try {
+        const result = await API.get(`/v1/shop/car-classes?pickupAt=${encodeURIComponent(pickupAt)}&returnAt=${encodeURIComponent(returnAt)}`);
+        AppConfig.carClasses = Array.isArray(result) ? result : (result.data || []);
+      } catch (error) {
+        console.error('車両クラス取得エラー:', error);
+      }
+    }
+
     // 車両クラス一覧を表示
     function renderCarClasses() {
       const container = document.getElementById('carClassList');
       container.innerHTML = '';
       
-      AppConfig.carClasses.forEach(carClass => {
+      // 在庫があるクラスのみ表示
+      const availableClasses = AppConfig.carClasses.filter(c => c.available !== false);
+      
+      if (availableClasses.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center;padding:40px;color:#666;">
+            <p>選択された日程で利用可能な車両クラスがありません。</p>
+            <p style="font-size:14px;margin-top:10px;">別の日時をお選びください。</p>
+          </div>
+        `;
+        return;
+      }
+      
+      availableClasses.forEach(carClass => {
         // 選択中の日数に対応する料金を取得
         const plan = AppConfig.pricingPlans.find(
           p => p.carClassId === carClass.id && p.days === planDays
@@ -388,6 +419,8 @@
     async function init() {
       await AppConfig.loadMasterData();
       loadReservationData();
+      // 在庫付きで車両クラスを再取得
+      await loadCarClassesWithAvailability();
       renderCarClasses();
     }
     init();
