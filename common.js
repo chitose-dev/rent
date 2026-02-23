@@ -847,6 +847,56 @@ function logout() {
 }
 
 // ========================================
+// アクセシビリティ改善
+// ========================================
+
+function initFormAccessibility() {
+  // 全てのform-error要素にaria-live属性を追加（スクリーンリーダー対応）
+  document.querySelectorAll('.form-error').forEach((errorEl, index) => {
+    // エラーメッセージが動的に表示された際にスクリーンリーダーに通知
+    errorEl.setAttribute('aria-live', 'assertive');
+    errorEl.setAttribute('role', 'alert');
+    
+    // IDがなければ追加（aria-describedbyで参照するため）
+    if (!errorEl.id) {
+      errorEl.id = `form-error-${index}`;
+    }
+    
+    // 対応するform-group内の入力要素を探す
+    const formGroup = errorEl.closest('.form-group');
+    if (formGroup) {
+      const input = formGroup.querySelector('input, select, textarea');
+      if (input) {
+        // aria-describedbyでエラーメッセージと関連付け
+        const existingDesc = input.getAttribute('aria-describedby');
+        input.setAttribute('aria-describedby', 
+          existingDesc ? `${existingDesc} ${errorEl.id}` : errorEl.id);
+      }
+    }
+  });
+  
+  // 必須フィールドにaria-required属性を追加
+  document.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
+    input.setAttribute('aria-required', 'true');
+  });
+  
+  // role="tab"とaria-selected属性をタブボタンに追加
+  document.querySelectorAll('.login-tab, .tab-btn, [role="tab"]').forEach(tab => {
+    if (!tab.hasAttribute('role')) {
+      tab.setAttribute('role', 'tab');
+    }
+    tab.setAttribute('aria-selected', tab.classList.contains('active') ? 'true' : 'false');
+  });
+  
+  // タブコンテナにrole="tablist"を追加
+  document.querySelectorAll('.login-tabs, .tabs').forEach(tablist => {
+    if (!tablist.hasAttribute('role')) {
+      tablist.setAttribute('role', 'tablist');
+    }
+  });
+}
+
+// ========================================
 // 共通フッター
 // ========================================
 
@@ -894,6 +944,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // 共通フッターを挿入
   insertFooter();
+  
+  // アクセシビリティ改善：フォームエラー要素にaria属性を自動付与
+  initFormAccessibility();
   
   // 認証が必要なページかチェック（login.html, register.html, index.html以外）
   const publicPages = ['login.html', 'register.html', 'index.html', 'verify-email.html', 'reset-password.html', 'terms.html', 'privacy.html'];
