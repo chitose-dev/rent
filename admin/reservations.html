@@ -318,7 +318,7 @@
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">返却日時</th><td style="padding:8px;border-bottom:1px solid #eee;">${new Date(r.returnAt).toLocaleString('ja-JP')}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">金額</th><td style="padding:8px;border-bottom:1px solid #eee;">${formatPrice(r.totalPrice || 0)}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">決済方法</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.paymentMethod === 'card' ? 'カード' : '現地払い'}</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">保険</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.insuranceType) || '-'}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">保険</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.insuranceName ? escapeHtml(r.insuranceName) : (r.insuranceType === 'none' || !r.insuranceType ? 'なし' : escapeHtml(r.insuranceType))}</td></tr>
           </table>
         `;
       } catch (error) {
