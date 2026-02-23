@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="images/logo-icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ページが見つかりません - トクノリレンタカー">
+  <title>ページが見つかりません - トクノリレンタカー</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .error-container {
+      min-height: 70vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--spacing-xl);
+    }
+
+    .error-code {
+      font-size: 120px;
+      font-weight: bold;
+      color: var(--primary-color);
+      line-height: 1;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .error-title {
+      font-size: var(--font-xl);
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+      color: var(--text-dark);
+    }
+
+    .error-message {
+      font-size: var(--font-md);
+      color: var(--text-light);
+      margin-bottom: var(--spacing-xl);
+      max-width: 400px;
+    }
+
+    .error-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .error-btn {
+      display: block;
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      text-align: center;
+      transition: opacity 0.2s;
+    }
+
+    .error-btn:hover {
+      opacity: 0.9;
+    }
+
+    .error-btn-primary {
+      background: var(--primary-color);
+      color: var(--text-dark);
+    }
+
+    .error-btn-secondary {
+      background: var(--bg-gray);
+      color: var(--text-dark);
+      border: 1px solid var(--border-color);
+    }
+
+    @media (min-width: 768px) {
+      .error-code {
+        font-size: 180px;
+      }
+
+      .error-actions {
+        flex-direction: row;
+        max-width: none;
+      }
+
+      .error-btn {
+        min-width: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="reserve.html" class="header-logo">
+        <img src="images/logo-icon.png" alt="TOKU-NORI" class="header-logo-icon">
+        <img src="images/logo-text.png" alt="レンタカー" class="header-logo-text">
+      </a>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container">
+      <div class="error-container">
+        <div class="error-code">404</div>
+        <h1 class="error-title">ページが見つかりません</h1>
+        <p class="error-message">
+          お探しのページは移動または削除された可能性があります。<br>
+          URLをご確認のうえ、もう一度お試しください。
+        </p>
+        <div class="error-actions">
+          <a href="reserve.html" class="error-btn error-btn-primary">予約ページへ</a>
+          <a href="javascript:history.back()" class="error-btn error-btn-secondary">前のページに戻る</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="terms.html">利用規約</a>
+        <a href="privacy.html">プライバシーポリシー</a>
+      </div>
+      <p class="footer-copyright">© TOKU-NORI Rentacar</p>
+    </div>
+  </footer>
+</body>
+</html>
