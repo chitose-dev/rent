@@ -707,21 +707,16 @@
         
         <!-- 時間選択（日付選択後に表示） -->
         <div id="timeSection" style="display: none;">
-          <div class="time-row">
-            <div class="form-group">
-              <label class="form-label">受取時間</label>
-              <select class="form-select" id="startTime" onchange="checkPeriodComplete()">
-                <option value="">選択してください</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">返却時間</label>
-              <select class="form-select" id="endTime" onchange="checkPeriodComplete()">
-                <option value="">選択してください</option>
-              </select>
-            </div>
+          <div class="form-group">
+            <label class="form-label">受取時間</label>
+            <select class="form-select" id="startTime" onchange="checkPeriodComplete()">
+              <option value="">選択してください</option>
+            </select>
+            <p class="form-hint" id="businessHoursHint">営業時間内にご来店ください</p>
+            <p class="form-hint" style="color: var(--primary-dark);">※返却時間は受取時間と同じになります</p>
           </div>
-          <p class="form-hint" id="businessHoursHint">営業時間内にご来店ください</p>
+          <!-- 返却時間は受取時間と同じ（hidden） -->
+          <select class="form-select" id="endTime" style="display:none;"></select>
         </div>
       </div>
       
@@ -911,9 +906,8 @@
       while (startSelect.options.length > 1) {
         startSelect.remove(1);
       }
-      while (endSelect.options.length > 1) {
-        endSelect.remove(1);
-      }
+      // 返却時間は非表示だがクリアしておく
+      endSelect.innerHTML = '<option value="">選択してください</option>';
       
       // 営業時間内の時間を生成
       const [openHour, openMin] = openTime.split(':').map(Number);
@@ -931,7 +925,7 @@
         startOption.textContent = timeStr;
         startSelect.appendChild(startOption);
         
-        // 返却時間オプション
+        // 返却時間オプション（hidden selectにも追加）
         const endOption = document.createElement('option');
         endOption.value = timeStr;
         endOption.textContent = timeStr;
@@ -1129,7 +1123,7 @@
         const startDateObj = new Date(state.startDate);
         const endDateObj = new Date(state.endDate);
         document.getElementById('completed-period').textContent = 
-          `${state.days}日間 / ${startDateObj.getMonth()+1}月${startDateObj.getDate()}日 ${state.startTime}受取 〜 ${endDateObj.getMonth()+1}月${endDateObj.getDate()}日まで`;
+          `${state.days}日間 / ${startDateObj.getMonth()+1}月${startDateObj.getDate()}日 ${state.startTime} 〜 ${endDateObj.getMonth()+1}月${endDateObj.getDate()}日 ${state.endTime}`;
         document.getElementById('completed-period').classList.add('show');
         // 車両クラスの料金を更新
         updateClassPrices();
@@ -1452,7 +1446,9 @@
     // 期間セクション完了チェック
     async function checkPeriodComplete() {
       state.startTime = document.getElementById('startTime').value;
-      state.endTime = document.getElementById('endTime').value;
+      // 返却時間は受取時間と同じに自動設定
+      state.endTime = state.startTime;
+      document.getElementById('endTime').value = state.startTime;
       
       // 期間が全て揃ったら在庫確認を実行
       if (state.days && state.startDate && state.startTime && state.endDate && state.endTime) {
@@ -1595,11 +1591,8 @@
         document.getElementById('section-period').scrollIntoView({ behavior: 'smooth' });
         return;
       }
-      if (!state.endTime) {
-        alert('返却時間を選択してください');
-        document.getElementById('section-period').scrollIntoView({ behavior: 'smooth' });
-        return;
-      }
+      // 返却時間は受取時間と同じに自動設定
+      state.endTime = state.startTime;
       if (!state.vehicleClass) {
         alert('車両クラスを選択してください');
         document.getElementById('section-class').scrollIntoView({ behavior: 'smooth' });
