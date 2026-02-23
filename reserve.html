@@ -1106,7 +1106,7 @@
         
         return `
           <div class="class-card${disabledClass}" data-class-id="${escapeHtml(carClass.id)}" data-class-name="${escapeHtml(carClass.name)}" data-daily-price="${dailyPrice}" ${onClickAttr}>
-            <div class="class-card-image">${carClass.imageUrl ? `<img src="${escapeHtml(carClass.imageUrl)}" alt="${escapeHtml(carClass.name)}">` : '車両画像'}</div>
+            <div class="class-card-image">${carClass.imageUrl ? `<img src="${escapeHtml(carClass.imageUrl)}" alt="${escapeHtml(carClass.name)}" loading="lazy">` : '車両画像'}</div>
             <div class="class-card-info">
               <div class="class-card-name">${escapeHtml(carClass.name)} ${availabilityText}</div>
               <div class="class-card-desc">${escapeHtml(carClass.description || '')}</div>

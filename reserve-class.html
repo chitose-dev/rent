@@ -331,7 +331,7 @@
         
         card.onclick = () => selectClass(carClass.id, price);
         const imageHtml = carClass.imageUrl 
-          ? `<img src="${carClass.imageUrl}" alt="${carClass.name}">`
+          ? `<img src="${carClass.imageUrl}" alt="${carClass.name}" loading="lazy">`
           : `<span>${carClass.name}</span>`;
         
         card.innerHTML = `
