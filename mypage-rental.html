@@ -504,7 +504,7 @@
     // 決済へ進む
     async function goToPayment(reservationId) {
       try {
-        LoadingState.show('決済ページを準備中...');
+        LoadingState.showOverlay('決済ページを準備中...');
         const result = await API.post(`/v1/reservations/${reservationId}/checkout`);
         
         if (result.url) {
@@ -515,7 +515,7 @@
       } catch (error) {
         alert('決済の準備に失敗しました: ' + error.message);
       } finally {
-        LoadingState.hide();
+        LoadingState.hideOverlay();
       }
     }
 
