@@ -265,12 +265,25 @@
           const st = statusLabels[v.status] || { text: v.status, class: 'badge-secondary' };
           // data-id属性へのXSS対策
           const safeId = escapeHtml(v.id);
+          
+          // メンテナンス予定の表示
+          let maintInfo = '';
+          if (v.nextMaintenanceStart) {
+            const start = new Date(v.nextMaintenanceStart);
+            const end = v.nextMaintenanceEnd ? new Date(v.nextMaintenanceEnd) : null;
+            const formatDate = (d) => `${d.getMonth()+1}/${d.getDate()}`;
+            maintInfo = `<div style="font-size:11px;color:#666;margin-top:2px;">🔧 ${formatDate(start)}${end ? '〜' + formatDate(end) : ''}</div>`;
+          }
+          
           return `
             <tr>
               <td><strong>${escapeHtml(v.licensePlate)}</strong></td>
               <td>${escapeHtml(v.model) || '-'}</td>
               <td>${escapeHtml(v.carClassName) || '-'}</td>
-              <td><span class="badge ${escapeHtml(st.class)}">${escapeHtml(st.text)}</span></td>
+              <td>
+                <span class="badge ${escapeHtml(st.class)}">${escapeHtml(st.text)}</span>
+                ${maintInfo}
+              </td>
               <td class="actions" style="white-space:nowrap;">
                 ${v.status === 'maintenance' 
                   ? `<button type="button" class="btn btn-sm btn-success" data-action="clear-maint" data-id="${safeId}">メンテ解除</button>`

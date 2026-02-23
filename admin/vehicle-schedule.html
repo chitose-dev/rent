@@ -542,9 +542,9 @@
         cell.appendChild(block);
       });
 
-      // メンテナンス表示
+      // メンテナンス表示（未来のメンテナンス予定も含む）
       vehicles.forEach(v => {
-        if (v.status !== 'maintenance' || !v.nextMaintenanceStart) return;
+        if (!v.nextMaintenanceStart) return;
         
         const maintStart = new Date(v.nextMaintenanceStart);
         const maintEnd = v.nextMaintenanceEnd ? new Date(v.nextMaintenanceEnd) : new Date(maintStart.getTime() + 7 * 24 * 60 * 60 * 1000);
