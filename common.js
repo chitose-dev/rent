@@ -959,4 +959,25 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!publicPages.includes(currentPage) && !Auth.isLoggedIn()) {
     window.location.href = 'login.html';
   }
+  
+  // Service Worker登録（PWAオフライン対応）
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/rent/sw.js')
+      .then((registration) => {
+        // 更新があれば自動更新
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'activated') {
+                console.log('Service Worker updated');
+              }
+            });
+          }
+        });
+      })
+      .catch((error) => {
+        // Service Worker登録失敗は無視（機能低下のみ）
+      });
+  }
 });
