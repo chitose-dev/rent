@@ -69,7 +69,6 @@
                 <th>プラン名</th>
                 <th>説明</th>
                 <th>日額料金</th>
-                <th>免責金額</th>
                 <th>並び順</th>
                 <th>おすすめ</th>
                 <th>状態</th>
@@ -77,7 +76,7 @@
               </tr>
             </thead>
             <tbody id="plans-table">
-              <tr><td colspan="8" style="text-align:center;">読み込み中...</td></tr>
+              <tr><td colspan="7" style="text-align:center;">読み込み中...</td></tr>
             </tbody>
           </table>
         </div>
@@ -103,16 +102,9 @@
             <label class="form-label">説明</label>
             <textarea id="planDescription" class="form-textarea" rows="2" placeholder="例: 対物・車両の免責額を0円に"></textarea>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">日額料金（税込）</label>
-              <input type="number" id="planPrice" class="form-input" required min="0" step="100" placeholder="1100">
-            </div>
-            <div class="form-group">
-              <label class="form-label">免責金額</label>
-              <input type="number" id="planDeductible" class="form-input" min="0" step="10000" placeholder="0">
-              <small style="color:#666;">0 = 免責なし</small>
-            </div>
+          <div class="form-group">
+            <label class="form-label">日額料金（税込）</label>
+            <input type="number" id="planPrice" class="form-input" required min="0" step="100" placeholder="1100">
           </div>
           <div class="form-group">
             <label class="form-label">並び順</label>
@@ -172,7 +164,6 @@
           <td><strong>${escapeHtml(plan.name)}</strong></td>
           <td>${escapeHtml(plan.description) || '-'}</td>
           <td>¥${(plan.pricePerDay || 0).toLocaleString()}/日</td>
-          <td>${plan.deductible !== null ? '¥' + plan.deductible.toLocaleString() : '免責なし'}</td>
           <td>${plan.sortOrder || 0}</td>
           <td>${plan.isRecommended ? '<span class="badge badge-primary">おすすめ</span>' : '-'}</td>
           <td>
@@ -216,7 +207,6 @@
       document.getElementById('planName').value = plan.name;
       document.getElementById('planDescription').value = plan.description || '';
       document.getElementById('planPrice').value = plan.pricePerDay || 0;
-      document.getElementById('planDeductible').value = plan.deductible || '';
       document.getElementById('planSortOrder').value = plan.sortOrder || 0;
       document.getElementById('planRecommended').checked = plan.isRecommended || false;
       document.getElementById('planActive').checked = plan.isActive !== false;
@@ -237,7 +227,6 @@
         name: document.getElementById('planName').value.trim(),
         description: document.getElementById('planDescription').value.trim(),
         pricePerDay: parseInt(document.getElementById('planPrice').value) || 0,
-        deductible: document.getElementById('planDeductible').value ? parseInt(document.getElementById('planDeductible').value) : null,
         sortOrder: parseInt(document.getElementById('planSortOrder').value) || 0,
         isRecommended: document.getElementById('planRecommended').checked,
         isActive: document.getElementById('planActive').checked
