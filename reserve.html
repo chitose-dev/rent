@@ -951,7 +951,7 @@
       // APIから取得した保険プランを表示
       AppConfig.insurancePlans.forEach((plan, index) => {
         const card = document.createElement('div');
-        card.className = 'option-card' + (plan.id === 'standard' ? ' recommended' : '');
+        card.className = 'option-card' + (plan.isRecommended ? ' recommended' : '');
         card.dataset.insurance = plan.id;
         card.dataset.price = plan.pricePerDay;
         card.onclick = function() { selectInsurance(this); };

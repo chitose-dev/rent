@@ -170,11 +170,6 @@
           <label class="form-label">日数<span class="required">*</span></label>
           <input type="number" id="new-days" class="form-input" min="1" value="1" placeholder="例: 7">
         </div>
-        <div class="form-group">
-          <label class="form-label">ラベル（任意）</label>
-          <input type="text" id="new-label" class="form-input" placeholder="例: 1週間">
-          <small style="color:#666;">空欄の場合は「◯日」と表示</small>
-        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="closeModal('add-day-modal')">キャンセル</button>
@@ -218,7 +213,7 @@
       
       dayColumns.forEach(days => {
         const plan = pricingPlans.find(p => p.days === days);
-        const label = plan?.label || `${days}日`;
+        const label = `${days}日`;
         headerRow.innerHTML += `
           <th>
             <div class="day-header">
@@ -305,13 +300,12 @@
       // 既存の日数から次の候補を計算
       const nextDay = dayColumns.length > 0 ? Math.max(...dayColumns) + 1 : 1;
       document.getElementById('new-days').value = nextDay;
-      document.getElementById('new-label').value = '';
       openModal('add-day-modal');
     }
 
     async function confirmAddDay() {
       const days = parseInt(document.getElementById('new-days').value);
-      const label = document.getElementById('new-label').value || `${days}日`;
+      const label = `${days}日`;
 
       if (isNaN(days) || days < 1) {
         alert('有効な日数を入力してください');

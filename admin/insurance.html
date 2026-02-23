@@ -70,12 +70,13 @@
                 <th>日額料金</th>
                 <th>免責金額</th>
                 <th>並び順</th>
+                <th>おすすめ</th>
                 <th>状態</th>
                 <th>操作</th>
               </tr>
             </thead>
             <tbody id="plans-table">
-              <tr><td colspan="7" style="text-align:center;">読み込み中...</td></tr>
+              <tr><td colspan="8" style="text-align:center;">読み込み中...</td></tr>
             </tbody>
           </table>
         </div>
@@ -118,6 +119,11 @@
           </div>
           <div class="form-group">
             <label class="form-label">
+              <input type="checkbox" id="planRecommended"> おすすめとして表示
+            </label>
+          </div>
+          <div class="form-group">
+            <label class="form-label">
               <input type="checkbox" id="planActive" checked> 有効
             </label>
           </div>
@@ -149,14 +155,14 @@
       } catch (error) {
         console.error('保険プラン読み込みエラー:', error);
         document.getElementById('plans-table').innerHTML = 
-          '<tr><td colspan="7" style="text-align:center;color:red;">読み込みに失敗しました</td></tr>';
+          '<tr><td colspan="8" style="text-align:center;color:red;">読み込みに失敗しました</td></tr>';
       }
     }
 
     function renderPlans() {
       const tbody = document.getElementById('plans-table');
       if (plans.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">保険プランがありません</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">保険プランがありません</td></tr>';
         return;
       }
 
@@ -167,6 +173,7 @@
           <td>¥${(plan.pricePerDay || 0).toLocaleString()}/日</td>
           <td>${plan.deductible !== null ? '¥' + plan.deductible.toLocaleString() : '免責なし'}</td>
           <td>${plan.sortOrder || 0}</td>
+          <td>${plan.isRecommended ? '<span class="badge badge-primary">おすすめ</span>' : '-'}</td>
           <td>
             <span class="badge ${plan.isActive ? 'badge-success' : 'badge-secondary'}">
               ${plan.isActive ? '有効' : '無効'}
@@ -193,6 +200,7 @@
       document.getElementById('modal-title').textContent = '保険プラン追加';
       document.getElementById('planId').value = '';
       document.getElementById('plan-form').reset();
+      document.getElementById('planRecommended').checked = false;
       document.getElementById('planActive').checked = true;
       document.getElementById('modal').classList.add('active');
     }
@@ -209,6 +217,7 @@
       document.getElementById('planPrice').value = plan.pricePerDay || 0;
       document.getElementById('planDeductible').value = plan.deductible || '';
       document.getElementById('planSortOrder').value = plan.sortOrder || 0;
+      document.getElementById('planRecommended').checked = plan.isRecommended || false;
       document.getElementById('planActive').checked = plan.isActive !== false;
       document.getElementById('modal').classList.add('active');
     }
@@ -229,6 +238,7 @@
         pricePerDay: parseInt(document.getElementById('planPrice').value) || 0,
         deductible: document.getElementById('planDeductible').value ? parseInt(document.getElementById('planDeductible').value) : null,
         sortOrder: parseInt(document.getElementById('planSortOrder').value) || 0,
+        isRecommended: document.getElementById('planRecommended').checked,
         isActive: document.getElementById('planActive').checked
       };
 
