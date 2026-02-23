@@ -264,7 +264,6 @@
       
       try {
         const response = await apiPost('/v1/admin/auth/login', { email, password });
-        console.log('Login response:', response);
         
         // 2FAが必要な場合
         if (response.requires2FA) {
@@ -281,14 +280,11 @@
         const refreshToken = response.data?.refreshToken || response.refreshToken;
         const admin = response.data?.admin || response.admin;
         
-        console.log('Token:', token ? 'found' : 'NOT FOUND');
-        
         if (token) {
           Auth.saveTokens(token, refreshToken);
           if (admin) {
             Auth.saveAdmin(admin);
           }
-          console.log('Saved to sessionStorage. Redirecting...');
           window.location.href = 'index.html';
           return;
         }
@@ -317,7 +313,6 @@
       
       try {
         const response = await apiPost('/v1/admin/auth/verify-2fa', { tempToken, code });
-        console.log('2FA verify response:', response);
         
         const token = response.accessToken || response.data?.accessToken;
         const refreshToken = response.refreshToken || response.data?.refreshToken;

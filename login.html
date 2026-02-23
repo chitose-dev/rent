@@ -357,11 +357,8 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'ログイン中...';
       
-      console.log('ログイン試行:', email);
-      
       try {
         const result = await Auth.login(email, password);
-        console.log('ログイン結果:', result);
         
         if (result.requires2FA) {
           // 2段階認証が必要な場合
