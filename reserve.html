@@ -881,8 +881,8 @@
       renderInsuranceOptions();
       renderAdditionalOptions();
       
-      // 時間選択肢を営業時間に基づいて生成
-      renderTimeOptions();
+      // 時間選択肢を営業時間に基づいて生成（初期表示）
+      renderTimeOptions().catch(e => console.warn('時間選択肢生成エラー:', e));
       
       // セッションから復元
       const saved = ReservationStorage.get();
@@ -905,8 +905,11 @@
       }
     }
     
+    // 時間帯の空き状況キャッシュ
+    let timeSlotsCache = {};
+    
     // 営業時間に基づいて時間選択肢を生成
-    function renderTimeOptions() {
+    async function renderTimeOptions() {
       const startSelect = document.getElementById('startTime');
       const endSelect = document.getElementById('endTime');
       const openTime = shopSettings?.openTime || '09:00';
@@ -926,6 +929,22 @@
       // 返却時間は非表示だがクリアしておく
       endSelect.innerHTML = '<option value="">選択してください</option>';
       
+      // 選択された日付があれば空き状況を取得
+      let unavailableTimes = [];
+      if (state.startDate) {
+        try {
+          const cacheKey = state.startDate;
+          if (!timeSlotsCache[cacheKey]) {
+            const response = await API.get(`/v1/shop/time-slots?date=${state.startDate}`);
+            timeSlotsCache[cacheKey] = response.data || [];
+          }
+          const slots = timeSlotsCache[cacheKey];
+          unavailableTimes = slots.filter(s => !s.available).map(s => s.time);
+        } catch (e) {
+          console.warn('時間帯の空き状況取得エラー:', e);
+        }
+      }
+      
       // 営業時間内の時間を生成
       const [openHour, openMin] = openTime.split(':').map(Number);
       const [closeHour, closeMin] = closeTime.split(':').map(Number);
@@ -935,11 +954,13 @@
       
       while (currentHour < closeHour || (currentHour === closeHour && currentMin <= closeMin)) {
         const timeStr = `${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`;
+        const isUnavailable = unavailableTimes.includes(timeStr);
         
         // 受取時間オプション
         const startOption = document.createElement('option');
         startOption.value = timeStr;
-        startOption.textContent = timeStr;
+        startOption.textContent = isUnavailable ? `${timeStr}（満員）` : timeStr;
+        startOption.disabled = isUnavailable;
         startSelect.appendChild(startOption);
         
         // 返却時間オプション（hidden selectにも追加）
@@ -1458,6 +1479,9 @@
       availableCarClasses = [];
       state.vehicleClass = null;
       state.carClassId = null;
+      
+      // 日付に基づいて時間選択肢を再生成（満員枠をグレーアウト）
+      await renderTimeOptions();
       
       updateDateInfo();
       renderCalendar();
