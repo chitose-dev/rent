@@ -425,6 +425,17 @@
       background: var(--primary-light);
     }
     
+    .option-card.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: var(--bg-light);
+    }
+    
+    .option-card.disabled:hover {
+      border-color: var(--border-color);
+      background: var(--bg-light);
+    }
+    
     .option-card input[type="radio"],
     .option-card input[type="checkbox"] {
       width: 20px;
@@ -1083,6 +1094,28 @@
       });
     }
     
+    // 在庫確認済みのオプション
+    let availableOptions = [];
+    
+    // 在庫確認付きでオプションを取得
+    async function loadAvailableOptions() {
+      if (!state.startDate || !state.startTime || !state.endDate || !state.endTime) {
+        return;
+      }
+      
+      try {
+        const pickupAt = new Date(`${state.startDate}T${state.startTime}:00`);
+        const returnAt = new Date(`${state.endDate}T${state.endTime}:00`);
+        
+        const res = await API.get(`/v1/shop/options?pickupAt=${pickupAt.toISOString()}&returnAt=${returnAt.toISOString()}`);
+        availableOptions = res.data || res || [];
+        
+        renderAdditionalOptions();
+      } catch (e) {
+        console.error('オプション在庫確認に失敗:', e);
+      }
+    }
+    
     // 追加オプションを動的生成
     function renderAdditionalOptions() {
       const container = document.getElementById('additional-options');
@@ -1091,20 +1124,39 @@
       // 既存のオプションカードを削除
       container.querySelectorAll('.option-card').forEach(el => el.remove());
       
-      // APIから取得したオプションを表示
-      AppConfig.options.forEach(option => {
+      // 在庫確認済みデータがあればそれを使用
+      const options = availableOptions.length > 0 ? availableOptions : AppConfig.options;
+      
+      options.forEach(option => {
+        const isAvailable = option.available !== false;
+        const availableCount = option.availableCount;
+        
         const card = document.createElement('div');
-        card.className = 'option-card';
+        card.className = 'option-card' + (isAvailable ? '' : ' disabled');
         card.dataset.option = option.id;
         card.dataset.optionName = option.name;
         card.dataset.price = option.pricePerDay;
-        card.onclick = function() { toggleOption(this); };
+        
+        if (isAvailable) {
+          card.onclick = function() { toggleOption(this); };
+        }
+        
+        // 在庫状況の表示
+        let availabilityHtml = '';
+        if (availableCount !== undefined) {
+          if (availableCount > 0) {
+            availabilityHtml = `<span class="availability-badge available">残${availableCount}</span>`;
+          } else {
+            availabilityHtml = `<span class="availability-badge unavailable">在庫なし</span>`;
+          }
+        }
         
         card.innerHTML = `
-          <input type="checkbox" value="${escapeHtml(option.id)}">
+          <input type="checkbox" value="${escapeHtml(option.id)}" ${isAvailable ? '' : 'disabled'}>
           <div class="option-card-info">
-            <div class="option-card-name">${escapeHtml(option.name)}</div>
+            <div class="option-card-name">${escapeHtml(option.name)} ${availabilityHtml}</div>
             <div class="option-card-desc">${escapeHtml(option.description || '')}</div>
+            ${!isAvailable ? '<div style="color:#c00;font-size:12px;">この期間はご利用いただけません</div>' : ''}
           </div>
           <div class="option-card-price">¥${option.pricePerDay.toLocaleString()}/日</div>
         `;
@@ -1452,7 +1504,10 @@
       
       // 期間が全て揃ったら在庫確認を実行
       if (state.days && state.startDate && state.startTime && state.endDate && state.endTime) {
-        await loadAvailableCarClasses();
+        await Promise.all([
+          loadAvailableCarClasses(),
+          loadAvailableOptions()
+        ]);
       }
       
       updateSections();
