@@ -269,11 +269,12 @@
               <td>${escapeHtml(v.model) || '-'}</td>
               <td>${escapeHtml(v.carClassName) || '-'}</td>
               <td><span class="badge ${escapeHtml(st.class)}">${escapeHtml(st.text)}</span></td>
-              <td class="actions">
+              <td class="actions" style="white-space:nowrap;">
                 ${v.status === 'maintenance' 
                   ? `<button type="button" class="btn btn-sm btn-success" data-action="clear-maint" data-id="${safeId}">メンテ解除</button>`
                   : `<button type="button" class="btn btn-sm btn-warning" data-action="set-maint" data-id="${safeId}">メンテ設定</button>`
                 }
+                <button type="button" class="btn btn-sm btn-outline" data-action="sync" data-id="${safeId}" title="予約のクラス情報を同期">同期</button>
                 <button type="button" class="btn btn-sm btn-danger" data-action="delete" data-id="${safeId}">削除</button>
               </td>
             </tr>
@@ -288,6 +289,7 @@
             if (action === 'clear-maint') clearMaintenance(id);
             else if (action === 'set-maint') openMaintenanceModal(id);
             else if (action === 'delete') openDeleteModal(id);
+            else if (action === 'sync') syncVehicleReservations(id);
           });
         });
       } catch (error) {
@@ -361,6 +363,17 @@
       if (!confirm('メンテナンスを解除しますか？')) return;
       try {
         await API.delete(`/v1/admin/vehicles/${vehicleId}/maintenance`);
+        loadVehicles();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    async function syncVehicleReservations(vehicleId) {
+      if (!confirm('この車両に紐づく予約のクラス情報を同期しますか？')) return;
+      try {
+        const result = await API.post(`/v1/admin/vehicles/${vehicleId}/sync-reservations`);
+        alert(result.message || '同期しました');
         loadVehicles();
       } catch (error) {
         alert('エラー: ' + error.message);
