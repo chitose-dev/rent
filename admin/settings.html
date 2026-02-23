@@ -112,7 +112,7 @@
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">定休日</label>
+            <label class="form-label">定休曜日</label>
             <div style="display: flex; gap: 16px; flex-wrap: wrap;">
               <label class="form-check"><input type="checkbox" id="closedDay0"> 日曜日</label>
               <label class="form-check"><input type="checkbox" id="closedDay1"> 月曜日</label>
@@ -122,6 +122,14 @@
               <label class="form-check"><input type="checkbox" id="closedDay5"> 金曜日</label>
               <label class="form-check"><input type="checkbox" id="closedDay6"> 土曜日</label>
             </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">臨時休業日（個別指定）</label>
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+              <input type="date" class="form-input" id="newClosedDate" style="width: 180px;">
+              <button type="button" class="btn btn-sm btn-outline" onclick="addClosedDate()">追加</button>
+            </div>
+            <div id="closedDatesList" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
           </div>
         </div>
       </div>
@@ -191,6 +199,50 @@
   
   <script src="common.js"></script>
   <script>
+    // 臨時休業日の管理
+    let currentClosedDates = [];
+
+    // 臨時休業日を追加
+    function addClosedDate() {
+      const input = document.getElementById('newClosedDate');
+      const date = input.value;
+      if (!date) {
+        alert('日付を選択してください');
+        return;
+      }
+      if (currentClosedDates.includes(date)) {
+        alert('この日付は既に追加されています');
+        return;
+      }
+      currentClosedDates.push(date);
+      currentClosedDates.sort();
+      renderClosedDates();
+      input.value = '';
+    }
+
+    // 臨時休業日を削除
+    function removeClosedDate(date) {
+      currentClosedDates = currentClosedDates.filter(d => d !== date);
+      renderClosedDates();
+    }
+
+    // 臨時休業日の表示
+    function renderClosedDates() {
+      const container = document.getElementById('closedDatesList');
+      if (currentClosedDates.length === 0) {
+        container.innerHTML = '<span style="color:#666;">なし</span>';
+        return;
+      }
+      container.innerHTML = currentClosedDates.map(date => {
+        const d = new Date(date);
+        const label = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+        return `<span style="background:#f0f0f0;padding:4px 8px;border-radius:4px;display:inline-flex;align-items:center;gap:4px;">
+          ${escapeHtml(label)}
+          <button type="button" onclick="removeClosedDate('${date}')" style="border:none;background:none;cursor:pointer;color:#c00;font-size:14px;">×</button>
+        </span>`;
+      }).join('');
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       if (!AdminAuth.checkAuth()) return;
       loadSettings();
@@ -213,11 +265,15 @@
         document.getElementById('closeTime').value = shop.closeTime || '20:00';
         document.getElementById('timeSlot').value = shop.timeSlotMinutes || shop.timeStepMinutes || 30;
 
-        // 定休日
+        // 定休曜日
         const closedDays = shop.closedDays || [];
         for (let i = 0; i < 7; i++) {
           document.getElementById(`closedDay${i}`).checked = closedDays.includes(i);
         }
+
+        // 臨時休業日
+        currentClosedDates = shop.closedDates || [];
+        renderClosedDates();
 
         // 予約設定
         document.getElementById('maxConcurrent').value = shop.maxConcurrentPickups || 3;
@@ -262,6 +318,7 @@
         closeTime: document.getElementById('closeTime').value,
         timeSlotMinutes: parseInt(document.getElementById('timeSlot').value),
         closedDays: closedDays,
+        closedDates: currentClosedDates,
         maxConcurrentPickups: parseInt(document.getElementById('maxConcurrent').value),
         minAdvanceDays: parseInt(document.getElementById('minAdvanceDays').value),
         maxAdvanceDays: parseInt(document.getElementById('maxAdvanceDays').value),

@@ -648,6 +648,12 @@
           </div>
         </div>
         
+        <!-- 定休日警告 -->
+        <div id="closedDateWarning" style="display: none; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px; margin-top: 12px; color: #856404;">
+          <strong>⚠️ 注意:</strong>
+          <span id="closedDateWarningText"></span>
+        </div>
+        
         <!-- 受取時間選択（日付選択後に表示） -->
         <div id="timeSection" style="display: none;">
           <div class="form-group">
@@ -864,6 +870,41 @@
           currentMin = currentMin % 60;
         }
       }
+    }
+    
+    // 定休日かどうかを判定
+    function isClosedDay(date) {
+      if (!shopSettings) return false;
+      
+      const closedDays = shopSettings.closedDays || [];
+      const closedDates = shopSettings.closedDates || [];
+      
+      // 曜日チェック
+      if (closedDays.includes(date.getDay())) {
+        return true;
+      }
+      
+      // 個別日付チェック
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+      return closedDates.includes(dateStr);
+    }
+    
+    // 予約期間内の定休日をチェック
+    function checkClosedDatesInPeriod(startDate, days) {
+      if (!shopSettings) return [];
+      
+      const closedInPeriod = [];
+      const current = new Date(startDate);
+      
+      for (let i = 0; i < days; i++) {
+        if (isClosedDay(current)) {
+          const dateStr = `${current.getFullYear()}年${current.getMonth()+1}月${current.getDate()}日`;
+          closedInPeriod.push(dateStr);
+        }
+        current.setDate(current.getDate() + 1);
+      }
+      
+      return closedInPeriod;
     }
     
     // 車両クラスを動的生成
@@ -1115,9 +1156,15 @@
         if (dayOfWeek === 0) dayCell.classList.add('sunday');
         if (dayOfWeek === 6) dayCell.classList.add('saturday');
         
-        // 過去の日付は選択不可
-        if (date <= today) {
+        // 定休日チェック
+        const isClosed = isClosedDay(date);
+        
+        // 過去の日付または定休日は選択不可
+        if (date <= today || isClosed) {
           dayCell.classList.add('disabled');
+          if (isClosed) {
+            dayCell.title = '定休日';
+          }
         } else {
           dayCell.onclick = () => selectDate(date);
         }
@@ -1192,6 +1239,8 @@
     // 日付情報更新
     function updateDateInfo() {
       const formatJP = (d) => `${d.getMonth()+1}月${d.getDate()}日`;
+      const warningEl = document.getElementById('closedDateWarning');
+      const warningText = document.getElementById('closedDateWarningText');
       
       if (selectedStartDate && state.days) {
         const endDate = new Date(selectedStartDate);
@@ -1201,10 +1250,21 @@
         document.getElementById('infoEndDate').textContent = formatJP(endDate);
         document.getElementById('infoDays').textContent = `${state.days}日間`;
         document.getElementById('dateInfoBox').style.display = 'block';
+        
+        // 定休日警告チェック
+        // 返却日が定休日かチェック
+        if (isClosedDay(endDate)) {
+          const dateStr = `${endDate.getFullYear()}年${endDate.getMonth()+1}月${endDate.getDate()}日`;
+          warningText.textContent = `${dateStr}は定休日のため返却できません。別の日程をお選びください。`;
+          warningEl.style.display = 'block';
+        } else {
+          warningEl.style.display = 'none';
+        }
       } else {
         document.getElementById('infoStartDate').textContent = '-';
         document.getElementById('infoEndDate').textContent = '-';
         document.getElementById('infoDays').textContent = '-';
+        warningEl.style.display = 'none';
       }
     }
     
