@@ -486,9 +486,18 @@
     // 予約データを取得
     function loadReservationData() {
       const data = ReservationStorage.get();
-      if (!data || !data.pickupDateTime) {
-        alert('受取日時を選択してください');
-        window.location.href = 'reserve-pickup.html';
+      
+      // 必須データの検証（アラートなしで適切なページへリダイレクト）
+      if (!data || !data.startDate) {
+        window.location.href = 'reserve.html';
+        return;
+      }
+      if (!data.carClassId || !data.pricingPlanId) {
+        window.location.href = 'reserve-class.html';
+        return;
+      }
+      if (!data.pickupDateTime) {
+        window.location.href = 'reserve.html';
         return;
       }
       

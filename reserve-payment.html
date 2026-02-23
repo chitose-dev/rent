@@ -269,8 +269,17 @@
       if (!Auth.requireAuth()) return;
       
       const data = ReservationStorage.get();
-      if (!data || !data.returnDateTime) {
-        alert('返却日時を選択してください');
+      
+      // 必須データの検証（アラートなしで適切なページへリダイレクト）
+      if (!data || !data.startDate) {
+        window.location.href = 'reserve.html';
+        return;
+      }
+      if (!data.carClassId || !data.pricingPlanId) {
+        window.location.href = 'reserve-class.html';
+        return;
+      }
+      if (!data.endDate && !data.returnDateTime) {
         window.location.href = 'reserve-return.html';
         return;
       }

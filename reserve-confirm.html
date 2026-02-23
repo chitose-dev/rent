@@ -307,9 +307,26 @@
       if (!Auth.requireAuth()) return;
       
       const data = ReservationStorage.get();
-      if (!data || !data.carClassId) {
-        alert('予約情報を入力してください');
+      
+      // 必須データの検証
+      if (!data) {
         window.location.href = 'reserve.html';
+        return;
+      }
+      if (!data.startDate || !data.startTime) {
+        window.location.href = 'reserve.html';
+        return;
+      }
+      if (!data.carClassId || !data.pricingPlanId) {
+        window.location.href = 'reserve-class.html';
+        return;
+      }
+      if (!data.endDate) {
+        window.location.href = 'reserve-return.html';
+        return;
+      }
+      if (!data.paymentMethod) {
+        window.location.href = 'reserve-payment.html';
         return;
       }
       
