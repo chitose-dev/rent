@@ -142,10 +142,8 @@
         </div>
         <div class="form-group">
           <label class="form-label">追加決済方法</label>
-          <select class="form-select" id="extend-payment-method">
-            <option value="onsite">現地払い</option>
-            <option value="card">カード決済（決済URLを発行）</option>
-          </select>
+          <input type="text" class="form-input" value="現地払い" disabled>
+          <input type="hidden" id="extend-payment-method" value="onsite">
         </div>
         <div class="form-group">
           <label class="form-label">備考</label>
