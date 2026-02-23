@@ -911,6 +911,11 @@ function insertFooter() {
     return;
   }
   
+  // ログイン・新規登録ページでは挿入しない
+  if (window.location.pathname.includes('login') || window.location.pathname.includes('register')) {
+    return;
+  }
+  
   // 既にフッターがある場合は挿入しない
   if (document.querySelector('.site-footer')) {
     return;
