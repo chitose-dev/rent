@@ -866,9 +866,7 @@ function insertFooter() {
   footer.innerHTML = `
     <div class="footer-container">
       <div class="footer-contact">
-        <a href="mailto:info@vipauto-iwade.com">
-          📧 お問い合わせ: info@vipauto-iwade.com
-        </a>
+        お困りの方は<a href="mailto:info@vipauto-iwade.com">お問い合わせ</a>までご連絡ください
       </div>
       <div class="footer-links">
         <a href="terms.html">利用規約</a>
