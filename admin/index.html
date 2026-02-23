@@ -258,7 +258,7 @@
       if (!confirm('この予約の受取処理を行いますか？')) return;
       
       try {
-        await API.patch(`/v1/admin/reservations/${reservationId}`, { status: 'picked_up' });
+        await API.put(`/v1/admin/reservations/${reservationId}/pickup`, {});
         alert('受取処理が完了しました');
         loadDashboard();
       } catch (error) {
@@ -271,7 +271,7 @@
       if (!confirm('この予約の返却処理を行いますか？')) return;
       
       try {
-        await API.patch(`/v1/admin/reservations/${reservationId}`, { status: 'returned' });
+        await API.put(`/v1/admin/reservations/${reservationId}/return`, {});
         alert('返却処理が完了しました');
         loadDashboard();
       } catch (error) {
@@ -286,9 +286,11 @@
       
       // キャッシュから取得、なければAPI呼び出し
       let r = reservationCache[reservationId];
-      if (!r) {
+      if (!r || !r.options) {
+        // 一覧データには詳細がないのでAPIから取得
         try {
-          r = await API.get(`/v1/admin/reservations/${reservationId}`);
+          const result = await API.get(`/v1/admin/reservations/${reservationId}`);
+          r = result.data || result;
           reservationCache[reservationId] = r;
         } catch (error) {
           alert('詳細の取得に失敗しました: ' + error.message);
