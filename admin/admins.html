@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理者管理 - 管理画面</title>
+  <link rel="preconnect" href="https://rentcar-backend-dgyxfpofua-an.a.run.app">
+  <link rel="dns-prefetch" href="https://rentcar-backend-dgyxfpofua-an.a.run.app">
+  <link rel="stylesheet" href="common.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- サイドバー -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="sidebar-logo">
+          予約管理
+          <small>管理画面</small></a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="index.html" class="nav-item">ダッシュボード</a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">予約管理</div>
+          <a href="reservations.html" class="nav-item">予約一覧</a>
+          <a href="vehicle-schedule.html" class="nav-item">車両スケジュール</a>
+          <a href="members.html" class="nav-item">会員管理</a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">車両・サービス</div>
+          <a href="classes.html" class="nav-item">車両クラス</a>
+          <a href="pricing.html" class="nav-item">料金設定</a>
+          <a href="vehicles.html" class="nav-item">車両・在庫</a>
+          <a href="options.html" class="nav-item">オプション</a>
+          <a href="insurance.html" class="nav-item">保険プラン</a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">設定</div>
+          <a href="settings.html" class="nav-item">店舗設定</a>
+          <a href="system-settings.html" class="nav-item">システム設定</a>
+          <a href="documents.html" class="nav-item">法的文書</a>
+          <a href="admins.html" class="nav-item">管理者管理</a>
+          <a href="admins.html" class="nav-item active">管理者管理</a>
+        </div>
+        <div class="nav-section">
+          <a href="../index.html" class="nav-item" target="_blank">予約サイトへ</a>
+          <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
+        </div>
+        <div class="nav-section nav-section-bottom">
+          <button type="button" onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="admin-main">
+      <div class="page-header">
+        <h1 class="page-title">管理者管理</h1>
+        <button type="button" class="btn btn-primary" onclick="showAddModal()">+ 管理者追加</button>
+      </div>
+
+      <div id="message" class="alert" style="display:none;"></div>
+
+      <div class="admin-card">
+        <div class="card-body">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>名前</th>
+                <th>メールアドレス</th>
+                <th>ステータス</th>
+                <th>最終ログイン</th>
+                <th>登録日</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="admins-table">
+              <tr><td colspan="6" style="text-align:center;padding:40px;">読み込み中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 追加モーダル -->
+  <div class="modal-overlay" id="add-modal">
+    <div class="modal" style="max-width:450px;">
+      <div class="modal-header">
+        <h2>管理者追加</h2>
+        <button type="button" class="modal-close" onclick="closeModal('add-modal')">&times;</button>
+      </div>
+      <form id="add-form" onsubmit="addAdmin(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">名前</label>
+            <input type="text" class="form-input" id="adminName" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">メールアドレス</label>
+            <input type="email" class="form-input" id="adminEmail" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">パスワード</label>
+            <input type="password" class="form-input" id="adminPassword" required minlength="8">
+            <small style="color:#666;">8文字以上</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('add-modal')">キャンセル</button>
+          <button type="submit" class="btn btn-primary" id="add-btn">追加</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="common.js"></script>
+  <script>
+    let admins = [];
+    let currentAdminId = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!AdminAuth.checkAuth()) return;
+      currentAdminId = AdminAuth.getAdmin().id;
+      loadAdmins();
+    });
+
+    async function loadAdmins() {
+      try {
+        const result = await API.get('/v1/admin/admins');
+        admins = Array.isArray(result) ? result : (result.data || []);
+        renderAdmins();
+      } catch (error) {
+        document.getElementById('admins-table').innerHTML = 
+          `<tr><td colspan="6" style="text-align:center;padding:40px;color:#c00;">エラー: ${escapeHtml(error.message)}</td></tr>`;
+      }
+    }
+
+    function renderAdmins() {
+      const tbody = document.getElementById('admins-table');
+      if (admins.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">管理者がいません</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = admins.map(a => {
+        const isMe = a.id === currentAdminId;
+        const statusBadge = a.status === 'active' 
+          ? '<span class="badge badge-success">有効</span>'
+          : '<span class="badge badge-danger">停止</span>';
+        
+        return `
+          <tr>
+            <td><strong>${escapeHtml(a.name || '-')}</strong>${isMe ? ' <small>(自分)</small>' : ''}</td>
+            <td>${escapeHtml(a.email)}</td>
+            <td>${statusBadge}</td>
+            <td>${formatDate(a.lastLoginAt)}</td>
+            <td>${formatDate(a.createdAt)}</td>
+            <td class="actions">
+              ${!isMe ? `
+                ${a.status === 'active' 
+                  ? `<button type="button" class="btn btn-sm btn-outline" data-action="suspend" data-id="${a.id}">停止</button>`
+                  : `<button type="button" class="btn btn-sm btn-success" data-action="unsuspend" data-id="${a.id}">解除</button>`
+                }
+                <button type="button" class="btn btn-sm btn-danger" data-action="delete" data-id="${a.id}">削除</button>
+              ` : '<span style="color:#999;">-</span>'}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const action = this.dataset.action;
+          const id = this.dataset.id;
+          if (action === 'suspend') suspendAdmin(id);
+          else if (action === 'unsuspend') unsuspendAdmin(id);
+          else if (action === 'delete') deleteAdmin(id);
+        });
+      });
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const d = new Date(dateStr);
+      return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+    }
+
+    function showAddModal() {
+      document.getElementById('add-form').reset();
+      openModal('add-modal');
+    }
+
+    async function addAdmin(event) {
+      event.preventDefault();
+      const btn = document.getElementById('add-btn');
+      btn.disabled = true;
+      btn.textContent = '追加中...';
+
+      try {
+        await API.post('/v1/admin/admins', {
+          name: document.getElementById('adminName').value,
+          email: document.getElementById('adminEmail').value,
+          password: document.getElementById('adminPassword').value
+        });
+        closeModal('add-modal');
+        showMessage('管理者を追加しました', 'success');
+        loadAdmins();
+      } catch (error) {
+        showMessage('追加に失敗しました: ' + error.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '追加';
+      }
+    }
+
+    async function suspendAdmin(id) {
+      if (!confirm('この管理者を停止しますか？')) return;
+      try {
+        await API.put(`/v1/admin/admins/${id}/suspend`);
+        showMessage('管理者を停止しました', 'success');
+        loadAdmins();
+      } catch (error) {
+        showMessage('エラー: ' + error.message, 'error');
+      }
+    }
+
+    async function unsuspendAdmin(id) {
+      if (!confirm('停止を解除しますか？')) return;
+      try {
+        await API.delete(`/v1/admin/admins/${id}/suspend`);
+        showMessage('停止を解除しました', 'success');
+        loadAdmins();
+      } catch (error) {
+        showMessage('エラー: ' + error.message, 'error');
+      }
+    }
+
+    async function deleteAdmin(id) {
+      if (!confirm('この管理者を削除しますか？この操作は取り消せません。')) return;
+      try {
+        await API.delete(`/v1/admin/admins/${id}`);
+        showMessage('管理者を削除しました', 'success');
+        loadAdmins();
+      } catch (error) {
+        showMessage('エラー: ' + error.message, 'error');
+      }
+    }
+
+    function showMessage(text, type) {
+      const el = document.getElementById('message');
+      el.textContent = text;
+      el.className = `alert alert-${type === 'error' ? 'danger' : 'success'}`;
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 5000);
+    }
+  </script>
+</body>
+</html>
