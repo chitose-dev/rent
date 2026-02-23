@@ -1092,8 +1092,20 @@
       // 既存のオプションカードを削除
       container.querySelectorAll('.option-card').forEach(el => el.remove());
       
+      // 保険プランが空の場合はデフォルトの「補償なし」を追加
+      let plans = AppConfig.insurancePlans;
+      if (plans.length === 0) {
+        plans = [{
+          id: 'none',
+          name: '補償なし',
+          description: '免責補償に加入しない場合、事故時にお客様負担額が発生する可能性があります',
+          pricePerDay: 0,
+          isRecommended: false
+        }];
+      }
+      
       // APIから取得した保険プランを表示
-      AppConfig.insurancePlans.forEach((plan, index) => {
+      plans.forEach((plan, index) => {
         const card = document.createElement('div');
         card.className = 'option-card' + (plan.isRecommended ? ' recommended' : '');
         card.dataset.insurance = plan.id;
