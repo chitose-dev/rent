@@ -85,6 +85,28 @@
         </div>
       </div>
 
+      <!-- 返却遅延アラート -->
+      <div class="admin-card" id="overdue-section" style="display: none; border-left: 4px solid #c00;">
+        <div class="card-header" style="background: #ffebee;">
+          <h2 class="card-title" style="color: #c00;">⚠️ 返却遅延アラート</h2>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>予約番号</th>
+                <th>会員</th>
+                <th>車両</th>
+                <th>返却予定</th>
+                <th>遅延時間</th>
+                <th>連絡先</th>
+              </tr>
+            </thead>
+            <tbody id="overdue-reservations"></tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- 今日の予約 -->
       <div class="admin-card">
         <div class="card-header">
@@ -130,7 +152,46 @@
       return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
     }
 
+    async function loadOverdueReservations() {
+      try {
+        const result = await API.get('/v1/admin/reservations/overdue/list');
+        const overdueList = result.data || [];
+        
+        const section = document.getElementById('overdue-section');
+        const tbody = document.getElementById('overdue-reservations');
+        
+        if (overdueList.length === 0) {
+          section.style.display = 'none';
+          return;
+        }
+        
+        section.style.display = 'block';
+        
+        tbody.innerHTML = overdueList.map(r => {
+          const returnAt = new Date(r.returnAt);
+          const returnStr = `${returnAt.getMonth()+1}/${returnAt.getDate()} ${returnAt.getHours()}:${String(returnAt.getMinutes()).padStart(2,'0')}`;
+          return `
+            <tr style="background: #fff5f5;">
+              <td><strong>${escapeHtml(r.id)}</strong></td>
+              <td>${escapeHtml(r.userName)}</td>
+              <td>${escapeHtml(r.vehicleModel)}<br><small>${escapeHtml(r.vehicleLicensePlate)}</small></td>
+              <td>${returnStr}</td>
+              <td style="color: #c00; font-weight: bold;">${r.overdueHours}時間</td>
+              <td>
+                <a href="tel:${escapeHtml(r.userPhone)}" class="btn btn-sm btn-danger">📞 ${escapeHtml(r.userPhone)}</a>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (error) {
+        console.error('遅延予約の読み込みエラー:', error);
+      }
+    }
+
     async function loadDashboard() {
+      // 遅延アラートを先に読み込む
+      await loadOverdueReservations();
+      
       try {
         const stats = await API.get('/v1/admin/dashboard');
         document.getElementById('stat-today').textContent = stats.todayReservations || 0;
