@@ -654,33 +654,9 @@
             <label class="form-label">受取時間</label>
             <select class="form-select" id="startTime" onchange="checkPeriodComplete()">
               <option value="">選択してください</option>
-              <option value="08:00">08:00</option>
-              <option value="08:30">08:30</option>
-              <option value="09:00">09:00</option>
-              <option value="09:30">09:30</option>
-              <option value="10:00">10:00</option>
-              <option value="10:30">10:30</option>
-              <option value="11:00">11:00</option>
-              <option value="11:30">11:30</option>
-              <option value="12:00">12:00</option>
-              <option value="12:30">12:30</option>
-              <option value="13:00">13:00</option>
-              <option value="13:30">13:30</option>
-              <option value="14:00">14:00</option>
-              <option value="14:30">14:30</option>
-              <option value="15:00">15:00</option>
-              <option value="15:30">15:30</option>
-              <option value="16:00">16:00</option>
-              <option value="16:30">16:30</option>
-              <option value="17:00">17:00</option>
-              <option value="17:30">17:30</option>
-              <option value="18:00">18:00</option>
-              <option value="18:30">18:30</option>
-              <option value="19:00">19:00</option>
-              <option value="19:30">19:30</option>
-              <option value="20:00">20:00</option>
+              <!-- 営業時間に基づいて動的に生成 -->
             </select>
-            <p class="form-hint">返却は営業時間内であればいつでも可能です</p>
+            <p class="form-hint" id="businessHoursHint">営業時間内にご来店ください</p>
           </div>
         </div>
       </div>
@@ -804,6 +780,9 @@
     let currentCalendarDate = new Date();
     let selectedStartDate = null;
     
+    // 店舗設定
+    let shopSettings = null;
+    
     // 初期化
     async function init() {
       // 認証チェック
@@ -812,12 +791,18 @@
       // マスターデータ読み込み
       await AppConfig.loadMasterData();
       
+      // 店舗設定を読み込み
+      await loadShopSettings();
+      
       // 車両クラスを動的に生成
       renderCarClasses();
       
       // オプションを動的に生成
       renderInsuranceOptions();
       renderAdditionalOptions();
+      
+      // 時間選択肢を営業時間に基づいて生成
+      renderTimeOptions();
       
       // セッションから復元
       const saved = ReservationStorage.get();
@@ -826,6 +811,59 @@
       }
       
       updateSections();
+    }
+    
+    // 店舗設定を読み込み
+    async function loadShopSettings() {
+      try {
+        const res = await API.get('/v1/settings');
+        shopSettings = res;
+      } catch (e) {
+        console.error('店舗設定の読み込みに失敗:', e);
+        // デフォルト値
+        shopSettings = { openTime: '09:00', closeTime: '18:00', timeStepMinutes: 30 };
+      }
+    }
+    
+    // 営業時間に基づいて時間選択肢を生成
+    function renderTimeOptions() {
+      const select = document.getElementById('startTime');
+      const openTime = shopSettings?.openTime || '09:00';
+      const closeTime = shopSettings?.closeTime || '18:00';
+      const stepMinutes = shopSettings?.timeStepMinutes || 30;
+      
+      // 営業時間のヒントを更新
+      const hint = document.getElementById('businessHoursHint');
+      if (hint) {
+        hint.textContent = `営業時間: ${openTime}〜${closeTime}`;
+      }
+      
+      // 既存のオプションをクリア（最初の「選択してください」は残す）
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+      
+      // 営業時間内の時間を生成
+      const [openHour, openMin] = openTime.split(':').map(Number);
+      const [closeHour, closeMin] = closeTime.split(':').map(Number);
+      
+      let currentHour = openHour;
+      let currentMin = openMin;
+      
+      while (currentHour < closeHour || (currentHour === closeHour && currentMin <= closeMin)) {
+        const timeStr = `${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`;
+        const option = document.createElement('option');
+        option.value = timeStr;
+        option.textContent = timeStr;
+        select.appendChild(option);
+        
+        // 次の時間に進む
+        currentMin += stepMinutes;
+        if (currentMin >= 60) {
+          currentHour += Math.floor(currentMin / 60);
+          currentMin = currentMin % 60;
+        }
+      }
     }
     
     // 車両クラスを動的生成
