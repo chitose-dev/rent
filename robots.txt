@@ -1,0 +1,11 @@
+# robots.txt for トクノリレンタカー
+# https://chitose-dev.github.io/rent/
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://chitose-dev.github.io/rent/sitemap.xml
+
+# Disallow admin pages
+Disallow: /rent/admin/
