@@ -386,7 +386,14 @@
         
         // 車両情報
         document.getElementById('detailCarClass').textContent = reservationData.carClassName || '車両クラス';
-        document.getElementById('detailDays').textContent = reservationData.days ? `${reservationData.days}日` : '-';
+        // レンタル日数を計算（pickupAtとreturnAtから）
+        const pickupDay = new Date(reservationData.pickupAt);
+        const returnDay = new Date(reservationData.returnAt);
+        pickupDay.setHours(0, 0, 0, 0);
+        returnDay.setHours(0, 0, 0, 0);
+        const diffMs = returnDay.getTime() - pickupDay.getTime();
+        const days = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        document.getElementById('detailDays').textContent = `${days}日`;
         
         // 日時情報
         const pickupDate = new Date(reservationData.pickupAt);
@@ -404,7 +411,7 @@
         // 料金情報
         const paymentText = reservationData.paymentMethod === 'card' ? 'クレジットカード' : '現地払い';
         document.getElementById('detailPayment').textContent = paymentText;
-        document.getElementById('detailPrice').textContent = `¥${(reservationData.totalAmount || 0).toLocaleString()}`;
+        document.getElementById('detailPrice').textContent = `¥${(reservationData.totalPrice || 0).toLocaleString()}`;
       } catch (error) {
         console.error('予約取得エラー:', error);
         alert('予約情報の取得に失敗しました: ' + error.message);
