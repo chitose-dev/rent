@@ -847,11 +847,50 @@ function logout() {
 }
 
 // ========================================
+// 共通フッター
+// ========================================
+
+function insertFooter() {
+  // 管理画面では挿入しない
+  if (window.location.pathname.includes('/admin/')) {
+    return;
+  }
+  
+  // 既にフッターがある場合は挿入しない
+  if (document.querySelector('.site-footer')) {
+    return;
+  }
+  
+  const footer = document.createElement('footer');
+  footer.className = 'site-footer';
+  footer.innerHTML = `
+    <div class="footer-container">
+      <div class="footer-contact">
+        <a href="mailto:info@vipauto-iwade.com">
+          📧 お問い合わせ: info@vipauto-iwade.com
+        </a>
+      </div>
+      <div class="footer-links">
+        <a href="terms.html">利用規約</a>
+        <a href="privacy.html">プライバシーポリシー</a>
+      </div>
+      <div class="footer-copyright">
+        © ${new Date().getFullYear()} トクノリレンタカー
+      </div>
+    </div>
+  `;
+  document.body.appendChild(footer);
+}
+
+// ========================================
 // ページ初期化
 // ========================================
 
 document.addEventListener('DOMContentLoaded', () => {
   DOM.initHamburger();
+  
+  // 共通フッターを挿入
+  insertFooter();
   
   // 認証が必要なページかチェック（login.html, register.html, index.html以外）
   const publicPages = ['login.html', 'register.html', 'index.html', 'verify-email.html', 'reset-password.html', 'terms.html', 'privacy.html'];

@@ -754,3 +754,63 @@ textarea {
     font-size: 13px;
   }
 }
+
+/* ========================================
+   共通フッター
+   ======================================== */
+
+.site-footer {
+  background: var(--secondary-color);
+  color: #fff;
+  padding: var(--spacing-lg) var(--spacing-md);
+  margin-top: var(--spacing-xl);
+}
+
+.footer-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md) var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.footer-links a {
+  color: #fff;
+  text-decoration: none;
+  font-size: var(--font-sm);
+  opacity: 0.9;
+}
+
+.footer-links a:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.footer-contact {
+  text-align: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.footer-contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.footer-contact a:hover {
+  text-decoration: underline;
+}
+
+.footer-copyright {
+  text-align: center;
+  font-size: var(--font-xs);
+  opacity: 0.7;
+}
