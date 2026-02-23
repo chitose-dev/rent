@@ -1153,6 +1153,14 @@
         endDate = new Date(state.endDate);
       }
       
+      // 予約受付期間の計算
+      const minAdvanceDays = shopSettings?.minAdvanceDays || 1;
+      const maxAdvanceDays = shopSettings?.maxAdvanceDays || 90;
+      const minDate = new Date(today);
+      minDate.setDate(minDate.getDate() + minAdvanceDays);
+      const maxDate = new Date(today);
+      maxDate.setDate(maxDate.getDate() + maxAdvanceDays);
+      
       // 日付セル
       for (let day = 1; day <= lastDay.getDate(); day++) {
         const date = new Date(year, month, day);
@@ -1168,11 +1176,18 @@
         // 定休日チェック
         const isClosed = isClosedDay(date);
         
-        // 過去の日付または定休日は選択不可
-        if (date <= today || isClosed) {
+        // 予約不可判定: 受付期間外、定休日
+        const isTooEarly = date < minDate;
+        const isTooLate = date > maxDate;
+        
+        if (isTooEarly || isTooLate || isClosed) {
           dayCell.classList.add('disabled');
           if (isClosed) {
             dayCell.title = '定休日';
+          } else if (isTooEarly) {
+            dayCell.title = `${minAdvanceDays}日後から予約可能`;
+          } else if (isTooLate) {
+            dayCell.title = `${maxAdvanceDays}日後まで予約可能`;
           }
         } else {
           dayCell.onclick = () => selectDate(date);
