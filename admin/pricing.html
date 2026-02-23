@@ -233,7 +233,7 @@
       }
 
       tbody.innerHTML = carClasses.map(c => {
-        let row = `<td class="class-name">${c.name}</td>`;
+        let row = `<td class="class-name">${escapeHtml(c.name)}</td>`;
         
         dayColumns.forEach(days => {
           const plan = pricingPlans.find(p => p.carClassId === c.id && p.days === days);
