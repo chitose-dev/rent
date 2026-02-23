@@ -228,7 +228,7 @@
         <a href="mypage-rental.html">マイページ</a>
         <a href="#" onclick="logout(); return false;">ログアウト</a>
       </nav>
-      <button class="hamburger">
+      <button type="button" class="hamburger">
         <span></span>
         <span></span>
         <span></span>
@@ -242,19 +242,19 @@
     
     <!-- タブナビゲーション -->
     <nav class="mypage-tabs">
-      <button class="mypage-tab active" data-tab="rental" onclick="switchTab('rental')">
+      <button type="button" class="mypage-tab active" data-tab="rental" onclick="switchTab('rental')">
         レンタル状況
       </button>
-      <button class="mypage-tab" data-tab="new" onclick="switchTab('new')">
+      <button type="button" class="mypage-tab" data-tab="new" onclick="switchTab('new')">
         新規予約
       </button>
-      <button class="mypage-tab" data-tab="history" onclick="switchTab('history')">
+      <button type="button" class="mypage-tab" data-tab="history" onclick="switchTab('history')">
         予約履歴
       </button>
-      <button class="mypage-tab" data-tab="profile" onclick="switchTab('profile')">
+      <button type="button" class="mypage-tab" data-tab="profile" onclick="switchTab('profile')">
         登録情報
       </button>
-      <button class="mypage-tab" data-tab="withdraw" onclick="switchTab('withdraw')">
+      <button type="button" class="mypage-tab" data-tab="withdraw" onclick="switchTab('withdraw')">
         退会
       </button>
     </nav>
@@ -266,7 +266,7 @@
         <div class="rental-empty-icon"></div>
         <h2 class="rental-empty-title">現在のレンタルはありません</h2>
         <p class="rental-empty-message">新しい予約を作成して、レンタカーをご利用ください。</p>
-        <button class="btn btn-primary" onclick="goToNewReservation()">
+        <button type="button" class="btn btn-primary" onclick="goToNewReservation()">
           新規予約を作成
         </button>
       </div>
@@ -280,7 +280,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h3 class="modal-title">返却予定日時の入力</h3>
-          <button class="modal-close" onclick="closeReturnPlanModal()">×</button>
+          <button type="button" class="modal-close" onclick="closeReturnPlanModal()">×</button>
         </div>
         <div class="modal-body">
           <p style="color: var(--text-light); margin-bottom: var(--spacing-md); font-size: var(--font-sm);">
@@ -323,8 +323,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" onclick="closeReturnPlanModal()">キャンセル</button>
-          <button class="btn btn-primary" onclick="saveReturnPlan()">保存</button>
+          <button type="button" class="btn btn-secondary" onclick="closeReturnPlanModal()">キャンセル</button>
+          <button type="button" class="btn btn-primary" onclick="saveReturnPlan()">保存</button>
         </div>
       </div>
     </div>
@@ -455,7 +455,7 @@
               <div class="return-plan-value">
                 <span id="plannedReturn-${safeId}">${escapeHtml(plannedReturnText)}</span>
                 ${r.status === 'picked_up' ? `
-                  <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openReturnPlanModal('${safeId}')">
+                  <button type="button" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openReturnPlanModal('${safeId}')">
                     ${r.plannedReturnAt ? '変更' : '入力'}
                   </button>
                 ` : ''}
@@ -464,13 +464,13 @@
           </div>
           
           <div class="rental-card-actions">
-            <button class="btn btn-secondary" onclick="viewDetail('${safeId}')">
+            <button type="button" class="btn btn-secondary" onclick="viewDetail('${safeId}')">
               詳細を見る
             </button>
             ${r.status === 'cancel_requested' ? `
-              <button class="btn btn-secondary" disabled>申請処理中</button>
+              <button type="button" class="btn btn-secondary" disabled>申請処理中</button>
             ` : ['confirmed', 'pending_payment'].includes(r.status) ? `
-              <button class="btn btn-danger" onclick="requestCancel('${safeId}')">
+              <button type="button" class="btn btn-danger" onclick="requestCancel('${safeId}')">
                 キャンセル申請
               </button>
             ` : ''}

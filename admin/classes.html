@@ -41,7 +41,7 @@
           <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
         </div>
         <div class="nav-section nav-section-bottom">
-          <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
+          <button type="button" onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
         </div>
       </nav>
     </aside>
@@ -52,7 +52,7 @@
           <h1 class="admin-title">車両クラス管理</h1>
           <p class="admin-breadcrumb"><a href="index.html">ダッシュボード</a> / 車両クラス</p>
         </div>
-        <button class="btn btn-primary" onclick="openAddModal()">+ クラスを追加</button>
+        <button type="button" class="btn btn-primary" onclick="openAddModal()">+ クラスを追加</button>
       </div>
 
       <div class="admin-card">
@@ -81,7 +81,7 @@
     <div class="modal" style="max-width:500px;">
       <div class="modal-header">
         <h3 id="modal-title">車両クラスを追加</h3>
-        <button class="modal-close" onclick="closeModal('edit-modal')">&times;</button>
+        <button type="button" class="modal-close" onclick="closeModal('edit-modal')">&times;</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="edit-id">
@@ -114,8 +114,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('edit-modal')">キャンセル</button>
-        <button class="btn btn-primary" onclick="saveClass()">保存</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('edit-modal')">キャンセル</button>
+        <button type="button" class="btn btn-primary" onclick="saveClass()">保存</button>
       </div>
     </div>
   </div>
@@ -125,7 +125,7 @@
     <div class="modal" style="max-width:450px;">
       <div class="modal-header">
         <h3>車両クラスを削除</h3>
-        <button class="modal-close" onclick="closeModal('delete-modal')">&times;</button>
+        <button type="button" class="modal-close" onclick="closeModal('delete-modal')">&times;</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="delete-id">
@@ -138,8 +138,8 @@
         <p style="color:#c00; margin-top:12px;">この操作は取り消せません。</p>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('delete-modal')">キャンセル</button>
-        <button class="btn btn-danger" onclick="confirmDelete()">削除する</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('delete-modal')">キャンセル</button>
+        <button type="button" class="btn btn-danger" onclick="confirmDelete()">削除する</button>
       </div>
     </div>
   </div>
@@ -171,11 +171,11 @@
               <span class="badge ${c.isActive !== false ? 'badge-success' : 'badge-secondary'}">${c.isActive !== false ? '有効' : '無効'}</span>
             </td>
             <td class="actions">
-              <button class="btn btn-sm btn-outline" data-edit-id="${c.id}">編集</button>
-              <button class="btn btn-sm ${c.isActive !== false ? 'btn-secondary' : 'btn-success'}" data-toggle-id="${c.id}">
+              <button type="button" class="btn btn-sm btn-outline" data-edit-id="${c.id}">編集</button>
+              <button type="button" class="btn btn-sm ${c.isActive !== false ? 'btn-secondary' : 'btn-success'}" data-toggle-id="${c.id}">
                 ${c.isActive !== false ? '無効化' : '有効化'}
               </button>
-              <button class="btn btn-sm btn-danger" data-delete-id="${c.id}">削除</button>
+              <button type="button" class="btn btn-sm btn-danger" data-delete-id="${c.id}">削除</button>
             </td>
           </tr>
         `).join('');

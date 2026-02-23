@@ -217,7 +217,7 @@
         <a href="mypage-rental.html">マイページ</a>
         <a href="#" onclick="logout(); return false;">ログアウト</a>
       </nav>
-      <button class="hamburger">
+      <button type="button" class="hamburger">
         <span></span>
         <span></span>
         <span></span>
@@ -252,9 +252,9 @@
     <!-- カレンダー -->
     <div class="section calendar-container">
       <div class="calendar-header">
-        <button class="calendar-nav-btn" id="prevBtn" onclick="changeMonth(-1)">◀</button>
+        <button type="button" class="calendar-nav-btn" id="prevBtn" onclick="changeMonth(-1)">◀</button>
         <span class="calendar-month" id="calendarMonth"></span>
-        <button class="calendar-nav-btn" id="nextBtn" onclick="changeMonth(1)">▶</button>
+        <button type="button" class="calendar-nav-btn" id="nextBtn" onclick="changeMonth(1)">▶</button>
       </div>
       
       <div class="calendar-weekdays">
@@ -272,8 +272,8 @@
 
     <!-- ボタン -->
     <div class="btn-group">
-      <button class="btn btn-secondary" onclick="goBack()">戻る</button>
-      <button class="btn btn-primary btn-full" id="nextBtn" disabled onclick="goNext()">次へ進む</button>
+      <button type="button" class="btn btn-secondary" onclick="goBack()">戻る</button>
+      <button type="button" class="btn btn-primary btn-full" id="nextBtn" disabled onclick="goNext()">次へ進む</button>
     </div>
   </div>
 

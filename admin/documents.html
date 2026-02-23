@@ -75,7 +75,7 @@
           <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
         </div>
         <div class="nav-section nav-section-bottom">
-          <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
+          <button type="button" onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
         </div>
       </nav>
     </aside>
@@ -90,8 +90,8 @@
 
       <!-- タブ -->
       <div class="tab-nav">
-        <button class="tab active" onclick="showTab('terms')">利用規約</button>
-        <button class="tab" onclick="showTab('privacy')">プライバシーポリシー</button>
+        <button type="button" class="tab active" onclick="showTab('terms')">利用規約</button>
+        <button type="button" class="tab" onclick="showTab('privacy')">プライバシーポリシー</button>
       </div>
 
       <!-- 利用規約タブ -->
@@ -100,8 +100,8 @@
           <div class="card-header">
             <h2 class="card-title">利用規約</h2>
             <div class="btn-group">
-              <button class="btn btn-sm btn-outline" onclick="togglePreview('terms')">プレビュー</button>
-              <button class="btn btn-sm btn-primary" onclick="saveDocument('terms')">保存</button>
+              <button type="button" class="btn btn-sm btn-outline" onclick="togglePreview('terms')">プレビュー</button>
+              <button type="button" class="btn btn-sm btn-primary" onclick="saveDocument('terms')">保存</button>
             </div>
           </div>
           <div class="card-body">
@@ -120,8 +120,8 @@
           <div class="card-header">
             <h2 class="card-title">プライバシーポリシー</h2>
             <div class="btn-group">
-              <button class="btn btn-sm btn-outline" onclick="togglePreview('privacy')">プレビュー</button>
-              <button class="btn btn-sm btn-primary" onclick="saveDocument('privacy')">保存</button>
+              <button type="button" class="btn btn-sm btn-outline" onclick="togglePreview('privacy')">プレビュー</button>
+              <button type="button" class="btn btn-sm btn-primary" onclick="saveDocument('privacy')">保存</button>
             </div>
           </div>
           <div class="card-body">

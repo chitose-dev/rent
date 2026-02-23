@@ -46,7 +46,7 @@
           <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
         </div>
         <div class="nav-section nav-section-bottom">
-          <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
+          <button type="button" onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
         </div>
       </nav>
     </aside>
@@ -55,7 +55,7 @@
     <main class="admin-main">
       <div class="page-header">
         <h1 class="page-title">保険プラン管理</h1>
-        <button class="btn btn-primary" onclick="showAddModal()">+ 新規プラン追加</button>
+        <button type="button" class="btn btn-primary" onclick="showAddModal()">+ 新規プラン追加</button>
       </div>
 
       <!-- プラン一覧 -->
@@ -87,7 +87,7 @@
     <div class="modal" style="max-width: 500px;">
       <div class="modal-header">
         <h2 id="modal-title">保険プラン追加</h2>
-        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
       </div>
       <form id="plan-form" onsubmit="savePlan(event)">
         <input type="hidden" id="planId">
@@ -172,8 +172,8 @@
             </span>
           </td>
           <td>
-            <button class="btn btn-sm btn-outline" data-edit-id="${plan.id}">編集</button>
-            <button class="btn btn-sm btn-danger" data-delete-id="${plan.id}">削除</button>
+            <button type="button" class="btn btn-sm btn-outline" data-edit-id="${plan.id}">編集</button>
+            <button type="button" class="btn btn-sm btn-danger" data-delete-id="${plan.id}">削除</button>
           </td>
         </tr>
       `).join('');

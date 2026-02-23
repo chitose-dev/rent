@@ -46,7 +46,7 @@
           <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
         </div>
         <div class="nav-section nav-section-bottom">
-          <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
+          <button type="button" onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
         </div>
       </nav>
     </aside>
@@ -62,10 +62,10 @@
 
       <!-- タブ -->
       <div class="tabs">
-        <button class="tab active" data-status="">すべて</button>
-        <button class="tab" data-status="confirmed">受取待ち</button>
-        <button class="tab" data-status="picked_up">レンタル中</button>
-        <button class="tab" data-status="cancel_requested">キャンセル申請</button>
+        <button type="button" class="tab active" data-status="">すべて</button>
+        <button type="button" class="tab" data-status="confirmed">受取待ち</button>
+        <button type="button" class="tab" data-status="picked_up">レンタル中</button>
+        <button type="button" class="tab" data-status="cancel_requested">キャンセル申請</button>
       </div>
 
       <!-- 予約一覧 -->
@@ -105,13 +105,13 @@
     <div class="modal" style="max-width: 600px;">
       <div class="modal-header">
         <h3>予約詳細</h3>
-        <button class="modal-close" onclick="closeModal('detail-modal')">&times;</button>
+        <button type="button" class="modal-close" onclick="closeModal('detail-modal')">&times;</button>
       </div>
       <div class="modal-body" id="detail-modal-body">
         読み込み中...
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('detail-modal')">閉じる</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('detail-modal')">閉じる</button>
       </div>
     </div>
   </div>
@@ -121,7 +121,7 @@
     <div class="modal" style="max-width: 500px;">
       <div class="modal-header">
         <h3>レンタル期間延長</h3>
-        <button class="modal-close" onclick="closeModal('extend-modal')">&times;</button>
+        <button type="button" class="modal-close" onclick="closeModal('extend-modal')">&times;</button>
       </div>
       <div class="modal-body">
         <div style="background: #e3f2fd; padding: 12px; border-radius: 4px; margin-bottom: 16px;">
@@ -152,8 +152,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('extend-modal')">キャンセル</button>
-        <button class="btn btn-warning" onclick="processExtend()">延長を確定</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('extend-modal')">キャンセル</button>
+        <button type="button" class="btn btn-warning" onclick="processExtend()">延長を確定</button>
       </div>
     </div>
   </div>
@@ -238,19 +238,19 @@
     function getActionButtons(reservation) {
       // data-id属性へのXSS対策：IDをエスケープ
       const safeId = escapeHtml(reservation.id);
-      const buttons = [`<button class="btn btn-sm btn-outline" data-action="detail" data-id="${safeId}">詳細</button>`];
+      const buttons = [`<button type="button" class="btn btn-sm btn-outline" data-action="detail" data-id="${safeId}">詳細</button>`];
       
       switch (reservation.status) {
         case 'confirmed':
-          buttons.push(`<button class="btn btn-sm btn-success" data-action="pickup" data-id="${safeId}">受取処理</button>`);
+          buttons.push(`<button type="button" class="btn btn-sm btn-success" data-action="pickup" data-id="${safeId}">受取処理</button>`);
           break;
         case 'picked_up':
-          buttons.push(`<button class="btn btn-sm btn-warning" data-action="extend" data-id="${safeId}">延長</button>`);
-          buttons.push(`<button class="btn btn-sm btn-success" data-action="return" data-id="${safeId}">返却処理</button>`);
+          buttons.push(`<button type="button" class="btn btn-sm btn-warning" data-action="extend" data-id="${safeId}">延長</button>`);
+          buttons.push(`<button type="button" class="btn btn-sm btn-success" data-action="return" data-id="${safeId}">返却処理</button>`);
           break;
         case 'cancel_requested':
-          buttons.push(`<button class="btn btn-sm btn-success" data-action="approve-cancel" data-id="${safeId}">承認</button>`);
-          buttons.push(`<button class="btn btn-sm btn-danger" data-action="reject-cancel" data-id="${safeId}">却下</button>`);
+          buttons.push(`<button type="button" class="btn btn-sm btn-success" data-action="approve-cancel" data-id="${safeId}">承認</button>`);
+          buttons.push(`<button type="button" class="btn btn-sm btn-danger" data-action="reject-cancel" data-id="${safeId}">却下</button>`);
           break;
       }
       
@@ -285,7 +285,7 @@
       
       let html = '';
       for (let i = 1; i <= pagination.totalPages; i++) {
-        html += `<button class="btn btn-sm ${i === pagination.page ? 'btn-primary' : 'btn-outline'}" onclick="goToPage(${i})">${i}</button>`;
+        html += `<button type="button" class="btn btn-sm ${i === pagination.page ? 'btn-primary' : 'btn-outline'}" onclick="goToPage(${i})">${i}</button>`;
       }
       container.innerHTML = html;
     }

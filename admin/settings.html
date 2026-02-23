@@ -46,7 +46,7 @@
           <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
         </div>
         <div class="nav-section nav-section-bottom">
-          <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
+          <button type="button" onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
         </div>
       </nav>
     </aside>
@@ -55,7 +55,7 @@
     <main class="admin-main">
       <div class="page-header">
         <h1 class="page-title">店舗設定</h1>
-        <button class="btn btn-primary" onclick="saveSettings()" id="save-btn">設定を保存</button>
+        <button type="button" class="btn btn-primary" onclick="saveSettings()" id="save-btn">設定を保存</button>
       </div>
 
       <div id="message" class="alert" style="display:none;"></div>

@@ -196,7 +196,7 @@
           <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
         </div>
         <div class="nav-section nav-section-bottom">
-          <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
+          <button type="button" onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
         </div>
       </nav>
     </aside>
@@ -233,10 +233,10 @@
           
           <!-- コントロール -->
           <div class="schedule-controls">
-            <button class="btn btn-outline btn-sm" onclick="changeWeek(-1)">← 前週</button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="changeWeek(-1)">← 前週</button>
             <input type="date" id="start-date" class="form-input" style="width:150px;" onchange="loadSchedule()">
-            <button class="btn btn-outline btn-sm" onclick="changeWeek(1)">次週 →</button>
-            <button class="btn btn-secondary btn-sm" onclick="goToToday()">今日</button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="changeWeek(1)">次週 →</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="goToToday()">今日</button>
             <select id="view-days" class="form-select" style="width:100px;" onchange="loadSchedule()">
               <option value="7">1週間</option>
               <option value="14">2週間</option>
@@ -263,11 +263,11 @@
     <div class="modal" style="max-width:450px;">
       <div class="modal-header">
         <h3 id="detail-modal-title">詳細</h3>
-        <button class="modal-close" onclick="closeModal('detail-modal')">&times;</button>
+        <button type="button" class="modal-close" onclick="closeModal('detail-modal')">&times;</button>
       </div>
       <div class="modal-body" id="detail-modal-body"></div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('detail-modal')">閉じる</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('detail-modal')">閉じる</button>
         <a id="detail-link" href="#" class="btn btn-primary" style="display:none;">予約詳細を見る</a>
       </div>
     </div>

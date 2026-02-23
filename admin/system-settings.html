@@ -46,7 +46,7 @@
           <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
         </div>
         <div class="nav-section nav-section-bottom">
-          <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
+          <button type="button" onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
         </div>
       </nav>
     </aside>
@@ -174,8 +174,8 @@
 
       <!-- 保存ボタン -->
       <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-        <button class="btn btn-secondary" onclick="loadSettings()">リセット</button>
-        <button class="btn btn-primary btn-lg" onclick="saveSettings()" id="saveBtn">設定を保存</button>
+        <button type="button" class="btn btn-secondary" onclick="loadSettings()">リセット</button>
+        <button type="button" class="btn btn-primary btn-lg" onclick="saveSettings()" id="saveBtn">設定を保存</button>
       </div>
 
       <!-- データメンテナンス -->

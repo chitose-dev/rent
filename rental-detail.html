@@ -171,7 +171,7 @@
         <a href="mypage-rental.html">マイページ</a>
         <a href="#" onclick="logout(); return false;">ログアウト</a>
       </nav>
-      <button class="hamburger">
+      <button type="button" class="hamburger">
         <span></span>
         <span></span>
         <span></span>
@@ -242,7 +242,7 @@
         <span class="detail-value" id="detailPlannedReturn">未入力</span>
       </div>
       <div style="margin-top: var(--spacing-md);">
-        <button class="btn btn-secondary" onclick="openReturnPlanModal()">返却予定を入力・変更</button>
+        <button type="button" class="btn btn-secondary" onclick="openReturnPlanModal()">返却予定を入力・変更</button>
       </div>
     </div>
     
@@ -251,7 +251,7 @@
       <div class="modal-content" style="max-width: 400px;">
         <div class="modal-header">
           <h3 class="modal-title">返却予定日時の入力</h3>
-          <button class="modal-close" onclick="closeReturnPlanModal()">×</button>
+          <button type="button" class="modal-close" onclick="closeReturnPlanModal()">×</button>
         </div>
         <div class="modal-body">
           <p style="color: var(--text-light); margin-bottom: var(--spacing-md); font-size: var(--font-sm);">
@@ -294,8 +294,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" onclick="closeReturnPlanModal()">キャンセル</button>
-          <button class="btn btn-primary" onclick="saveReturnPlan()">保存</button>
+          <button type="button" class="btn btn-secondary" onclick="closeReturnPlanModal()">キャンセル</button>
+          <button type="button" class="btn btn-primary" onclick="saveReturnPlan()">保存</button>
         </div>
       </div>
     </div>
@@ -327,8 +327,8 @@
 
     <!-- アクションボタン -->
     <div class="btn-group">
-      <button class="btn btn-secondary" onclick="goBack()">戻る</button>
-      <button class="btn btn-danger" id="cancelBtn" onclick="requestCancel()">キャンセル申請</button>
+      <button type="button" class="btn btn-secondary" onclick="goBack()">戻る</button>
+      <button type="button" class="btn btn-danger" id="cancelBtn" onclick="requestCancel()">キャンセル申請</button>
     </div>
   </div>
 

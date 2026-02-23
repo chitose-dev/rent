@@ -121,7 +121,7 @@
           <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
         </div>
         <div class="nav-section nav-section-bottom">
-          <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
+          <button type="button" onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
         </div>
       </nav>
     </aside>
@@ -132,7 +132,7 @@
           <h1 class="admin-title">料金設定</h1>
           <p class="admin-breadcrumb"><a href="index.html">ダッシュボード</a> / 料金設定</p>
         </div>
-        <button class="btn btn-primary" onclick="addDayColumn()">+ 日数を追加</button>
+        <button type="button" class="btn btn-primary" onclick="addDayColumn()">+ 日数を追加</button>
       </div>
 
       <div class="admin-card">
@@ -162,7 +162,7 @@
     <div class="modal" style="max-width:350px;">
       <div class="modal-header">
         <h3>日数を追加</h3>
-        <button class="modal-close" onclick="closeModal('add-day-modal')">&times;</button>
+        <button type="button" class="modal-close" onclick="closeModal('add-day-modal')">&times;</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -176,8 +176,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('add-day-modal')">キャンセル</button>
-        <button class="btn btn-primary" onclick="confirmAddDay()">追加</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('add-day-modal')">キャンセル</button>
+        <button type="button" class="btn btn-primary" onclick="confirmAddDay()">追加</button>
       </div>
     </div>
   </div>
@@ -222,7 +222,7 @@
           <th>
             <div class="day-header">
               <span>${label}</span>
-              <button class="delete-day-btn" onclick="deleteDay(${days})" title="この日数を削除">×</button>
+              <button type="button" class="delete-day-btn" onclick="deleteDay(${days})" title="この日数を削除">×</button>
             </div>
           </th>
         `;

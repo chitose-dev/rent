@@ -41,7 +41,7 @@
           <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
         </div>
         <div class="nav-section nav-section-bottom">
-          <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
+          <button type="button" onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
         </div>
       </nav>
     </aside>
@@ -52,7 +52,7 @@
           <h1 class="admin-title">オプション管理</h1>
           <p class="admin-breadcrumb"><a href="index.html">ダッシュボード</a> / オプション管理</p>
         </div>
-        <button class="btn btn-primary" onclick="openAddModal()">+ オプションを追加</button>
+        <button type="button" class="btn btn-primary" onclick="openAddModal()">+ オプションを追加</button>
       </div>
 
       <div class="admin-card">
@@ -82,7 +82,7 @@
     <div class="modal" style="max-width:500px;">
       <div class="modal-header">
         <h3 id="modal-title">オプションを追加</h3>
-        <button class="modal-close" onclick="closeModal('edit-modal')">&times;</button>
+        <button type="button" class="modal-close" onclick="closeModal('edit-modal')">&times;</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="edit-id">
@@ -110,8 +110,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('edit-modal')">キャンセル</button>
-        <button class="btn btn-primary" onclick="saveOption()">保存</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('edit-modal')">キャンセル</button>
+        <button type="button" class="btn btn-primary" onclick="saveOption()">保存</button>
       </div>
     </div>
   </div>
@@ -142,8 +142,8 @@
             <td>${o.maxQuantity}</td>
             <td><span class="badge ${o.isActive !== false ? 'badge-success' : 'badge-secondary'}">${o.isActive !== false ? '有効' : '無効'}</span></td>
             <td class="actions">
-              <button class="btn btn-sm btn-outline" data-edit-id="${o.id}">編集</button>
-              <button class="btn btn-sm ${o.isActive !== false ? 'btn-danger' : 'btn-success'}" data-toggle-id="${o.id}" data-active="${o.isActive !== false}">${o.isActive !== false ? '無効化' : '有効化'}</button>
+              <button type="button" class="btn btn-sm btn-outline" data-edit-id="${o.id}">編集</button>
+              <button type="button" class="btn btn-sm ${o.isActive !== false ? 'btn-danger' : 'btn-success'}" data-toggle-id="${o.id}" data-active="${o.isActive !== false}">${o.isActive !== false ? '無効化' : '有効化'}</button>
             </td>
           </tr>
         `).join('');

@@ -41,7 +41,7 @@
           <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
         </div>
         <div class="nav-section nav-section-bottom">
-          <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
+          <button type="button" onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
         </div>
       </nav>
     </aside>
@@ -52,7 +52,7 @@
           <h1 class="admin-title">車両・在庫管理</h1>
           <p class="admin-breadcrumb"><a href="index.html">ダッシュボード</a> / 車両管理</p>
         </div>
-        <button class="btn btn-primary" onclick="openAddModal()">+ 車両を追加</button>
+        <button type="button" class="btn btn-primary" onclick="openAddModal()">+ 車両を追加</button>
       </div>
 
       <!-- フィルター -->
@@ -68,7 +68,7 @@
               <option value="rented">レンタル中</option>
               <option value="maintenance">メンテナンス中</option>
             </select>
-            <button class="btn btn-primary btn-sm" onclick="loadVehicles()">検索</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="loadVehicles()">検索</button>
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@
     <div class="modal" style="max-width:500px;">
       <div class="modal-header">
         <h3>車両を追加</h3>
-        <button class="modal-close" onclick="closeModal('add-modal')">&times;</button>
+        <button type="button" class="modal-close" onclick="closeModal('add-modal')">&times;</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -121,8 +121,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('add-modal')">キャンセル</button>
-        <button class="btn btn-primary" onclick="addVehicle()">追加</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('add-modal')">キャンセル</button>
+        <button type="button" class="btn btn-primary" onclick="addVehicle()">追加</button>
       </div>
     </div>
   </div>
@@ -132,7 +132,7 @@
     <div class="modal" style="max-width:500px;">
       <div class="modal-header">
         <h3>メンテナンス設定</h3>
-        <button class="modal-close" onclick="closeModal('maintenance-modal')">&times;</button>
+        <button type="button" class="modal-close" onclick="closeModal('maintenance-modal')">&times;</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="maint-vehicle-id">
@@ -160,8 +160,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('maintenance-modal')">キャンセル</button>
-        <button class="btn btn-primary" onclick="setMaintenance()">設定</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('maintenance-modal')">キャンセル</button>
+        <button type="button" class="btn btn-primary" onclick="setMaintenance()">設定</button>
       </div>
     </div>
   </div>
@@ -171,7 +171,7 @@
     <div class="modal" style="max-width:500px;">
       <div class="modal-header">
         <h3>車両を削除</h3>
-        <button class="modal-close" onclick="closeModal('delete-modal')">&times;</button>
+        <button type="button" class="modal-close" onclick="closeModal('delete-modal')">&times;</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="delete-vehicle-id">
@@ -199,8 +199,8 @@
         <p style="color:#c00; margin-top:12px;">この操作は取り消せません。</p>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('delete-modal')">キャンセル</button>
-        <button class="btn btn-danger" id="delete-confirm-btn" onclick="confirmDelete()">削除する</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('delete-modal')">キャンセル</button>
+        <button type="button" class="btn btn-danger" id="delete-confirm-btn" onclick="confirmDelete()">削除する</button>
       </div>
     </div>
   </div>
@@ -269,10 +269,10 @@
               <td><span class="badge ${escapeHtml(st.class)}">${escapeHtml(st.text)}</span></td>
               <td class="actions">
                 ${v.status === 'maintenance' 
-                  ? `<button class="btn btn-sm btn-success" data-action="clear-maint" data-id="${safeId}">メンテ解除</button>`
-                  : `<button class="btn btn-sm btn-warning" data-action="set-maint" data-id="${safeId}">メンテ設定</button>`
+                  ? `<button type="button" class="btn btn-sm btn-success" data-action="clear-maint" data-id="${safeId}">メンテ解除</button>`
+                  : `<button type="button" class="btn btn-sm btn-warning" data-action="set-maint" data-id="${safeId}">メンテ設定</button>`
                 }
-                <button class="btn btn-sm btn-danger" data-action="delete" data-id="${safeId}">削除</button>
+                <button type="button" class="btn btn-sm btn-danger" data-action="delete" data-id="${safeId}">削除</button>
               </td>
             </tr>
           `;

@@ -41,7 +41,7 @@
           <a href="https://dashboard.stripe.com/" target="_blank" class="nav-item">Stripe管理</a>
         </div>
         <div class="nav-section nav-section-bottom">
-          <button onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
+          <button type="button" onclick="adminLogout()" class="nav-item nav-logout">ログアウト</button>
         </div>
       </nav>
     </aside>
@@ -64,7 +64,7 @@
               <option value="active">有効</option>
               <option value="suspended">停止中</option>
             </select>
-            <button class="btn btn-primary btn-sm" onclick="loadMembers()">検索</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="loadMembers()">検索</button>
           </div>
         </div>
       </div>
@@ -100,11 +100,11 @@
     <div class="modal" style="max-width:600px;">
       <div class="modal-header">
         <h3>会員詳細</h3>
-        <button class="modal-close" onclick="closeModal('detail-modal')">&times;</button>
+        <button type="button" class="modal-close" onclick="closeModal('detail-modal')">&times;</button>
       </div>
       <div class="modal-body" id="detail-modal-body">読み込み中...</div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('detail-modal')">閉じる</button>
+        <button type="button" class="btn btn-secondary" onclick="closeModal('detail-modal')">閉じる</button>
       </div>
     </div>
   </div>
@@ -151,10 +151,10 @@
             <td><span class="badge ${m.status === 'active' ? 'badge-success' : 'badge-danger'}">${m.status === 'active' ? '有効' : '停止'}</span></td>
             <td>${formatDate(m.createdAt)}</td>
             <td class="actions">
-              <button class="btn btn-sm btn-outline" data-action="detail" data-id="${safeId}">詳細</button>
+              <button type="button" class="btn btn-sm btn-outline" data-action="detail" data-id="${safeId}">詳細</button>
               ${m.status === 'active' 
-                ? `<button class="btn btn-sm btn-danger" data-action="suspend" data-id="${safeId}">停止</button>`
-                : `<button class="btn btn-sm btn-success" data-action="unsuspend" data-id="${safeId}">解除</button>`
+                ? `<button type="button" class="btn btn-sm btn-danger" data-action="suspend" data-id="${safeId}">停止</button>`
+                : `<button type="button" class="btn btn-sm btn-success" data-action="unsuspend" data-id="${safeId}">解除</button>`
               }
             </td>
           </tr>
@@ -182,7 +182,7 @@
       if (p.totalPages <= 1) { container.innerHTML = ''; return; }
       let html = '';
       for (let i = 1; i <= p.totalPages; i++) {
-        html += `<button class="btn btn-sm ${i === p.page ? 'btn-primary' : 'btn-outline'}" data-page="${i}">${i}</button>`;
+        html += `<button type="button" class="btn btn-sm ${i === p.page ? 'btn-primary' : 'btn-outline'}" data-page="${i}">${i}</button>`;
       }
       container.innerHTML = html;
       container.querySelectorAll('[data-page]').forEach(btn => {
