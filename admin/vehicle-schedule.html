@@ -662,10 +662,24 @@
           e.preventDefault();
           if (!dragData) return;
 
-          const targetVehicleId = e.target.closest('tr')?.dataset.vehicleId;
-          const targetClassId = e.target.closest('tr')?.dataset.classId;
+          // セルまたは行からデータを取得
+          const targetCell = e.target.closest('.day-cell') || e.target;
+          const targetRow = targetCell.closest('tr');
+          
+          if (!targetRow) {
+            console.log('ドロップ先の行が見つかりません');
+            return;
+          }
+          
+          const targetVehicleId = targetRow.dataset.vehicleId;
+          const targetClassId = targetRow.dataset.classId;
 
-          if (!targetVehicleId || targetVehicleId === dragData.vehicleId) return;
+          console.log('ドロップ:', { targetVehicleId, targetClassId, dragClassId: dragData.classId });
+
+          if (!targetVehicleId || targetVehicleId === dragData.vehicleId) {
+            console.log('同じ車両へのドロップはスキップ');
+            return;
+          }
           if (targetClassId !== dragData.classId) {
             alert('同じ車両クラス内でのみ変更できます');
             return;
