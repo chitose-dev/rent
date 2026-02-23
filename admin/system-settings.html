@@ -187,22 +187,6 @@
         <button type="button" class="btn btn-primary btn-lg" onclick="saveSettings()" id="saveBtn">設定を保存</button>
       </div>
 
-      <!-- データメンテナンス -->
-      <div class="admin-card" style="margin-top: 32px;">
-        <div class="card-header">
-          <h2 class="card-title">データメンテナンス</h2>
-        </div>
-        <div class="card-body">
-          <div class="form-group">
-            <label class="form-label">重複データの削除</label>
-            <p class="form-hint">オプションや料金プランの重複データを削除します。同じ名前や条件のデータが複数ある場合に使用してください。</p>
-            <button type="button" class="btn btn-warning" onclick="cleanupDuplicates()" id="cleanupBtn">
-              重複データを削除
-            </button>
-            <div id="cleanupResult" style="margin-top: 12px;"></div>
-          </div>
-        </div>
-      </div>
     </main>
   </div>
 
@@ -316,38 +300,6 @@
       } finally {
         saveBtn.disabled = false;
         saveBtn.textContent = '設定を保存';
-      }
-    }
-
-    // 重複データ削除
-    async function cleanupDuplicates() {
-      if (!confirm('重複データを削除しますか？この操作は取り消せません。')) {
-        return;
-      }
-
-      const btn = document.getElementById('cleanupBtn');
-      const resultDiv = document.getElementById('cleanupResult');
-      
-      btn.disabled = true;
-      btn.textContent = '処理中...';
-      resultDiv.innerHTML = '';
-
-      try {
-        const result = await API.post('/v1/admin/settings/cleanup-duplicates');
-        
-        const html = `
-          <div class="alert alert-success">
-            <strong>削除完了</strong><br>
-            オプション: ${result.options.kept}件保持、${result.options.deleted}件削除<br>
-            料金プラン: ${result.pricingPlans.kept}件保持、${result.pricingPlans.deleted}件削除
-          </div>
-        `;
-        resultDiv.innerHTML = html;
-      } catch (error) {
-        resultDiv.innerHTML = `<div class="alert alert-danger">エラー: ${escapeHtml(error.message)}</div>`;
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '重複データを削除';
       }
     }
 
