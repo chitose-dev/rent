@@ -103,7 +103,7 @@
     /* 日数選択 */
     .days-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
       gap: var(--spacing-sm);
     }
     
@@ -584,7 +584,7 @@
       }
       
       .days-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
         gap: 6px;
       }
       
