@@ -164,7 +164,7 @@
   </div>
 
   <!-- 予約詳細モーダル -->
-  <div class="modal-overlay" id="detail-modal" style="display:none;">
+  <div class="modal-overlay" id="detail-modal">
     <div class="modal" style="max-width:600px;">
       <div class="modal-header">
         <h3 class="modal-title">予約詳細</h3>
@@ -386,11 +386,11 @@
         </div>
       `;
       
-      modal.style.display = 'flex';
+      modal.classList.add('active');
     }
 
     function closeDetailModal() {
-      document.getElementById('detail-modal').style.display = 'none';
+      document.getElementById('detail-modal').classList.remove('active');
     }
 
     async function loadDashboard() {
