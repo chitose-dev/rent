@@ -374,6 +374,19 @@ textarea {
   opacity: 0.6;
 }
 
+.btn:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.btn-primary:focus-visible {
+  outline-color: var(--primary-dark);
+}
+
+.btn-danger:focus-visible {
+  outline-color: var(--error-color);
+}
+
 .btn-group {
   display: flex;
   gap: var(--spacing-md);

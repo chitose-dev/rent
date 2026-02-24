@@ -357,6 +357,19 @@ body {
   background-color: #F5F5F5;
 }
 
+.btn:focus-visible {
+  outline: 3px solid var(--admin-primary);
+  outline-offset: 2px;
+}
+
+.btn-danger:focus-visible {
+  outline-color: var(--admin-danger);
+}
+
+.btn-success:focus-visible {
+  outline-color: var(--admin-success);
+}
+
 .btn-sm {
   padding: 6px 12px;
   font-size: 13px;
