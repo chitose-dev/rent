@@ -52,8 +52,8 @@ html {
 
 /* スキップリンク（キーボードアクセシビリティ） */
 .skip-link {
-  position: absolute;
-  top: -40px;
+  position: fixed;
+  top: 0;
   left: 0;
   background: var(--secondary-color);
   color: #fff;
@@ -62,11 +62,13 @@ html {
   text-decoration: none;
   font-weight: bold;
   border-radius: 0 0 4px 0;
-  transition: top 0.2s;
+  transition: transform 0.2s;
+  /* 通常時は画面外に隠す */
+  transform: translateY(-100%);
 }
 
 .skip-link:focus {
-  top: 0;
+  transform: translateY(0);
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
 }
