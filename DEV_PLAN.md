@@ -122,7 +122,7 @@
   - common.css: header-logo-icon（16/9）、header-logo-text（32/9）
   - login.html: login-logo-icon（16/9）、login-logo-text（32/9）
   - 効果: 画像読み込み前にスペースを確保、レイアウトシフト防止、Core Web Vitals改善
-- ✅ コミット・プッシュ予定
+- ✅ コミット・プッシュ完了: ade4d20
 
 ### 2026-02-24 13:00 定期テスト
 - ✅ API稼働: OK（health check正常）
