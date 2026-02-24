@@ -522,7 +522,7 @@ const Validator = {
   },
   
   // エラー表示
-  showError(fieldId, message) {
+  showError(fieldId, message, options = {}) {
     const el = document.querySelector(`#${fieldId}`);
     if (!el) return;
     const group = el.closest('.form-group');
@@ -531,6 +531,18 @@ const Validator = {
       const errorEl = group.querySelector('.form-error');
       if (errorEl) {
         errorEl.textContent = message;
+        // エラー要素が画面外にある場合、スムーズにスクロール
+        if (options.scroll !== false) {
+          const rect = errorEl.getBoundingClientRect();
+          const inViewport = rect.top >= 0 && rect.bottom <= window.innerHeight;
+          if (!inViewport) {
+            errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }
+      // 入力フィールドにフォーカス（アクセシビリティ向上）
+      if (options.focus !== false && el.focus) {
+        el.focus();
       }
     }
   },
