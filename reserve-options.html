@@ -214,8 +214,13 @@
       }
       
       .option-checkbox {
-        width: 18px;
-        height: 18px;
+        width: 24px;
+        height: 24px;
+        min-width: 44px;
+        min-height: 44px;
+        padding: 10px;
+        box-sizing: content-box;
+        -webkit-tap-highlight-color: rgba(0,0,0,0.1);
       }
       
       .option-title {
@@ -490,13 +495,26 @@
         </div>
       `;
       
-      card.onclick = (e) => {
-        if (e.target.tagName === 'INPUT') return;
+      // カードクリック/タップで切り替え（チェックボックス以外）
+      const handleCardClick = (e) => {
+        // チェックボックスやラベルの直接クリックは無視（onchangeで処理）
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL') return;
+        e.preventDefault();
         toggleOption(option.id, type);
       };
+      card.addEventListener('click', handleCardClick);
+      card.addEventListener('touchend', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL') return;
+        e.preventDefault();
+        toggleOption(option.id, type);
+      });
       
       const checkbox = card.querySelector('input');
-      checkbox.onchange = () => toggleOption(option.id, type);
+      checkbox.addEventListener('change', () => toggleOption(option.id, type));
+      // タッチデバイスでのチェックボックス直接タップ対応
+      checkbox.addEventListener('touchend', (e) => {
+        e.stopPropagation();
+      });
       
       return card;
     }

@@ -1682,7 +1682,14 @@
       state.vehicleClass = el.dataset.classId; // 後方互換性
       state.vehicleClassName = el.dataset.className;
       state.pricingPlanId = el.dataset.pricingPlanId || null;
-      state.classPrice = parseInt(el.dataset.planPrice) || parseInt(el.dataset.dailyPrice) || 0;
+      // planPriceは既に日数分の総額、dailyPriceは1日あたり
+      const planPrice = parseInt(el.dataset.planPrice) || 0;
+      const dailyPrice = parseInt(el.dataset.dailyPrice) || 0;
+      const days = state.days || 1;
+      // classPriceは総額として保持（planPriceがあればそれ、なければdailyPrice×日数）
+      state.classPrice = planPrice || (dailyPrice * days);
+      // 1日あたりの価格も保持（表示・計算用）
+      state.dailyClassPrice = dailyPrice || Math.round(planPrice / days);
       
       updateSections();
     }
@@ -1739,9 +1746,10 @@
     function updateSummary() {
       const days = state.days || 1;
       
-      const basePrice = state.classPrice * days;
-      const insuranceTotal = state.insurancePrice * days;
-      const optionsTotal = state.optionsPrice * days;
+      // state.classPriceは既に日数分の総額
+      const basePrice = state.classPrice || 0;
+      const insuranceTotal = (state.insurancePrice || 0) * days;
+      const optionsTotal = (state.optionsPrice || 0) * days;
       const total = basePrice + insuranceTotal + optionsTotal;
       
       document.getElementById('summary-base').textContent = `¥${basePrice.toLocaleString()}`;
