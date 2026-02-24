@@ -275,8 +275,9 @@
         </div>
 
         <div class="form-group">
-          <label for="registerNameKana" class="form-label">氏名（カナ）</label>
-          <input type="text" id="registerNameKana" class="form-input" placeholder="ヤマダ タロウ">
+          <label for="registerNameKana" class="form-label required">氏名（カナ）</label>
+          <input type="text" id="registerNameKana" class="form-input" placeholder="ヤマダ タロウ" required>
+          <span class="form-error">氏名（カナ）を入力してください</span>
         </div>
 
         <div class="form-group">
@@ -292,7 +293,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">生年月日</label>
+          <label class="form-label required">生年月日</label>
           <div class="birthdate-selects" style="display:flex;gap:8px;flex-wrap:wrap;">
             <select id="registerBirthYear" class="form-input" style="flex:1;min-width:90px;">
               <option value="">年</option>
@@ -307,7 +308,7 @@
         </div>
 
         <div class="form-group">
-          <label for="registerPostalCode" class="form-label">郵便番号</label>
+          <label for="registerPostalCode" class="form-label required">郵便番号</label>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <input type="text" id="registerPostalCode" class="form-input" placeholder="1234567" autocomplete="postal-code" inputmode="numeric" maxlength="8" style="flex:1;min-width:120px;max-width:150px;">
             <button type="button" class="btn btn-secondary btn-sm" onclick="searchAddress()" style="white-space:nowrap;">住所検索</button>
@@ -316,13 +317,15 @@
         </div>
 
         <div class="form-group">
-          <label for="registerAddress" class="form-label">住所</label>
-          <input type="text" id="registerAddress" class="form-input" placeholder="東京都渋谷区..." autocomplete="street-address" style="width:100%;">
+          <label for="registerAddress" class="form-label required">住所</label>
+          <input type="text" id="registerAddress" class="form-input" placeholder="東京都渋谷区..." autocomplete="street-address" style="width:100%;" required>
+          <span class="form-error">住所を入力してください</span>
         </div>
 
         <div class="form-group">
-          <label for="registerLicenseNumber" class="form-label">免許証番号</label>
-          <input type="text" id="registerLicenseNumber" class="form-input" placeholder="123456789012" inputmode="numeric" maxlength="12" style="width:100%;">
+          <label for="registerLicenseNumber" class="form-label required">免許証番号</label>
+          <input type="text" id="registerLicenseNumber" class="form-input" placeholder="123456789012" inputmode="numeric" maxlength="12" style="width:100%;" required>
+          <span class="form-error">免許証番号を入力してください</span>
           <small style="color:#666;font-size:12px;margin-top:4px;display:block;">12桁の番号を入力してください</small>
         </div>
 
@@ -461,10 +464,10 @@
     async function handleRegister(event) {
       event.preventDefault();
       
-      const name = document.getElementById('registerName').value;
-      const nameKana = document.getElementById('registerNameKana').value || undefined;
-      const email = document.getElementById('registerEmail').value;
-      const phone = document.getElementById('registerPhone').value;
+      const name = document.getElementById('registerName').value.trim();
+      const nameKana = document.getElementById('registerNameKana').value.trim();
+      const email = document.getElementById('registerEmail').value.trim();
+      const phone = document.getElementById('registerPhone').value.trim();
       
       // 生年月日を組み立て
       const birthYear = document.getElementById('registerBirthYear').value;
@@ -472,15 +475,50 @@
       const birthDay = document.getElementById('registerBirthDay').value;
       const birthDate = (birthYear && birthMonth && birthDay) 
         ? `${birthYear}-${birthMonth}-${birthDay}` 
-        : undefined;
+        : '';
       
-      const postalCode = document.getElementById('registerPostalCode').value.replace(/[-ー]/g, '').trim() || undefined;
-      const address = document.getElementById('registerAddress').value || undefined;
-      const licenseNumber = document.getElementById('registerLicenseNumber').value.trim() || undefined;
+      const postalCode = document.getElementById('registerPostalCode').value.replace(/[-ー]/g, '').trim();
+      const address = document.getElementById('registerAddress').value.trim();
+      const licenseNumber = document.getElementById('registerLicenseNumber').value.trim();
       const password = document.getElementById('registerPassword').value;
       const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
       const agreeTerms = document.getElementById('agreeTerms').checked;
       const submitBtn = event.target.querySelector('button[type="submit"]');
+      
+      // 必須項目チェック
+      const errors = [];
+      if (!name) errors.push('氏名');
+      if (!nameKana) errors.push('氏名（カナ）');
+      if (!email) errors.push('メールアドレス');
+      if (!phone) errors.push('電話番号');
+      if (!birthDate) errors.push('生年月日');
+      if (!postalCode) errors.push('郵便番号');
+      if (!address) errors.push('住所');
+      if (!licenseNumber) errors.push('免許証番号');
+      if (!password) errors.push('パスワード');
+      
+      if (errors.length > 0) {
+        alert('以下の項目を入力してください:\n' + errors.join('\n'));
+        return;
+      }
+      
+      // カナチェック
+      if (!/^[ァ-ヶー\s]+$/.test(nameKana)) {
+        alert('氏名（カナ）はカタカナで入力してください');
+        return;
+      }
+      
+      // 免許証番号チェック（12桁）
+      if (!/^\d{12}$/.test(licenseNumber)) {
+        alert('免許証番号は12桁の数字で入力してください');
+        return;
+      }
+      
+      // 郵便番号チェック（7桁）
+      if (!/^\d{7}$/.test(postalCode)) {
+        alert('郵便番号は7桁の数字で入力してください');
+        return;
+      }
       
       // 同意チェック
       if (!agreeTerms) {
@@ -498,12 +536,17 @@
       submitBtn.textContent = '登録中...';
       
       try {
-        const registerData = { name, email, phone, password };
-        if (nameKana) registerData.nameKana = nameKana;
-        if (birthDate) registerData.birthDate = birthDate;
-        if (postalCode) registerData.postalCode = postalCode;
-        if (address) registerData.address = address;
-        if (licenseNumber) registerData.licenseNumber = licenseNumber;
+        const registerData = { 
+          name, 
+          nameKana,
+          email, 
+          phone, 
+          password,
+          birthDate,
+          postalCode,
+          address,
+          licenseNumber
+        };
         
         const result = await Auth.register(registerData);
         

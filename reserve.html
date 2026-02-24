@@ -720,26 +720,12 @@
       <div class="section-completed" id="completed-period"></div>
       <div class="section-content" id="content-period">
       
-      <!-- 日数選択 -->
+      <!-- 日数選択（料金設定から動的に生成） -->
       <div class="form-group">
         <label class="form-label">レンタル日数</label>
-        <div class="days-grid">
-          <div class="days-btn" data-days="1" onclick="selectDays(1)">
-            <div class="days-btn-number">1</div>
-            <div class="days-btn-label">日</div>
-          </div>
-          <div class="days-btn" data-days="2" onclick="selectDays(2)">
-            <div class="days-btn-number">2</div>
-            <div class="days-btn-label">日</div>
-          </div>
-          <div class="days-btn" data-days="3" onclick="selectDays(3)">
-            <div class="days-btn-number">3</div>
-            <div class="days-btn-label">日</div>
-          </div>
-          <div class="days-btn" data-days="7" onclick="selectDays(7)">
-            <div class="days-btn-number">7</div>
-            <div class="days-btn-label">日</div>
-          </div>
+        <div class="days-grid" id="daysGrid">
+          <!-- 料金設定に基づいて動的に生成 -->
+          <div style="text-align:center;padding:20px;color:#666;">読み込み中...</div>
         </div>
       </div>
       
@@ -939,6 +925,9 @@
       // 店舗設定を読み込み
       await loadShopSettings();
       
+      // 利用可能な日数を動的に取得して生成
+      await renderAvailableDays();
+      
       // 車両クラスを動的に生成
       renderCarClasses();
       
@@ -967,6 +956,40 @@
         console.error('店舗設定の読み込みに失敗:', e);
         // デフォルト値
         shopSettings = { openTime: '09:00', closeTime: '18:00', timeStepMinutes: 30 };
+      }
+    }
+    
+    // 利用可能な日数を動的に生成
+    async function renderAvailableDays() {
+      const daysGrid = document.getElementById('daysGrid');
+      if (!daysGrid) return;
+      
+      try {
+        const res = await API.get('/v1/shop/available-days');
+        const days = res.data || [];
+        
+        if (days.length === 0) {
+          daysGrid.innerHTML = '<div style="text-align:center;padding:20px;color:#c00;">料金設定がありません</div>';
+          return;
+        }
+        
+        // 日数ボタンを生成
+        daysGrid.innerHTML = days.map(d => `
+          <div class="days-btn" data-days="${d}" onclick="selectDays(${d})">
+            <div class="days-btn-number">${d}</div>
+            <div class="days-btn-label">日</div>
+          </div>
+        `).join('');
+        
+      } catch (e) {
+        console.error('利用可能日数の取得に失敗:', e);
+        // フォールバック（エラー時はデフォルト日数を表示）
+        daysGrid.innerHTML = [1, 2, 3].map(d => `
+          <div class="days-btn" data-days="${d}" onclick="selectDays(${d})">
+            <div class="days-btn-number">${d}</div>
+            <div class="days-btn-label">日</div>
+          </div>
+        `).join('');
       }
     }
     
