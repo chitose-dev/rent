@@ -247,15 +247,31 @@
           throw new Error(data.error?.message || 'メール確認に失敗しました');
         }
 
-        successEl.textContent = 'メールアドレスが確認されました！ログイン画面に移動します...';
-        successEl.style.display = 'block';
-        
-        // 認証状態をクリア
-        AuthState.clear();
+        // 自動ログイン：トークンを保存
+        if (data.accessToken && data.refreshToken) {
+          Auth.setTokens(data.accessToken, data.refreshToken);
+          if (data.user) {
+            Auth.setUser(data.user);
+          }
+          
+          successEl.textContent = '登録完了！マイページに移動します...';
+          successEl.style.display = 'block';
+          
+          // 認証状態をクリア
+          AuthState.clear();
 
-        setTimeout(() => {
-          window.location.href = `login.html?verified=1&email=${encodeURIComponent(email || '')}`;
-        }, 2000);
+          setTimeout(() => {
+            window.location.href = 'mypage-rental.html';
+          }, 1500);
+        } else {
+          // フォールバック（古いAPI対応）
+          successEl.textContent = 'メールアドレスが確認されました！ログイン画面に移動します...';
+          successEl.style.display = 'block';
+          AuthState.clear();
+          setTimeout(() => {
+            window.location.href = `login.html?verified=1&email=${encodeURIComponent(email || '')}`;
+          }, 2000);
+        }
 
       } catch (error) {
         errorEl.textContent = error.message;
