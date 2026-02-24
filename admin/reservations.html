@@ -313,6 +313,14 @@
         const r = await API.get(`/v1/admin/reservations/${id}`);
         const status = statusLabels[r.status] || { text: r.status, class: 'badge-secondary' };
         
+        // オプション情報を整形
+        let optionsHtml = 'なし';
+        if (r.options && r.options.length > 0) {
+          optionsHtml = r.options.map(opt => 
+            `${escapeHtml(opt.name)}${opt.quantity > 1 ? ' ×' + opt.quantity : ''} (${formatPrice(opt.subtotal)})`
+          ).join('<br>');
+        }
+        
         body.innerHTML = `
           <table style="width:100%;border-collapse:collapse;">
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;width:120px;">予約番号</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.id)}</td></tr>
@@ -324,9 +332,11 @@
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">車両</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.vehicleLicensePlate) || '未割当'}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">受取日時</th><td style="padding:8px;border-bottom:1px solid #eee;">${new Date(r.pickupAt).toLocaleString('ja-JP')}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">返却日時</th><td style="padding:8px;border-bottom:1px solid #eee;">${new Date(r.returnAt).toLocaleString('ja-JP')}</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">金額</th><td style="padding:8px;border-bottom:1px solid #eee;">${formatPrice(r.totalPrice || 0)}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">保険</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.insuranceName ? escapeHtml(r.insuranceName) : (r.insuranceType === 'none' || !r.insuranceType ? 'なし' : escapeHtml(r.insuranceType))}${r.insurancePrice ? ' (' + formatPrice(r.insurancePrice) + ')' : ''}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">オプション</th><td style="padding:8px;border-bottom:1px solid #eee;">${optionsHtml}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">基本料金</th><td style="padding:8px;border-bottom:1px solid #eee;">${formatPrice(r.basePrice || 0)}</td></tr>
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;font-weight:bold;">合計金額</th><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">${formatPrice(r.totalPrice || 0)}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">決済方法</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.paymentMethod === 'card' ? 'カード' : '現地払い'}</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">保険</th><td style="padding:8px;border-bottom:1px solid #eee;">${r.insuranceName ? escapeHtml(r.insuranceName) : (r.insuranceType === 'none' || !r.insuranceType ? 'なし' : escapeHtml(r.insuranceType))}</td></tr>
           </table>
         `;
       } catch (error) {
