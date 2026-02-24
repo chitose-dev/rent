@@ -491,9 +491,19 @@
         tbody.innerHTML = reservations.map(r => {
           const st = statusLabels[r.status] || { text: r.status, class: 'badge-secondary' };
           const isOnsite = r.paymentMethod === 'onsite';
-          const amountDisplay = isOnsite
-            ? `<span style="color:#c00;font-weight:bold;">¥${(r.totalAmount || 0).toLocaleString()}</span>`
-            : '<span style="color:#10b981;font-size:12px;">カード済</span>';
+          const additionalPrice = r.additionalPrice || 0;
+          let amountDisplay;
+          if (isOnsite) {
+            amountDisplay = `<span style="color:#c00;font-weight:bold;">¥${(r.totalPrice || 0).toLocaleString()}</span>`;
+            if (additionalPrice > 0) {
+              amountDisplay += `<br><small style="color:#666;">+¥${additionalPrice.toLocaleString()}（清算）</small>`;
+            }
+          } else {
+            amountDisplay = '<span style="color:#10b981;font-size:12px;">カード済</span>';
+            if (additionalPrice > 0) {
+              amountDisplay += `<br><small style="color:#c00;">+¥${additionalPrice.toLocaleString()}（清算）</small>`;
+            }
+          }
           return `
             <tr>
               <td style="font-weight:bold;font-size:16px;">${formatTime(r.returnAt)}</td>
