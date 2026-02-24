@@ -112,6 +112,19 @@
 
 ## 最新テスト結果
 
+### 2026-02-24 16:00 定期テスト
+- ✅ API稼働: OK（health check正常）
+- ✅ 車両クラス: 3件取得（軽0/1台, 普通車1/1台, 大型0/0台）
+- ✅ オプション: 2件取得
+- ✅ 保険プラン: 2件取得
+- ✅ TypeScript型チェック: OK（バックエンド）
+- 🔧 改善: フォームにnovalidate属性追加（13フォーム・9ファイル）
+  - cancel-request.html, login.html（3フォーム）, mypage-profile.html（2フォーム）
+  - mypage-withdraw.html, reset-password.html, verify-email.html
+  - admin: admins.html（2フォーム）, insurance.html, login.html（2フォーム）
+  - 効果: ブラウザ固有のバリデーションUIを抑制し、カスタムバリデーションのみで統一されたUXを提供
+- ✅ コミット・プッシュ完了: 849510a
+
 ### 2026-02-24 15:00 定期テスト
 - ✅ API稼働: OK（health check正常）
 - ✅ 車両クラス: 3件取得（軽0/1台, 普通車1/1台, 大型0/0台）
