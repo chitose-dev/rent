@@ -1,6 +1,6 @@
 # トクノリレンタカー 開発プラン
 
-最終更新: 2026-02-24 07:04 JST
+最終更新: 2026-02-24 10:03 JST
 
 ## 現状サマリー
 - **バックエンド**: ✅ 完成（Cloud Run稼働中）
@@ -111,6 +111,18 @@
 ---
 
 ## 最新テスト結果
+
+### 2026-02-24 10:03 定期テスト
+- ✅ API稼働: OK（health check正常）
+- ✅ 車両クラス: 3件取得（軽0/1台, 普通車1/1台, 大型0/0台）
+- ✅ オプション: 2件取得
+- ✅ 保険プラン: 2件取得
+- ✅ TypeScript型チェック: OK（バックエンド）
+- 🔧 改善: 電話番号・郵便番号フィールドにinputmode属性追加
+  - login.html: registerPhone（inputmode="tel"）, registerPostalCode（inputmode="numeric"）
+  - mypage-profile.html: phone（inputmode="tel"）, postalCode（inputmode="numeric"）
+  - 効果: モバイルで数字キーパッドが優先表示、入力効率向上
+- ✅ コミット・プッシュ完了: 677eda9
 
 ### 2026-02-24 09:00 定期テスト
 - ✅ API稼働: OK（health check正常）
