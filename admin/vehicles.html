@@ -285,7 +285,7 @@
                 ${maintInfo}
               </td>
               <td class="actions" style="white-space:nowrap;">
-                ${v.status === 'maintenance' 
+                ${(v.status === 'maintenance' || v.nextMaintenanceStart)
                   ? `<button type="button" class="btn btn-sm btn-success" data-action="clear-maint" data-id="${safeId}">メンテ解除</button>`
                   : `<button type="button" class="btn btn-sm btn-warning" data-action="set-maint" data-id="${safeId}">メンテ設定</button>`
                 }
