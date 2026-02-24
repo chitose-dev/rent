@@ -65,14 +65,15 @@
   - ✓ デプロイ完了・データ修正済み (2026-02-22 06:08)
   - ✓ class-kei: 4台, class-compact: 2台, class-standard: 2台, class-minivan: 2台
 
-### P9: availableVehicles負数防止（未着手）
-- [ ] 予約作成時のavailableVehicles decrmentで負数にならないよう保護
+### P9: availableVehicles負数防止 ✅完了
+- [x] 予約作成時のavailableVehicles decrmentで負数にならないよう保護
   - 問題: 2/24 19:00に軽自動車クラスが再び-1になった（P8対応後も再発）
   - 原因: 予約作成時にFieldValue.increment(-1)を無条件で実行
-  - 対策案:
-    1. トランザクション内でavailableVehiclesを読み取り、0の場合はdecrementしない
-    2. または、availableVehiclesの概念を見直し（予約数ベースで動的計算）
-  - 優先度: 中（メンテナンスエンドポイントで修正可能だが、根本対策が望ましい）
+  - 修正: トランザクション内でavailableVehiclesを読み取り、0以下ならdecrementスキップ
+  - 修正箇所:
+    - reservationService.ts: ユーザー予約作成
+    - adminService.ts: 管理者予約作成、メンテナンス開始時（2箇所）
+  - コミット: 2ca0875 (2026-02-24)
 
 ---
 
@@ -120,6 +121,16 @@
 ---
 
 ## 最新テスト結果
+
+### 2026-02-24 20:02 定期テスト
+- ✅ API稼働: OK（health check正常）
+- ✅ 車両クラス: 3件取得（軽0/1台, 普通車0/1台, 大型0/0台）
+- ✅ TypeScript型チェック: OK（バックエンド）
+- 🔧 修正: P9 availableVehicles負数防止
+  - トランザクション内でavailableVehiclesを確認し、0以下ならdecrementスキップ
+  - reservationService.ts、adminService.ts（3箇所）を修正
+  - 効果: 同時予約やデータ不整合でも負数になることを防止
+- ✅ コミット・プッシュ完了: 2ca0875（バックエンド）
 
 ### 2026-02-24 19:00 定期テスト
 - ✅ API稼働: OK（health check正常）
