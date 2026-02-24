@@ -475,7 +475,18 @@
         
       } catch (error) {
         console.error('予約エラー:', error);
-        alert('予約に失敗しました: ' + error.message);
+        const msg = error.message || '';
+        
+        // 在庫切れ・満員エラーの場合は車両選択画面に戻す
+        if (msg.includes('満員') || msg.includes('在庫') || msg.includes('空き') || 
+            msg.includes('VEHICLE_NOT_AVAILABLE') || msg.includes('NO_AVAILABLE_VEHICLE') ||
+            msg.includes('FULLY_BOOKED') || msg.includes('NOT_AVAILABLE')) {
+          alert('申し訳ございません。選択された車両クラスは予約が埋まってしまいました。\n別の日程または車両クラスをお選びください。');
+          window.location.href = 'reserve.html';
+          return;
+        }
+        
+        alert('予約に失敗しました: ' + msg);
         confirmBtn.disabled = false;
         confirmBtn.textContent = '予約を確定する';
       }
@@ -483,7 +494,7 @@
 
     // 戻る
     function goBack() {
-      window.location.href = 'reserve-payment.html';
+      window.location.href = 'reserve.html';
     }
 
     // ログアウト
