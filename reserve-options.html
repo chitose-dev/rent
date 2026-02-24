@@ -545,16 +545,22 @@
         // 免責補償は単一選択
         selectedInsurance = optionId;
         
-        // すべてのカードの選択状態をクリア
+        // すべてのカードの選択状態をクリア（インラインスタイルも強制リセット）
         document.querySelectorAll('#insuranceOptions .option-card').forEach(card => {
           card.classList.remove('selected');
           card.querySelector('input').checked = false;
+          card.style.borderColor = 'var(--border-color)';
+          card.style.backgroundColor = 'var(--bg-white)';
+          card.style.boxShadow = 'none';
         });
         
         // 選択したカードを強調
         const selectedCard = document.getElementById(optionId).closest('.option-card');
         selectedCard.classList.add('selected');
         selectedCard.querySelector('input').checked = true;
+        selectedCard.style.borderColor = 'var(--primary-color)';
+        selectedCard.style.backgroundColor = 'var(--primary-light)';
+        selectedCard.style.boxShadow = '0 0 0 2px rgba(249, 115, 22, 0.3)';
       } else {
         // 追加オプションは複数選択
         const index = selectedOptions.indexOf(optionId);
@@ -571,9 +577,16 @@
         if (selectedOptions.includes(optionId)) {
           card.classList.add('selected');
           checkbox.checked = true;
+          // 選択時のスタイルを強制適用
+          card.style.borderColor = 'var(--primary-color)';
+          card.style.backgroundColor = 'var(--primary-light)';
         } else {
           card.classList.remove('selected');
           checkbox.checked = false;
+          // 非選択時のスタイルを強制リセット（モバイルのホバー残り対策）
+          card.style.borderColor = 'var(--border-color)';
+          card.style.backgroundColor = 'var(--bg-white)';
+          card.style.boxShadow = 'none';
         }
       }
       
