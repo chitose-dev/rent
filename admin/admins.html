@@ -93,7 +93,7 @@
         <h2>管理者追加</h2>
         <button type="button" class="modal-close" onclick="closeModal('add-modal')">&times;</button>
       </div>
-      <form id="add-form" onsubmit="addAdmin(event)">
+      <form id="add-form" onsubmit="addAdmin(event)" novalidate>
         <div class="modal-body">
           <div class="form-group">
             <label class="form-label">名前</label>
@@ -124,7 +124,7 @@
         <h2>パスワード変更</h2>
         <button type="button" class="modal-close" onclick="closeModal('password-modal')">&times;</button>
       </div>
-      <form id="password-form" onsubmit="changePassword(event)">
+      <form id="password-form" onsubmit="changePassword(event)" novalidate>
         <div class="modal-body">
           <div class="form-group">
             <label class="form-label">現在のパスワード</label>

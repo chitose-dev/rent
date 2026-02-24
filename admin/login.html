@@ -143,7 +143,7 @@
         <div class="error-message" id="errorMessage">
           IDまたはパスワードが正しくありません
         </div>
-        <form class="login-form" id="loginForm">
+        <form class="login-form" id="loginForm" novalidate>
           <div class="form-group">
             <label for="adminId">メールアドレス</label>
             <input type="email" id="adminId" name="adminId" required autocomplete="username">
@@ -174,7 +174,7 @@
         <div class="error-message" id="errorMessage2">
           認証コードが正しくありません
         </div>
-        <form class="login-form" id="verifyForm">
+        <form class="login-form" id="verifyForm" novalidate>
           <div class="form-group">
             <label for="verifyCode">認証コード</label>
             <input type="text" id="verifyCode" name="verifyCode" required 
