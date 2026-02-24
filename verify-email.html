@@ -249,9 +249,9 @@
 
         // 自動ログイン：トークンを保存
         if (data.accessToken && data.refreshToken) {
-          Auth.setTokens(data.accessToken, data.refreshToken);
+          Auth.saveTokens(data.accessToken, data.refreshToken);
           if (data.user) {
-            Auth.setUser(data.user);
+            Auth.saveUser(data.user);
           }
           
           successEl.textContent = '登録完了！マイページに移動します...';
