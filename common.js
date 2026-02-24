@@ -949,6 +949,40 @@ function insertFooter() {
 // ページ初期化
 // ========================================
 
+// ========================================
+// グローバルエラーハンドリング
+// ========================================
+
+// 予期しないJavaScriptエラーをキャッチ
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error('予期しないエラー:', { message, source, lineno, colno, error });
+  // 本番環境では静かにエラーを記録（ユーザーには表示しない）
+  return true; // エラーがハンドルされたことを示す
+};
+
+// 未処理のPromise rejectionをキャッチ
+window.addEventListener('unhandledrejection', function(event) {
+  console.error('未処理のPromise rejection:', event.reason);
+  // Promise rejectionは静かに処理
+  event.preventDefault();
+});
+
+// ========================================
+// キーボードアクセシビリティ
+// ========================================
+
+// Escapeキーでモーダルを閉じる
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    // アクティブなモーダルを全て閉じる
+    document.querySelectorAll('.modal-overlay.active').forEach(function(modal) {
+      modal.classList.remove('active');
+    });
+  }
+});
+
+// ========================================
+
 document.addEventListener('DOMContentLoaded', () => {
   DOM.initHamburger();
   

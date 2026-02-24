@@ -293,6 +293,22 @@ if (!window.location.pathname.endsWith('login.html')) {
   checkAdminAuth();
 }
 
+// ========================================
+// キーボードアクセシビリティ
+// ========================================
+
+// Escapeキーでモーダルを閉じる
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    // アクティブなモーダルを全て閉じる
+    document.querySelectorAll('.modal-overlay.active').forEach(function(modal) {
+      modal.classList.remove('active');
+    });
+  }
+});
+
+// ========================================
+
 // ハンバーガーメニュー
 document.addEventListener('DOMContentLoaded', function() {
   // メニューボタンとオーバーレイを動的に追加
