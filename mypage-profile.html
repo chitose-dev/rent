@@ -64,9 +64,8 @@
         </div>
 
         <div class="form-group">
-          <label for="nameKana" class="form-label required">氏名（カナ）</label>
-          <input type="text" id="nameKana" class="form-input" placeholder="ヤマダ タロウ" required>
-          <span class="form-error">氏名（カナ）を入力してください</span>
+          <label for="nameKana" class="form-label">氏名（カナ）</label>
+          <input type="text" id="nameKana" class="form-input" placeholder="ヤマダ タロウ">
         </div>
 
         <div class="form-group">
@@ -82,27 +81,38 @@
         </div>
 
         <div class="form-group">
-          <label for="birthDate" class="form-label required">生年月日</label>
-          <input type="date" id="birthDate" class="form-input" autocomplete="bday" required>
-          <span class="form-error">生年月日を入力してください</span>
+          <label class="form-label">生年月日</label>
+          <div class="birthdate-selects" style="display:flex;gap:8px;flex-wrap:wrap;">
+            <select id="birthYear" class="form-input" style="flex:1;min-width:90px;">
+              <option value="">年</option>
+            </select>
+            <select id="birthMonth" class="form-input" style="flex:1;min-width:70px;">
+              <option value="">月</option>
+            </select>
+            <select id="birthDay" class="form-input" style="flex:1;min-width:70px;">
+              <option value="">日</option>
+            </select>
+          </div>
         </div>
 
         <div class="form-group">
-          <label for="postalCode" class="form-label required">郵便番号</label>
-          <input type="text" id="postalCode" class="form-input" placeholder="1234567" maxlength="7" autocomplete="postal-code" inputmode="numeric" required>
-          <span class="form-error">郵便番号を入力してください（ハイフンなし）</span>
+          <label for="postalCode" class="form-label">郵便番号</label>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <input type="text" id="postalCode" class="form-input" placeholder="1234567" maxlength="8" autocomplete="postal-code" inputmode="numeric" style="flex:1;min-width:120px;max-width:150px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="searchAddress()" style="white-space:nowrap;">住所検索</button>
+          </div>
+          <small style="color:#666;font-size:12px;margin-top:4px;display:block;">ハイフンなしで入力してください</small>
         </div>
 
         <div class="form-group">
-          <label for="address" class="form-label required">住所</label>
-          <input type="text" id="address" class="form-input" placeholder="東京都渋谷区..." autocomplete="street-address" required>
-          <span class="form-error">住所を入力してください</span>
+          <label for="address" class="form-label">住所</label>
+          <input type="text" id="address" class="form-input" placeholder="東京都渋谷区..." autocomplete="street-address">
         </div>
 
         <div class="form-group">
-          <label for="licenseNumber" class="form-label required">運転免許証番号</label>
-          <input type="text" id="licenseNumber" class="form-input" placeholder="1234567890" required>
-          <span class="form-error">運転免許証番号を入力してください</span>
+          <label for="licenseNumber" class="form-label">運転免許証番号</label>
+          <input type="text" id="licenseNumber" class="form-input" placeholder="123456789012" inputmode="numeric" maxlength="12">
+          <small style="color:#666;font-size:12px;margin-top:4px;display:block;">12桁の番号を入力してください</small>
         </div>
 
         <div class="alert alert-info">
@@ -165,6 +175,61 @@
       }
     }
 
+    // 生年月日セレクトボックスを初期化
+    function initBirthDateSelects() {
+      const yearSelect = document.getElementById('birthYear');
+      const monthSelect = document.getElementById('birthMonth');
+      const daySelect = document.getElementById('birthDay');
+      
+      // 年（100年前〜18年前）
+      const currentYear = new Date().getFullYear();
+      for (let y = currentYear - 18; y >= currentYear - 100; y--) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y + '年';
+        yearSelect.appendChild(opt);
+      }
+      
+      // 月
+      for (let m = 1; m <= 12; m++) {
+        const opt = document.createElement('option');
+        opt.value = String(m).padStart(2, '0');
+        opt.textContent = m + '月';
+        monthSelect.appendChild(opt);
+      }
+      
+      // 日
+      for (let d = 1; d <= 31; d++) {
+        const opt = document.createElement('option');
+        opt.value = String(d).padStart(2, '0');
+        opt.textContent = d + '日';
+        daySelect.appendChild(opt);
+      }
+    }
+
+    // 郵便番号から住所検索
+    async function searchAddress() {
+      const postalCode = document.getElementById('postalCode').value.replace(/[-ー]/g, '').trim();
+      if (!/^\d{7}$/.test(postalCode)) {
+        alert('郵便番号は7桁の数字で入力してください');
+        return;
+      }
+      try {
+        const res = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${postalCode}`);
+        const data = await res.json();
+        if (data.results && data.results.length > 0) {
+          const r = data.results[0];
+          const address = r.address1 + r.address2 + r.address3;
+          document.getElementById('address').value = address;
+          document.getElementById('address').focus();
+        } else {
+          alert('住所が見つかりませんでした');
+        }
+      } catch (e) {
+        alert('住所検索に失敗しました');
+      }
+    }
+
     // プロフィール情報を読み込み（API呼び出し）
     async function loadProfile() {
       // 認証チェック
@@ -178,7 +243,17 @@
         document.getElementById('nameKana').value = profile.nameKana || '';
         document.getElementById('email').value = profile.email || '';
         document.getElementById('phone').value = profile.phone || '';
-        document.getElementById('birthDate').value = profile.birthDate || '';
+        
+        // 生年月日を分解してセット
+        if (profile.birthDate) {
+          const parts = profile.birthDate.split('-');
+          if (parts.length === 3) {
+            document.getElementById('birthYear').value = parts[0];
+            document.getElementById('birthMonth').value = parts[1];
+            document.getElementById('birthDay').value = parts[2];
+          }
+        }
+        
         document.getElementById('postalCode').value = profile.postalCode || '';
         document.getElementById('address').value = profile.address || '';
         document.getElementById('licenseNumber').value = profile.licenseNumber || '';
@@ -196,14 +271,22 @@
       submitBtn.disabled = true;
       submitBtn.textContent = '保存中...';
       
+      // 生年月日を組み立て
+      const birthYear = document.getElementById('birthYear').value;
+      const birthMonth = document.getElementById('birthMonth').value;
+      const birthDay = document.getElementById('birthDay').value;
+      const birthDate = (birthYear && birthMonth && birthDay) 
+        ? `${birthYear}-${birthMonth}-${birthDay}` 
+        : undefined;
+      
       const formData = {
         name: document.getElementById('name').value,
         nameKana: document.getElementById('nameKana').value || undefined,
         phone: document.getElementById('phone').value,
-        birthDate: document.getElementById('birthDate').value || undefined,
-        postalCode: document.getElementById('postalCode').value || undefined,
+        birthDate: birthDate,
+        postalCode: document.getElementById('postalCode').value.replace(/[-ー]/g, '').trim() || undefined,
         address: document.getElementById('address').value || undefined,
-        licenseNumber: document.getElementById('licenseNumber').value || undefined
+        licenseNumber: document.getElementById('licenseNumber').value.trim() || undefined
       };
       
       // undefinedのフィールドを削除
@@ -271,6 +354,7 @@
     }
 
     // 初期化
+    initBirthDateSelects();
     loadProfile();
   </script>
 </body>
