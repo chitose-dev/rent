@@ -103,7 +103,7 @@
     /* 日数選択 */
     .days-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      grid-template-columns: repeat(4, 1fr); /* JSで動的に変更 */
       gap: var(--spacing-sm);
     }
     
@@ -584,7 +584,7 @@
       }
       
       .days-grid {
-        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        /* JSで動的に設定、モバイルは件数多い場合に調整 */
         gap: 6px;
       }
       
@@ -973,6 +973,19 @@
           return;
         }
         
+        // 件数に応じてグリッド列数を動的に設定
+        // 4件以下: 1行で均等幅、5件以上: 2行になるように調整
+        const count = days.length;
+        let columns;
+        if (count <= 4) {
+          columns = count; // 1行で全部表示
+        } else if (count <= 8) {
+          columns = Math.ceil(count / 2); // 2行になるように
+        } else {
+          columns = 5; // 5列固定で複数行
+        }
+        daysGrid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+        
         // 日数ボタンを生成
         daysGrid.innerHTML = days.map(d => `
           <div class="days-btn" data-days="${d}" onclick="selectDays(${d})">
@@ -984,7 +997,9 @@
       } catch (e) {
         console.error('利用可能日数の取得に失敗:', e);
         // フォールバック（エラー時はデフォルト日数を表示）
-        daysGrid.innerHTML = [1, 2, 3].map(d => `
+        const fallbackDays = [1, 2, 3];
+        daysGrid.style.gridTemplateColumns = `repeat(${fallbackDays.length}, 1fr)`;
+        daysGrid.innerHTML = fallbackDays.map(d => `
           <div class="days-btn" data-days="${d}" onclick="selectDays(${d})">
             <div class="days-btn-number">${d}</div>
             <div class="days-btn-label">日</div>
