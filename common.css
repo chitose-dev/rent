@@ -863,3 +863,72 @@ main,
   font-size: var(--font-xs);
   opacity: 0.7;
 }
+
+/* ========================================
+   印刷用スタイル
+   ======================================== */
+
+@media print {
+  /* ヘッダー・フッター・ナビを非表示 */
+  .site-header,
+  .site-footer,
+  nav,
+  .back-link,
+  .btn,
+  .skip-link {
+    display: none !important;
+  }
+  
+  /* 背景を白に */
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+  
+  /* メインコンテンツの余白調整 */
+  main,
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* リンクの装飾を解除 */
+  a {
+    color: black !important;
+    text-decoration: none !important;
+  }
+  
+  /* カード・セクションの影を削除 */
+  .card,
+  .reserve-section,
+  .mypage-card {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    page-break-inside: avoid;
+  }
+  
+  /* ページ分割制御 */
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+  
+  /* 印刷時にロゴを表示したい場合はクラスで制御 */
+  .print-logo {
+    display: block !important;
+    max-width: 150px;
+    margin-bottom: 20px;
+  }
+  
+  /* 印刷時のみ表示するクラス */
+  .print-only {
+    display: block !important;
+  }
+  
+  /* 印刷時に非表示にするクラス */
+  .no-print {
+    display: none !important;
+  }
+}

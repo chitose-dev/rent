@@ -241,6 +241,7 @@
       if (url && /^https?:\/\//i.test(url)) {
         const img = document.createElement('img');
         img.src = url;
+        img.alt = '車両クラス画像プレビュー';
         img.style.cssText = 'max-width:200px;max-height:120px;border-radius:4px;';
         img.onerror = function() { this.style.display = 'none'; };
         preview.innerHTML = '';
