@@ -1016,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'activated') {
-                console.log('Service Worker updated');
+                // Service Worker更新完了（本番環境ではログ出力不要）
               }
             });
           }
