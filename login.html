@@ -479,7 +479,14 @@
       const licenseNumber = document.getElementById('registerLicenseNumber').value.trim() || undefined;
       const password = document.getElementById('registerPassword').value;
       const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+      const agreeTerms = document.getElementById('agreeTerms').checked;
       const submitBtn = event.target.querySelector('button[type="submit"]');
+      
+      // 同意チェック
+      if (!agreeTerms) {
+        alert('利用規約とプライバシーポリシーに同意してください');
+        return;
+      }
       
       // パスワード確認
       if (password !== passwordConfirm) {
