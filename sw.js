@@ -1,18 +1,11 @@
 // Service Worker for トクノリレンタカー
-const CACHE_NAME = 'tokunori-v1';
+// キャッシュバージョン: 更新時はここを変更
+const CACHE_NAME = 'tokunori-v2';
 const STATIC_ASSETS = [
-  '/rent/',
-  '/rent/index.html',
-  '/rent/reserve.html',
-  '/rent/login.html',
-  '/rent/terms.html',
-  '/rent/privacy.html',
-  '/rent/404.html',
-  '/rent/css/style.css',
-  '/rent/js/common.js',
-  '/rent/js/config.js',
+  // HTMLファイルはキャッシュしない（常に最新を取得）
   '/rent/images/logo.svg',
   '/rent/images/logo-icon.png',
+  '/rent/images/logo-text.png',
   '/rent/manifest.json'
 ];
 
@@ -59,18 +52,37 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // 静的アセットはキャッシュファースト
+  // HTMLファイルはネットワークファースト（常に最新を取得）
+  if (event.request.headers.get('accept')?.includes('text/html') || url.pathname.endsWith('.html')) {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // JSファイルもネットワークファースト
+  if (url.pathname.endsWith('.js')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+  
+  // 画像などの静的アセットはキャッシュファースト
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        // バックグラウンドでキャッシュを更新
-        fetch(event.request).then((response) => {
-          if (response.ok) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, response);
-            });
-          }
-        }).catch(() => {});
         return cachedResponse;
       }
       
@@ -83,11 +95,6 @@ self.addEventListener('fetch', (event) => {
           });
         }
         return response;
-      }).catch(() => {
-        // オフラインでHTMLを要求された場合は404ページを表示
-        if (event.request.headers.get('accept')?.includes('text/html')) {
-          return caches.match('/rent/404.html');
-        }
       });
     })
   );
