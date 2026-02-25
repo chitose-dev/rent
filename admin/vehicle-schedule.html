@@ -529,6 +529,13 @@
         block.dataset.pickupAt = res.pickupAt;
         block.dataset.returnAt = res.returnAt;
         
+        // ツールチップに返却予定日時を表示
+        let tooltipText = `${res.userName || '予約'}\n貸出: ${new Date(res.pickupAt).toLocaleString('ja-JP')}\n返却期限: ${new Date(res.returnAt).toLocaleString('ja-JP')}`;
+        if (res.plannedReturnAt) {
+          tooltipText += `\n★返却予定: ${new Date(res.plannedReturnAt).toLocaleString('ja-JP')}`;
+        }
+        block.title = tooltipText;
+        
         block.addEventListener('click', (e) => {
           e.stopPropagation();
           showReservationDetail(res);
@@ -588,12 +595,16 @@
 
     function showReservationDetail(res) {
       document.getElementById('detail-modal-title').textContent = '予約詳細';
+      const plannedReturnRow = res.plannedReturnAt 
+        ? `<div class="detail-row"><div class="detail-label">返却予定日時</div><div class="detail-value" style="color: #2563eb; font-weight: bold;">${new Date(res.plannedReturnAt).toLocaleString('ja-JP')}</div></div>`
+        : `<div class="detail-row"><div class="detail-label">返却予定日時</div><div class="detail-value" style="color: #999;">未入力</div></div>`;
       document.getElementById('detail-modal-body').innerHTML = `
         <div class="detail-row"><div class="detail-label">予約番号</div><div class="detail-value">${escapeHtml(res.id)}</div></div>
         <div class="detail-row"><div class="detail-label">お客様名</div><div class="detail-value">${escapeHtml(res.userName) || '-'}</div></div>
         <div class="detail-row"><div class="detail-label">車両</div><div class="detail-value">${escapeHtml(res.vehiclePlate) || '-'} (${escapeHtml(res.carClassName) || '-'})</div></div>
         <div class="detail-row"><div class="detail-label">貸出日時</div><div class="detail-value">${new Date(res.pickupAt).toLocaleString('ja-JP')}</div></div>
-        <div class="detail-row"><div class="detail-label">返却日時</div><div class="detail-value">${new Date(res.returnAt).toLocaleString('ja-JP')}</div></div>
+        <div class="detail-row"><div class="detail-label">返却期限</div><div class="detail-value">${new Date(res.returnAt).toLocaleString('ja-JP')}</div></div>
+        ${plannedReturnRow}
         <div class="detail-row"><div class="detail-label">ステータス</div><div class="detail-value">${getStatusLabel(res.status)}</div></div>
         <div class="detail-row"><div class="detail-label">合計金額</div><div class="detail-value">¥${(res.totalPrice || 0).toLocaleString()}</div></div>
       `;
