@@ -303,14 +303,38 @@
       </div>
     </div>
 
+    <!-- 保険・オプション情報 -->
+    <div class="detail-section">
+      <div class="detail-title">保険・オプション</div>
+      <div class="detail-row">
+        <span class="detail-label">保険プラン</span>
+        <span class="detail-value" id="detailInsurance">-</span>
+      </div>
+      <div id="optionsContainer">
+        <!-- オプションがあれば表示 -->
+      </div>
+    </div>
+
     <!-- 料金情報 -->
     <div class="detail-section">
-      <div class="detail-title">料金情報</div>
+      <div class="detail-title">料金内訳</div>
+      <div class="detail-row">
+        <span class="detail-label">基本料金</span>
+        <span class="detail-value" id="detailBasePrice">-</span>
+      </div>
+      <div class="detail-row" id="insurancePriceRow" style="display: none;">
+        <span class="detail-label">保険料</span>
+        <span class="detail-value" id="detailInsurancePrice">-</span>
+      </div>
+      <div class="detail-row" id="optionsPriceRow" style="display: none;">
+        <span class="detail-label">オプション料金</span>
+        <span class="detail-value" id="detailOptionsPrice">-</span>
+      </div>
       <div class="detail-row">
         <span class="detail-label">決済方法</span>
         <span class="detail-value" id="detailPayment">-</span>
       </div>
-      <div class="detail-row" style="font-size: var(--font-lg); font-weight: bold;">
+      <div class="detail-row" style="font-size: var(--font-lg); font-weight: bold; border-top: 2px solid var(--border-color); padding-top: var(--spacing-md);">
         <span class="detail-label">合計金額</span>
         <span class="detail-value" style="color: var(--primary-dark);" id="detailPrice">-</span>
       </div>
@@ -408,6 +432,46 @@
         if (reservationData.plannedReturnAt) {
           const plannedDate = new Date(reservationData.plannedReturnAt);
           document.getElementById('detailPlannedReturn').textContent = Utils.formatDateTimeJP(plannedDate);
+        }
+        
+        // 保険・オプション情報
+        if (reservationData.insuranceName) {
+          const insuranceText = reservationData.insurancePricePerDay 
+            ? `${reservationData.insuranceName}（¥${reservationData.insurancePricePerDay.toLocaleString()}/日）`
+            : reservationData.insuranceName;
+          document.getElementById('detailInsurance').textContent = insuranceText;
+        } else if (reservationData.insuranceType === 'none') {
+          document.getElementById('detailInsurance').textContent = 'なし';
+        }
+        
+        // オプション表示
+        const optionsContainer = document.getElementById('optionsContainer');
+        if (reservationData.options && reservationData.options.length > 0) {
+          reservationData.options.forEach(function(opt) {
+            const row = document.createElement('div');
+            row.className = 'detail-row';
+            row.innerHTML = '<span class="detail-label">オプション: ' + escapeHtml(opt.name) + '</span>' +
+              '<span class="detail-value">¥' + (opt.pricePerDay || 0).toLocaleString() + '/日 × ' + (opt.quantity || 1) + '個</span>';
+            optionsContainer.appendChild(row);
+          });
+        } else {
+          const row = document.createElement('div');
+          row.className = 'detail-row';
+          row.innerHTML = '<span class="detail-label">オプション</span><span class="detail-value">なし</span>';
+          optionsContainer.appendChild(row);
+        }
+        
+        // 料金内訳
+        if (reservationData.basePrice !== undefined) {
+          document.getElementById('detailBasePrice').textContent = `¥${reservationData.basePrice.toLocaleString()}`;
+        }
+        if (reservationData.insurancePrice && reservationData.insurancePrice > 0) {
+          document.getElementById('insurancePriceRow').style.display = 'flex';
+          document.getElementById('detailInsurancePrice').textContent = `¥${reservationData.insurancePrice.toLocaleString()}`;
+        }
+        if (reservationData.optionsPrice && reservationData.optionsPrice > 0) {
+          document.getElementById('optionsPriceRow').style.display = 'flex';
+          document.getElementById('detailOptionsPrice').textContent = `¥${reservationData.optionsPrice.toLocaleString()}`;
         }
         
         // 料金情報
