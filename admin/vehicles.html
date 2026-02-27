@@ -11,8 +11,8 @@
   <link rel="dns-prefetch" href="https://rentcar-backend-dgyxfpofua-an.a.run.app">
   <link rel="stylesheet" href="common.css">
   <style>
-    #vehicles-tbody tr { height: 56px; }
-    #vehicles-tbody td { vertical-align: middle; }
+    #vehicles-tbody td { vertical-align: middle; padding: 12px 8px; }
+    #vehicles-tbody .btn-sm { height: 32px; line-height: 1; }
   </style>
 </head>
 <body>
@@ -92,7 +92,7 @@
                 <th>車種</th>
                 <th>クラス</th>
                 <th>ステータス</th>
-                <th style="width: 240px;">操作</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody id="vehicles-tbody">
@@ -290,7 +290,7 @@
                 <span class="badge ${escapeHtml(st.class)}">${escapeHtml(st.text)}</span>
                 ${maintInfo}
               </td>
-              <td class="actions" style="white-space:nowrap; min-width:240px;">
+              <td class="actions" style="white-space:nowrap;">
                 ${v.status === 'unavailable'
                   ? `<button type="button" class="btn btn-sm btn-success" data-action="set-available" data-id="${safeId}">利用可能にする</button>`
                   : v.status === 'available'
