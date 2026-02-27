@@ -78,13 +78,13 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th>予約番号</th>
-                <th>会員</th>
-                <th>車両クラス</th>
-                <th>期間</th>
-                <th>金額</th>
+                <th class="sortable" data-sort="id">予約番号 <span class="sort-icon"></span></th>
+                <th class="sortable" data-sort="userName">会員 <span class="sort-icon"></span></th>
+                <th class="sortable" data-sort="carClassName">車両クラス <span class="sort-icon"></span></th>
+                <th class="sortable" data-sort="pickupAt">期間 <span class="sort-icon"></span></th>
+                <th class="sortable" data-sort="totalPrice">金額 <span class="sort-icon"></span></th>
                 <th>決済</th>
-                <th>ステータス</th>
+                <th class="sortable" data-sort="status">ステータス <span class="sort-icon"></span></th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -161,10 +161,20 @@
   </div>
 
   
+  <style>
+    .sortable { cursor: pointer; user-select: none; }
+    .sortable:hover { background: #f0f0f0; }
+    .sort-icon { font-size: 10px; margin-left: 4px; color: #999; }
+    .sort-icon::after { content: '▲▼'; }
+    .sortable.asc .sort-icon::after { content: '▲'; color: #333; }
+    .sortable.desc .sort-icon::after { content: '▼'; color: #333; }
+  </style>
   <script src="common.js"></script>
   <script>
     let currentStatus = '';
     let currentPage = 1;
+    let currentSort = { field: 'pickupAt', order: 'desc' };
+    let allReservations = [];
 
     // ステータスラベル
     const statusLabels = {
@@ -195,20 +205,64 @@
       tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;">読み込み中...</td></tr>';
 
       try {
-        let url = `/v1/admin/reservations?page=${currentPage}&limit=20`;
+        let url = `/v1/admin/reservations?page=1&limit=100`;
         if (currentStatus) {
           url += `&status=${currentStatus}`;
         }
         
         const result = await API.get(url);
-        const reservations = Array.isArray(result) ? result : (result.data || []);
+        allReservations = Array.isArray(result) ? result : (result.data || []);
         
-        if (reservations.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;">予約がありません</td></tr>';
-          return;
-        }
+        // クライアント側でソート
+        sortReservations();
+        
+        renderReservations();
+      } catch (error) {
+        console.error('予約取得エラー:', error);
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:#c00;">エラー: ${escapeHtml(error.message)}</td></tr>`;
+      }
+    }
 
-        tbody.innerHTML = reservations.map(r => {
+    // ソート処理
+    function sortReservations() {
+      const { field, order } = currentSort;
+      allReservations.sort((a, b) => {
+        let valA = a[field];
+        let valB = b[field];
+        
+        // 日付フィールドの場合
+        if (field === 'pickupAt' || field === 'returnAt') {
+          valA = valA ? new Date(valA).getTime() : 0;
+          valB = valB ? new Date(valB).getTime() : 0;
+        }
+        // 数値フィールドの場合
+        else if (field === 'totalPrice') {
+          valA = valA || 0;
+          valB = valB || 0;
+        }
+        // 文字列フィールドの場合
+        else {
+          valA = (valA || '').toString().toLowerCase();
+          valB = (valB || '').toString().toLowerCase();
+        }
+        
+        if (valA < valB) return order === 'asc' ? -1 : 1;
+        if (valA > valB) return order === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // 予約一覧を描画
+    function renderReservations() {
+      const tbody = document.getElementById('reservations-tbody');
+      const reservations = allReservations;
+        
+      if (reservations.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;">予約がありません</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = reservations.map(r => {
           const status = statusLabels[r.status] || { text: r.status, class: 'badge-secondary' };
           const actions = getActionButtons(r);
           
@@ -230,17 +284,28 @@
               <td class="actions">${actions}</td>
             </tr>
           `;
-        }).join('');
-
-        // ページネーション
-        if (result.pagination) {
-          renderPagination(result.pagination);
-        }
-      } catch (error) {
-        console.error('予約取得エラー:', error);
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:#c00;">エラー: ${escapeHtml(error.message)}</td></tr>`;
-      }
+      }).join('');
     }
+
+    // ソートヘッダークリック処理
+    document.querySelectorAll('.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        const field = th.dataset.sort;
+        if (currentSort.field === field) {
+          currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+        } else {
+          currentSort.field = field;
+          currentSort.order = 'asc';
+        }
+        
+        // ソートアイコンを更新
+        document.querySelectorAll('.sortable').forEach(h => h.classList.remove('asc', 'desc'));
+        th.classList.add(currentSort.order);
+        
+        sortReservations();
+        renderReservations();
+      });
+    });
 
     // アクションボタン生成
     function getActionButtons(reservation) {
@@ -283,25 +348,7 @@
       }
     });
 
-    // ページネーション描画
-    function renderPagination(pagination) {
-      const container = document.getElementById('pagination');
-      if (pagination.totalPages <= 1) {
-        container.innerHTML = '';
-        return;
-      }
-      
-      let html = '';
-      for (let i = 1; i <= pagination.totalPages; i++) {
-        html += `<button type="button" class="btn btn-sm ${i === pagination.page ? 'btn-primary' : 'btn-outline'}" onclick="goToPage(${i})">${i}</button>`;
-      }
-      container.innerHTML = html;
-    }
-
-    function goToPage(page) {
-      currentPage = page;
-      loadReservations();
-    }
+    // ページネーションは削除（全件取得＋クライアントソートに変更）
 
     // 詳細表示
     async function showDetail(id) {

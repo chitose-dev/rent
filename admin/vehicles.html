@@ -71,6 +71,7 @@
               <option value="available">利用可能</option>
               <option value="rented">レンタル中</option>
               <option value="maintenance">メンテナンス中</option>
+              <option value="unavailable">利用不可</option>
             </select>
             <button type="button" class="btn btn-primary btn-sm" onclick="loadVehicles()">検索</button>
           </div>
@@ -218,7 +219,8 @@
     const statusLabels = {
       available: { text: '利用可能', class: 'badge-success' },
       rented: { text: 'レンタル中', class: 'badge-warning' },
-      maintenance: { text: 'メンテナンス中', class: 'badge-secondary' }
+      maintenance: { text: 'メンテナンス中', class: 'badge-secondary' },
+      unavailable: { text: '利用不可', class: 'badge-danger' }
     };
 
     async function loadCarClasses() {
@@ -285,9 +287,17 @@
                 ${maintInfo}
               </td>
               <td class="actions" style="white-space:nowrap;">
+                ${v.status === 'unavailable'
+                  ? `<button type="button" class="btn btn-sm btn-success" data-action="set-available" data-id="${safeId}">利用可能にする</button>`
+                  : v.status === 'available'
+                    ? `<button type="button" class="btn btn-sm btn-outline" data-action="set-unavailable" data-id="${safeId}">利用不可</button>`
+                    : ''
+                }
                 ${(v.status === 'maintenance' || v.nextMaintenanceStart)
                   ? `<button type="button" class="btn btn-sm btn-success" data-action="clear-maint" data-id="${safeId}">メンテ解除</button>`
-                  : `<button type="button" class="btn btn-sm btn-warning" data-action="set-maint" data-id="${safeId}">メンテ設定</button>`
+                  : v.status === 'available'
+                    ? `<button type="button" class="btn btn-sm btn-warning" data-action="set-maint" data-id="${safeId}">メンテ設定</button>`
+                    : ''
                 }
                 <button type="button" class="btn btn-sm btn-danger" data-action="delete" data-id="${safeId}">削除</button>
               </td>
@@ -303,6 +313,8 @@
             if (action === 'clear-maint') clearMaintenance(id);
             else if (action === 'set-maint') openMaintenanceModal(id);
             else if (action === 'delete') openDeleteModal(id);
+            else if (action === 'set-available') setVehicleStatus(id, 'available');
+            else if (action === 'set-unavailable') setVehicleStatus(id, 'unavailable');
           });
         });
       } catch (error) {
@@ -376,6 +388,20 @@
       if (!confirm('メンテナンスを解除しますか？')) return;
       try {
         await API.delete(`/v1/admin/vehicles/${vehicleId}/maintenance`);
+        loadVehicles();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    async function setVehicleStatus(vehicleId, status) {
+      const msg = status === 'unavailable' 
+        ? 'この車両を利用不可に設定しますか？\n※将来の予約がある場合は設定できません' 
+        : 'この車両を利用可能に設定しますか？';
+      if (!confirm(msg)) return;
+      try {
+        const result = await API.put(`/v1/admin/vehicles/${vehicleId}/status`, { status });
+        alert(result.message || '更新しました');
         loadVehicles();
       } catch (error) {
         alert('エラー: ' + error.message);
