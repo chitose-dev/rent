@@ -88,7 +88,7 @@
                 <th>車種</th>
                 <th>クラス</th>
                 <th>ステータス</th>
-                <th>操作</th>
+                <th style="width: 240px;">操作</th>
               </tr>
             </thead>
             <tbody id="vehicles-tbody">
@@ -286,7 +286,7 @@
                 <span class="badge ${escapeHtml(st.class)}">${escapeHtml(st.text)}</span>
                 ${maintInfo}
               </td>
-              <td class="actions" style="white-space:nowrap;">
+              <td class="actions" style="white-space:nowrap; min-width:240px;">
                 ${v.status === 'unavailable'
                   ? `<button type="button" class="btn btn-sm btn-success" data-action="set-available" data-id="${safeId}">利用可能にする</button>`
                   : v.status === 'available'
