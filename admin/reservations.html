@@ -64,12 +64,17 @@
         </div>
       </div>
 
-      <!-- タブ -->
-      <div class="tabs">
-        <button type="button" class="tab active" data-status="">すべて</button>
-        <button type="button" class="tab" data-status="confirmed">受取待ち</button>
-        <button type="button" class="tab" data-status="picked_up">レンタル中</button>
-        <button type="button" class="tab" data-status="cancel_requested">キャンセル申請</button>
+      <!-- タブ + フィルター -->
+      <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px;">
+        <div class="tabs" style="margin-bottom: 0;">
+          <button type="button" class="tab active" data-status="">すべて</button>
+          <button type="button" class="tab" data-status="confirmed">来店待ち</button>
+          <button type="button" class="tab" data-status="picked_up">レンタル中</button>
+          <button type="button" class="tab" data-status="cancel_requested">キャンセル申請</button>
+        </div>
+        <select id="vehicle-filter" class="form-select" style="width: 200px;">
+          <option value="">すべての車両</option>
+        </select>
       </div>
 
       <!-- 予約一覧 -->
@@ -181,7 +186,7 @@
     // ステータスラベル
     const statusLabels = {
       pending_payment: { text: '決済待ち', class: 'badge-warning' },
-      confirmed: { text: '受取待ち', class: 'badge-info' },
+      confirmed: { text: '来店待ち', class: 'badge-info' },
       picked_up: { text: 'レンタル中', class: 'badge-success' },
       returned: { text: '返却済み', class: 'badge-secondary' },
       cancel_requested: { text: 'キャンセル申請', class: 'badge-danger' },
@@ -257,7 +262,7 @@
     // 予約一覧を描画
     function renderReservations() {
       const tbody = document.getElementById('reservations-tbody');
-      const reservations = allReservations;
+      const reservations = getFilteredReservations();
         
       if (reservations.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;">予約がありません</td></tr>';
@@ -317,7 +322,7 @@
       
       switch (reservation.status) {
         case 'confirmed':
-          buttons.push(`<button type="button" class="btn btn-sm btn-success" data-action="pickup" data-id="${safeId}">受取処理</button>`);
+          buttons.push(`<button type="button" class="btn btn-sm btn-success" data-action="pickup" data-id="${safeId}">来店処理</button>`);
           break;
         case 'picked_up':
           buttons.push(`<button type="button" class="btn btn-sm btn-warning" data-action="extend" data-id="${safeId}">延長</button>`);
@@ -394,13 +399,13 @@
       }
     }
 
-    // 受取処理
+    // 来店処理
     async function processPickup(id) {
-      if (!confirm('受取処理を実行しますか？')) return;
+      if (!confirm('来店処理を実行しますか？')) return;
       
       try {
         await API.put(`/v1/admin/reservations/${id}/pickup`, { notes: '' });
-        alert('受取処理が完了しました');
+        alert('来店処理が完了しました');
         loadReservations();
       } catch (error) {
         alert('エラー: ' + error.message);
@@ -537,8 +542,37 @@
       });
     });
 
+    // 車両リスト読み込み
+    let allVehicles = [];
+    async function loadVehicles() {
+      try {
+        const result = await API.get('/v1/admin/vehicles?limit=100');
+        allVehicles = Array.isArray(result) ? result : (result.data || []);
+        const select = document.getElementById('vehicle-filter');
+        select.innerHTML = '<option value="">すべての車両</option>' + 
+          allVehicles.map(v => `<option value="${escapeHtml(v.id)}">${escapeHtml(v.licensePlate)} (${escapeHtml(v.model)})</option>`).join('');
+      } catch (e) {
+        console.error('車両リスト取得エラー:', e);
+      }
+    }
+    
+    // 車両フィルター変更
+    document.getElementById('vehicle-filter').addEventListener('change', () => {
+      renderReservations();
+    });
+    
+    // フィルタリング済み予約を取得
+    function getFilteredReservations() {
+      const vehicleId = document.getElementById('vehicle-filter').value;
+      if (!vehicleId) return allReservations;
+      return allReservations.filter(r => r.vehicleId === vehicleId);
+    }
+
     // 初期化
-    document.addEventListener('DOMContentLoaded', loadReservations);
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadVehicles();
+      await loadReservations();
+    });
   </script>
 </body>
 </html>
