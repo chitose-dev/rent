@@ -243,9 +243,6 @@
   <script>
     // 予約データを取得
     async function loadReservationData() {
-      // 認証チェック
-      if (!Auth.requireAuth()) return;
-      
       // URLパラメータから予約IDを取得（Stripe決済後のリダイレクト対応）
       const urlParams = new URLSearchParams(window.location.search);
       const reservationId = urlParams.get('reservationId') || urlParams.get('reservation_id');
