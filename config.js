@@ -98,6 +98,10 @@ const API = {
       if (refreshed) {
         return this.request(endpoint, options, 0, true);
       }
+      // skipAuthRedirectオプションが指定されている場合はログアウトせずにエラーを返す
+      if (options.skipAuthRedirect) {
+        throw new Error('セッションが期限切れです。');
+      }
       // リフレッシュ失敗時はログアウト（両方のストレージをクリア）
       sessionStorage.removeItem('authToken');
       sessionStorage.removeItem('refreshToken');
