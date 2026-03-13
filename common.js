@@ -203,23 +203,23 @@ const AuthState = {
 const ReservationStorage = {
   KEY: 'reservationData',
   
-  // 予約データを保存
+  // 予約データを保存（localStorageを使用 - Stripe決済後も保持）
   save(data) {
     const current = this.get() || {};
     const updated = { ...current, ...data };
-    sessionStorage.setItem(this.KEY, JSON.stringify(updated));
+    localStorage.setItem(this.KEY, JSON.stringify(updated));
     return updated;
   },
   
   // 予約データを取得
   get() {
-    const data = sessionStorage.getItem(this.KEY);
+    const data = localStorage.getItem(this.KEY);
     return data ? JSON.parse(data) : null;
   },
   
   // 予約データをクリア
   clear() {
-    sessionStorage.removeItem(this.KEY);
+    localStorage.removeItem(this.KEY);
   },
   
   // 特定のフィールドを取得
