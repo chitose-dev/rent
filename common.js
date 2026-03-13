@@ -993,7 +993,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFormAccessibility();
   
   // 認証が必要なページかチェック（login.html, register.html, index.html以外）
-  const publicPages = ['login.html', 'register.html', 'index.html', 'verify-email.html', 'reset-password.html', 'terms.html', 'privacy.html'];
+  const publicPages = ['login.html', 'register.html', 'index.html', 'verify-email.html', 'reset-password.html', 'terms.html', 'privacy.html', 'reserve-complete.html'];
   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
   
   // 管理画面は別の認証チェック
