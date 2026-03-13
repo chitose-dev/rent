@@ -257,24 +257,32 @@
       // 予約IDがある場合はAPIから取得
       if (reservationId) {
         try {
-          const reservation = await API.get(`/v1/reservations/${reservationId}`);
+          const reservation = await API.get(`/v1/reservations/${reservationId}`, { skipAuthRedirect: true });
           displayReservationFromAPI(reservation);
           ReservationStorage.clear(); // ローカルデータをクリア
           return;
         } catch (error) {
           console.error('予約情報取得エラー:', error);
+          // APIエラー時はローカルデータにフォールバック
+          if (localData && localData.reservationId) {
+            displaySummary(localData);
+            return;
+          }
         }
       }
       
       // Stripe Checkoutから戻ってきた場合
       if (sessionId && localData?.reservationId) {
         try {
-          const reservation = await API.get(`/v1/reservations/${localData.reservationId}`);
+          const reservation = await API.get(`/v1/reservations/${localData.reservationId}`, { skipAuthRedirect: true });
           displayReservationFromAPI(reservation);
           ReservationStorage.clear();
           return;
         } catch (error) {
           console.error('予約情報取得エラー:', error);
+          // APIエラー時はローカルデータを表示
+          displaySummary(localData);
+          return;
         }
       }
       
@@ -284,7 +292,7 @@
         return;
       }
       
-      // データがない場合
+      // データがない場合はマイページへ（ログアウトせずに）
       alert('予約情報が見つかりません');
       window.location.href = 'mypage-rental.html';
     }
