@@ -242,8 +242,8 @@ const AppConfig = {
   closeTime: '18:00',
   timeStepMinutes: 15,
   
-  // 予約可能期間
-  maxFutureMonths: 6,
+  // 予約可能期間（申込日から最長3ヶ月後まで）
+  maxFutureMonths: 3,
   
   // マスターデータ（APIから取得）
   carClasses: [],
