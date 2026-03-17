@@ -245,6 +245,9 @@ const AppConfig = {
   // 予約可能期間（申込日から最長3ヶ月後まで）
   maxFutureMonths: 3,
   
+  // 消費税率（%）- 税込金額から税抜・消費税を計算する際に使用
+  taxRate: 10,
+  
   // マスターデータ（APIから取得）
   carClasses: [],
   pricingPlans: [],
@@ -357,6 +360,30 @@ const AppConfig = {
 // ========================================
 
 const Utils = {
+  // 税込金額から税抜金額を計算（端数切り捨て）
+  calcPriceWithoutTax(priceWithTax, taxRate = AppConfig.taxRate) {
+    return Math.floor(priceWithTax / (1 + taxRate / 100));
+  },
+  
+  // 税込金額から消費税額を計算
+  calcTaxAmount(priceWithTax, taxRate = AppConfig.taxRate) {
+    const priceWithoutTax = this.calcPriceWithoutTax(priceWithTax, taxRate);
+    return priceWithTax - priceWithoutTax;
+  },
+  
+  // 税込金額を「税抜 + 消費税」形式でフォーマット
+  formatPriceWithTax(priceWithTax, taxRate = AppConfig.taxRate) {
+    const priceWithoutTax = this.calcPriceWithoutTax(priceWithTax, taxRate);
+    const taxAmount = priceWithTax - priceWithoutTax;
+    return {
+      priceWithoutTax,
+      taxAmount,
+      priceWithTax,
+      formatted: `¥${priceWithoutTax.toLocaleString()}（税抜）+ 消費税 ¥${taxAmount.toLocaleString()}`,
+      total: `¥${priceWithTax.toLocaleString()}（税込）`
+    };
+  },
+  
   // 日付フォーマット YYYY-MM-DD
   formatDate(date) {
     if (typeof date === 'string') {

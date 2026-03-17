@@ -869,6 +869,14 @@
         <span class="price-label">オプション</span>
         <span class="price-value" id="summary-options">¥0</span>
       </div>
+      <div class="price-row subtotal" id="summary-subtotal-row" style="display: none;">
+        <span class="price-label">小計（税抜）</span>
+        <span class="price-value" id="summary-subtotal">¥0</span>
+      </div>
+      <div class="price-row tax" id="summary-tax-row" style="display: none;">
+        <span class="price-label">消費税（10%）</span>
+        <span class="price-value" id="summary-tax">¥0</span>
+      </div>
       <div class="price-row total">
         <span class="price-label">合計（税込）</span>
         <span class="price-value" id="summary-total">¥0</span>
@@ -1790,9 +1798,24 @@
       const optionsTotal = (state.optionsPrice || 0) * days;
       const total = basePrice + insuranceTotal + optionsTotal;
       
+      // 税抜・消費税を計算
+      const taxInfo = Utils.formatPriceWithTax(total);
+      
       document.getElementById('summary-base').textContent = `¥${basePrice.toLocaleString()}`;
       document.getElementById('summary-insurance').textContent = `¥${insuranceTotal.toLocaleString()}`;
       document.getElementById('summary-options').textContent = `¥${optionsTotal.toLocaleString()}`;
+      
+      // 税抜・消費税を表示
+      if (total > 0) {
+        document.getElementById('summary-subtotal-row').style.display = 'flex';
+        document.getElementById('summary-tax-row').style.display = 'flex';
+        document.getElementById('summary-subtotal').textContent = `¥${taxInfo.priceWithoutTax.toLocaleString()}`;
+        document.getElementById('summary-tax').textContent = `¥${taxInfo.taxAmount.toLocaleString()}`;
+      } else {
+        document.getElementById('summary-subtotal-row').style.display = 'none';
+        document.getElementById('summary-tax-row').style.display = 'none';
+      }
+      
       document.getElementById('summary-total').textContent = `¥${total.toLocaleString()}`;
     }
     

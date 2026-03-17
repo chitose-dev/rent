@@ -253,8 +253,16 @@
       
       <!-- 合計金額 -->
       <div class="confirm-total">
+        <div class="confirm-total-row subtotal">
+          <span class="confirm-total-label">小計（税抜）</span>
+          <span class="confirm-total-value" id="confirmSubtotal">-</span>
+        </div>
+        <div class="confirm-total-row tax">
+          <span class="confirm-total-label">消費税（10%）</span>
+          <span class="confirm-total-value" id="confirmTax">-</span>
+        </div>
         <div class="confirm-total-row">
-          <span class="confirm-total-label">合計金額</span>
+          <span class="confirm-total-label">合計金額（税込）</span>
           <span class="confirm-total-value" id="confirmPrice">-</span>
         </div>
       </div>
@@ -402,7 +410,10 @@
       // 決済方法
       document.getElementById('confirmPayment').textContent = reservationData.paymentName || (reservationData.paymentMethod === 'card' ? 'クレジットカード' : '現地払い');
       
-      // 合計金額
+      // 合計金額（税抜・消費税表示）
+      const taxInfo = Utils.formatPriceWithTax(reservationData.totalPrice);
+      document.getElementById('confirmSubtotal').textContent = `¥${taxInfo.priceWithoutTax.toLocaleString()}`;
+      document.getElementById('confirmTax').textContent = `¥${taxInfo.taxAmount.toLocaleString()}`;
       document.getElementById('confirmPrice').textContent = `¥${reservationData.totalPrice.toLocaleString()}`;
     }
 
