@@ -890,8 +890,8 @@
     </div>
   </div>
 
-  <script src="config.js"></script>
-  <script src="common.js"></script>
+  <script src="config.js?v=20260319b"></script>
+  <script src="common.js?v=20260319b"></script>
   <script>
     // 状態管理
     let state = {
@@ -1197,11 +1197,13 @@
           // 該当日数のプランを探す
           const matchingPlan = plans.find(p => p.days === state.days);
           if (matchingPlan) {
-            priceDisplay = `${state.days}日間: ¥${matchingPlan.price.toLocaleString()}（税込）`;
+            const taxInfo = Utils.formatPriceWithTax(matchingPlan.price);
+            priceDisplay = `${state.days}日間: ¥${taxInfo.priceWithoutTax.toLocaleString()}（税抜）`;
           } else {
             // 該当日数のプランがない場合は1日料金×日数
             const totalPrice = dailyPrice * state.days;
-            priceDisplay = `${state.days}日間: ¥${totalPrice.toLocaleString()}（税込）`;
+            const taxInfo = Utils.formatPriceWithTax(totalPrice);
+            priceDisplay = `${state.days}日間: ¥${taxInfo.priceWithoutTax.toLocaleString()}（税抜）`;
           }
         }
         
@@ -1248,7 +1250,7 @@
         card.dataset.price = plan.pricePerDay;
         card.onclick = function() { selectInsurance(this); };
         
-        const priceText = plan.pricePerDay === 0 ? '¥0' : `¥${plan.pricePerDay.toLocaleString()}/日`;
+        const priceText = plan.pricePerDay === 0 ? '¥0' : `¥${Utils.calcPriceWithoutTax(plan.pricePerDay).toLocaleString()}/日（税抜）`;
         
         card.innerHTML = `
           <input type="radio" name="insurance" value="${escapeHtml(plan.id)}">
@@ -1327,7 +1329,7 @@
             <div class="option-card-desc">${escapeHtml(option.description || '')}</div>
             ${!isAvailable ? '<div style="color:#c00;font-size:12px;">この期間はご利用いただけません</div>' : ''}
           </div>
-          <div class="option-card-price">¥${option.pricePerDay.toLocaleString()}/日</div>
+          <div class="option-card-price">¥${Utils.calcPriceWithoutTax(option.pricePerDay).toLocaleString()}/日（税抜）</div>
         `;
         
         container.appendChild(card);
@@ -1706,15 +1708,17 @@
         let matchingPlan = plans.find(p => p.days === days);
         
         if (matchingPlan) {
-          // マッチするプランがあればその料金を表示
-          priceEl.textContent = `${days}日間: ¥${matchingPlan.price.toLocaleString()}（税込）`;
+          // マッチするプランがあればその料金を表示（税抜）
+          const taxInfo = Utils.formatPriceWithTax(matchingPlan.price);
+          priceEl.textContent = `${days}日間: ¥${taxInfo.priceWithoutTax.toLocaleString()}（税抜）`;
           card.dataset.planPrice = matchingPlan.price;
           card.dataset.pricingPlanId = matchingPlan.id;
         } else {
           // マッチするプランがなければ1日料金 × 日数で計算
           const dailyPrice = parseInt(card.dataset.dailyPrice) || 0;
           const totalPrice = dailyPrice * days;
-          priceEl.textContent = `${days}日間: ¥${totalPrice.toLocaleString()}（税込）`;
+          const taxInfo = Utils.formatPriceWithTax(totalPrice);
+          priceEl.textContent = `${days}日間: ¥${taxInfo.priceWithoutTax.toLocaleString()}（税抜）`;
           card.dataset.planPrice = totalPrice;
           card.dataset.pricingPlanId = '';
         }
