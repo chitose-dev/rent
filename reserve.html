@@ -858,22 +858,22 @@
     <!-- 料金サマリー -->
     <div class="price-summary" id="price-summary" style="display: none;">
       <div class="price-row">
-        <span class="price-label">基本料金</span>
+        <span class="price-label">基本料金（税抜）</span>
         <span class="price-value" id="summary-base">¥0</span>
       </div>
       <div class="price-row">
-        <span class="price-label">免責補償</span>
+        <span class="price-label">免責補償（税抜）</span>
         <span class="price-value" id="summary-insurance">¥0</span>
       </div>
       <div class="price-row">
-        <span class="price-label">オプション</span>
+        <span class="price-label">オプション（税抜）</span>
         <span class="price-value" id="summary-options">¥0</span>
       </div>
-      <div class="price-row subtotal" id="summary-subtotal-row" style="display: none;">
+      <div class="price-row subtotal">
         <span class="price-label">小計（税抜）</span>
         <span class="price-value" id="summary-subtotal">¥0</span>
       </div>
-      <div class="price-row tax" id="summary-tax-row" style="display: none;">
+      <div class="price-row tax" id="summary-tax-row">
         <span class="price-label" id="summary-tax-label">消費税（10%）</span>
         <span class="price-value" id="summary-tax">¥0</span>
       </div>
@@ -890,8 +890,8 @@
     </div>
   </div>
 
-  <script src="config.js?v=20260319b"></script>
-  <script src="common.js?v=20260319b"></script>
+  <script src="config.js?v=20260319e"></script>
+  <script src="common.js?v=20260319e"></script>
   <script>
     // 状態管理
     let state = {
@@ -1192,18 +1192,19 @@
         }
         
         // 日数が決まっている場合は合計金額を表示
-        let priceDisplay = `¥${dailyPrice.toLocaleString()}/日〜`;
+        const dailyPriceWithoutTax = Utils.calcPriceWithoutTax(dailyPrice);
+        let priceDisplay = `¥${dailyPriceWithoutTax.toLocaleString()}/日〜`;
         if (state.days && plans.length > 0) {
           // 該当日数のプランを探す
           const matchingPlan = plans.find(p => p.days === state.days);
           if (matchingPlan) {
-            const taxInfo = Utils.formatPriceWithTax(matchingPlan.price);
-            priceDisplay = `${state.days}日間: ¥${taxInfo.priceWithoutTax.toLocaleString()}（税抜）`;
+            const priceWithoutTax = Utils.calcPriceWithoutTax(matchingPlan.price);
+            priceDisplay = `${state.days}日間: ¥${priceWithoutTax.toLocaleString()}<span style="font-size:11px;color:#666;">（税込¥${matchingPlan.price.toLocaleString()}）</span>`;
           } else {
             // 該当日数のプランがない場合は1日料金×日数
             const totalPrice = dailyPrice * state.days;
-            const taxInfo = Utils.formatPriceWithTax(totalPrice);
-            priceDisplay = `${state.days}日間: ¥${taxInfo.priceWithoutTax.toLocaleString()}（税抜）`;
+            const priceWithoutTax = Utils.calcPriceWithoutTax(totalPrice);
+            priceDisplay = `${state.days}日間: ¥${priceWithoutTax.toLocaleString()}<span style="font-size:11px;color:#666;">（税込¥${totalPrice.toLocaleString()}）</span>`;
           }
         }
         
@@ -1250,7 +1251,8 @@
         card.dataset.price = plan.pricePerDay;
         card.onclick = function() { selectInsurance(this); };
         
-        const priceText = plan.pricePerDay === 0 ? '¥0' : `¥${Utils.calcPriceWithoutTax(plan.pricePerDay).toLocaleString()}/日（税抜）`;
+        const priceWithoutTax = Utils.calcPriceWithoutTax(plan.pricePerDay);
+        const priceText = plan.pricePerDay === 0 ? '¥0' : `¥${priceWithoutTax.toLocaleString()}/日（税込¥${plan.pricePerDay.toLocaleString()}）`;
         
         card.innerHTML = `
           <input type="radio" name="insurance" value="${escapeHtml(plan.id)}">
@@ -1329,7 +1331,7 @@
             <div class="option-card-desc">${escapeHtml(option.description || '')}</div>
             ${!isAvailable ? '<div style="color:#c00;font-size:12px;">この期間はご利用いただけません</div>' : ''}
           </div>
-          <div class="option-card-price">¥${Utils.calcPriceWithoutTax(option.pricePerDay).toLocaleString()}/日（税抜）</div>
+          <div class="option-card-price">¥${Utils.calcPriceWithoutTax(option.pricePerDay).toLocaleString()}/日<span style="font-size:11px;color:#666;">（税込¥${option.pricePerDay.toLocaleString()}）</span></div>
         `;
         
         container.appendChild(card);
@@ -1708,17 +1710,17 @@
         let matchingPlan = plans.find(p => p.days === days);
         
         if (matchingPlan) {
-          // マッチするプランがあればその料金を表示（税抜）
-          const taxInfo = Utils.formatPriceWithTax(matchingPlan.price);
-          priceEl.textContent = `${days}日間: ¥${taxInfo.priceWithoutTax.toLocaleString()}（税抜）`;
+          // マッチするプランがあればその料金を表示
+          const priceWithoutTax = Utils.calcPriceWithoutTax(matchingPlan.price);
+          priceEl.innerHTML = `${days}日間: ¥${priceWithoutTax.toLocaleString()}<span style="font-size:11px;color:#666;">（税込¥${matchingPlan.price.toLocaleString()}）</span>`;
           card.dataset.planPrice = matchingPlan.price;
           card.dataset.pricingPlanId = matchingPlan.id;
         } else {
           // マッチするプランがなければ1日料金 × 日数で計算
           const dailyPrice = parseInt(card.dataset.dailyPrice) || 0;
           const totalPrice = dailyPrice * days;
-          const taxInfo = Utils.formatPriceWithTax(totalPrice);
-          priceEl.textContent = `${days}日間: ¥${taxInfo.priceWithoutTax.toLocaleString()}（税抜）`;
+          const priceWithoutTax = Utils.calcPriceWithoutTax(totalPrice);
+          priceEl.innerHTML = `${days}日間: ¥${priceWithoutTax.toLocaleString()}<span style="font-size:11px;color:#666;">（税込¥${totalPrice.toLocaleString()}）</span>`;
           card.dataset.planPrice = totalPrice;
           card.dataset.pricingPlanId = '';
         }
@@ -1800,31 +1802,28 @@
     function updateSummary() {
       const days = state.days || 1;
       
-      // state.classPriceは既に日数分の総額
+      // state.classPriceは既に日数分の総額（税込）
       const basePrice = state.classPrice || 0;
       const insuranceTotal = (state.insurancePrice || 0) * days;
       const optionsTotal = (state.optionsPrice || 0) * days;
       const total = basePrice + insuranceTotal + optionsTotal;
       
-      // 税抜・消費税を計算
+      // 税抜・消費税を計算（合計から）
       const taxInfo = Utils.formatPriceWithTax(total);
       
-      document.getElementById('summary-base').textContent = `¥${basePrice.toLocaleString()}`;
-      document.getElementById('summary-insurance').textContent = `¥${insuranceTotal.toLocaleString()}`;
-      document.getElementById('summary-options').textContent = `¥${optionsTotal.toLocaleString()}`;
+      // 各項目を税抜で表示（税抜金額を個別計算）
+      const baseWithoutTax = Utils.calcPriceWithoutTax(basePrice);
+      const insuranceWithoutTax = Utils.calcPriceWithoutTax(insuranceTotal);
+      const optionsWithoutTax = Utils.calcPriceWithoutTax(optionsTotal);
+      const subtotalWithoutTax = baseWithoutTax + insuranceWithoutTax + optionsWithoutTax;
+      const taxAmount = total - subtotalWithoutTax;
       
-      // 税抜・消費税を表示
-      if (total > 0) {
-        document.getElementById('summary-subtotal-row').style.display = 'flex';
-        document.getElementById('summary-tax-row').style.display = 'flex';
-        document.getElementById('summary-subtotal').textContent = `¥${taxInfo.priceWithoutTax.toLocaleString()}`;
-        document.getElementById('summary-tax-label').textContent = `消費税（${AppConfig.taxRate}%）`;
-        document.getElementById('summary-tax').textContent = `¥${taxInfo.taxAmount.toLocaleString()}`;
-      } else {
-        document.getElementById('summary-subtotal-row').style.display = 'none';
-        document.getElementById('summary-tax-row').style.display = 'none';
-      }
-      
+      document.getElementById('summary-base').textContent = `¥${baseWithoutTax.toLocaleString()}`;
+      document.getElementById('summary-insurance').textContent = `¥${insuranceWithoutTax.toLocaleString()}`;
+      document.getElementById('summary-options').textContent = `¥${optionsWithoutTax.toLocaleString()}`;
+      document.getElementById('summary-subtotal').textContent = `¥${subtotalWithoutTax.toLocaleString()}`;
+      document.getElementById('summary-tax-label').textContent = `消費税（${AppConfig.taxRate}%）`;
+      document.getElementById('summary-tax').textContent = `¥${taxAmount.toLocaleString()}`;
       document.getElementById('summary-total').textContent = `¥${total.toLocaleString()}`;
     }
     
