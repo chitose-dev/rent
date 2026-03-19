@@ -159,6 +159,23 @@
         </div>
       </div>
 
+      <!-- 消費税設定 -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">消費税設定</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">消費税率（%）</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="number" class="form-input" id="taxRate" style="width:100px;" min="0" max="100" value="10">
+              <span>%</span>
+            </div>
+            <p class="form-hint">お客様画面で「税抜価格 + 消費税」として表示されます</p>
+          </div>
+        </div>
+      </div>
+
       <!-- キャンセルポリシー設定 -->
       <div class="admin-card">
         <div class="card-header">
@@ -272,6 +289,9 @@
         document.getElementById('minAdvanceDays').value = shop.minAdvanceDays || 1;
         document.getElementById('maxAdvanceDays').value = shop.maxAdvanceDays || 90;
 
+        // 消費税率
+        document.getElementById('taxRate').value = shop.taxRate || 10;
+
         // キャンセルポリシー
         document.getElementById('cancelDaysBefore').value = cancel.daysBefore || 3;
         document.getElementById('cancelRate').value = cancel.rate || 50;
@@ -309,6 +329,7 @@
         maxConcurrentPickups: parseInt(document.getElementById('maxConcurrent').value),
         minAdvanceDays: parseInt(document.getElementById('minAdvanceDays').value),
         maxAdvanceDays: parseInt(document.getElementById('maxAdvanceDays').value),
+        taxRate: parseInt(document.getElementById('taxRate').value) || 10,
       };
 
       const cancelData = {

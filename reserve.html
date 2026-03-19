@@ -874,7 +874,7 @@
         <span class="price-value" id="summary-subtotal">¥0</span>
       </div>
       <div class="price-row tax" id="summary-tax-row" style="display: none;">
-        <span class="price-label">消費税（10%）</span>
+        <span class="price-label" id="summary-tax-label">消費税（10%）</span>
         <span class="price-value" id="summary-tax">¥0</span>
       </div>
       <div class="price-row total">
@@ -960,6 +960,10 @@
       try {
         const res = await API.get('/v1/shop/settings');
         shopSettings = res;
+        // 消費税率をAppConfigに反映
+        if (res.taxRate !== undefined) {
+          AppConfig.taxRate = res.taxRate;
+        }
       } catch (e) {
         console.error('店舗設定の読み込みに失敗:', e);
         // デフォルト値
@@ -1810,6 +1814,7 @@
         document.getElementById('summary-subtotal-row').style.display = 'flex';
         document.getElementById('summary-tax-row').style.display = 'flex';
         document.getElementById('summary-subtotal').textContent = `¥${taxInfo.priceWithoutTax.toLocaleString()}`;
+        document.getElementById('summary-tax-label').textContent = `消費税（${AppConfig.taxRate}%）`;
         document.getElementById('summary-tax').textContent = `¥${taxInfo.taxAmount.toLocaleString()}`;
       } else {
         document.getElementById('summary-subtotal-row').style.display = 'none';

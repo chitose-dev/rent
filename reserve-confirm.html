@@ -258,7 +258,7 @@
           <span class="confirm-total-value" id="confirmSubtotal">-</span>
         </div>
         <div class="confirm-total-row tax">
-          <span class="confirm-total-label">消費税（10%）</span>
+          <span class="confirm-total-label" id="confirmTaxLabel">消費税（10%）</span>
           <span class="confirm-total-value" id="confirmTax">-</span>
         </div>
         <div class="confirm-total-row">
@@ -311,6 +311,18 @@
   <script src="common.js"></script>
   <script>
     let reservationData = null;
+
+    // 店舗設定から消費税率を取得
+    async function loadTaxRate() {
+      try {
+        const res = await API.get('/v1/shop/settings');
+        if (res.taxRate !== undefined) {
+          AppConfig.taxRate = res.taxRate;
+        }
+      } catch (e) {
+        console.warn('店舗設定の読み込みに失敗、デフォルト税率を使用');
+      }
+    }
 
     // 予約データを取得
     function loadReservationData() {
@@ -413,6 +425,7 @@
       // 合計金額（税抜・消費税表示）
       const taxInfo = Utils.formatPriceWithTax(reservationData.totalPrice);
       document.getElementById('confirmSubtotal').textContent = `¥${taxInfo.priceWithoutTax.toLocaleString()}`;
+      document.getElementById('confirmTaxLabel').textContent = `消費税（${AppConfig.taxRate}%）`;
       document.getElementById('confirmTax').textContent = `¥${taxInfo.taxAmount.toLocaleString()}`;
       document.getElementById('confirmPrice').textContent = `¥${reservationData.totalPrice.toLocaleString()}`;
     }
@@ -517,7 +530,10 @@
     }
 
     // 初期化
-    loadReservationData();
+    (async () => {
+      await loadTaxRate();
+      loadReservationData();
+    })();
   </script>
 </body>
 </html>
