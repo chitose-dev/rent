@@ -890,8 +890,8 @@
     </div>
   </div>
 
-  <script src="config.js?v=20260319e"></script>
-  <script src="common.js?v=20260319e"></script>
+  <script src="config.js?v=20260320a"></script>
+  <script src="common.js?v=20260320a"></script>
   <script>
     // 状態管理
     let state = {
@@ -1252,7 +1252,7 @@
         card.onclick = function() { selectInsurance(this); };
         
         const priceWithoutTax = Utils.calcPriceWithoutTax(plan.pricePerDay);
-        const priceText = plan.pricePerDay === 0 ? '¥0' : `¥${priceWithoutTax.toLocaleString()}/日（税込¥${plan.pricePerDay.toLocaleString()}）`;
+        const priceText = plan.pricePerDay === 0 ? '¥0' : `¥${priceWithoutTax.toLocaleString()}/日<span style="font-size:11px;color:#666;">（税込¥${plan.pricePerDay.toLocaleString()}）</span>`;
         
         card.innerHTML = `
           <input type="radio" name="insurance" value="${escapeHtml(plan.id)}">

@@ -362,7 +362,7 @@ const AppConfig = {
 const Utils = {
   // 税込金額から税抜金額を計算（端数切り捨て）
   calcPriceWithoutTax(priceWithTax, taxRate = AppConfig.taxRate) {
-    return Math.floor(priceWithTax / (1 + taxRate / 100));
+    return Math.round(priceWithTax / (1 + taxRate / 100));
   },
   
   // 税込金額から消費税額を計算
