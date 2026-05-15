@@ -454,8 +454,8 @@
       select.disabled = true;
 
       try {
-        // 同じクラスの車両一覧を取得
-        const vehiclesResult = await API.get(`/v1/admin/vehicles?carClassId=${carClassId}`);
+        // 予約期間・メンテナンス予定を考慮した割り当て可能車両のみ取得
+        const vehiclesResult = await API.get(`/v1/admin/reservations/${reservationId}/assignable-vehicles`);
         const vehicles = Array.isArray(vehiclesResult)
           ? vehiclesResult
           : (vehiclesResult.data || vehiclesResult.items || []);
@@ -463,17 +463,13 @@
 
         if (vehicles.length > 0) {
           vehicles.forEach(v => {
-            const statusText = v.status === 'available' ? '' : ' (利用不可)';
             const option = document.createElement('option');
             option.value = v.id;
-            option.textContent = `${v.licensePlate} - ${v.model}${statusText}`;
-            if (v.status !== 'available') {
-              option.disabled = true;
-            }
+            option.textContent = `${v.licensePlate} - ${v.model}`;
             select.appendChild(option);
           });
         } else {
-          select.innerHTML = '<option value="">該当クラスの車両がありません</option>';
+          select.innerHTML = '<option value="">割り当て可能な車両がありません</option>';
         }
         select.disabled = false;
       } catch (error) {
