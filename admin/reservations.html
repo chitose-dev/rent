@@ -165,7 +165,31 @@
     </div>
   </div>
 
-  
+  <!-- 車両割り当てモーダル -->
+  <div class="modal-overlay" id="vehicle-assign-modal">
+    <div class="modal" style="max-width: 450px;">
+      <div class="modal-header">
+        <h3>車両割り当て</h3>
+        <button type="button" class="modal-close" onclick="closeModal('vehicle-assign-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="assign-reservation-id">
+        <div class="form-group">
+          <label class="form-label">割り当てる車両を選択</label>
+          <select class="form-select" id="assign-vehicle-select" style="width:100%;">
+            <option value="">車両を選択してください</option>
+          </select>
+        </div>
+        <p style="color:#666;font-size:13px;margin-top:8px;">※ 同じ車両クラスの車両のみ割り当て可能です</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('vehicle-assign-modal')">キャンセル</button>
+        <button type="button" class="btn btn-primary" onclick="assignVehicle()">割り当て</button>
+      </div>
+    </div>
+  </div>
+
+
   <style>
     .sortable { cursor: pointer; user-select: none; }
     .sortable:hover { background: #f0f0f0; }
@@ -358,23 +382,45 @@
     // ページネーションは削除（全件取得＋クライアントソートに変更）
 
     // 詳細表示
+    let currentDetailReservation = null;
+
     async function showDetail(id) {
       openModal('detail-modal');
       const body = document.getElementById('detail-modal-body');
       body.innerHTML = '読み込み中...';
-      
+
       try {
         const r = await API.get(`/v1/admin/reservations/${id}`);
+        currentDetailReservation = r;
         const status = statusLabels[r.status] || { text: r.status, class: 'badge-secondary' };
-        
+
         // オプション情報を整形
         let optionsHtml = 'なし';
         if (r.options && r.options.length > 0) {
-          optionsHtml = r.options.map(opt => 
+          optionsHtml = r.options.map(opt =>
             `${escapeHtml(opt.name)}${opt.quantity > 1 ? ' ×' + opt.quantity : ''} (${formatPrice(opt.subtotal)})`
           ).join('<br>');
         }
-        
+
+        // 車両割り当て可能かどうか（confirmed または pending_payment の場合のみ）
+        const canAssignVehicle = ['confirmed', 'pending_payment'].includes(r.status);
+
+        // 車両行のHTML生成
+        let vehicleRowHtml;
+        if (canAssignVehicle) {
+          vehicleRowHtml = `
+            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">車両</th>
+              <td style="padding:8px;border-bottom:1px solid #eee;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span id="current-vehicle-display">${escapeHtml(r.vehicleLicensePlate) || '未割当'}</span>
+                  <button type="button" class="btn btn-sm btn-secondary" onclick="openVehicleAssignModal('${escapeHtml(r.id)}', '${escapeHtml(r.carClassId)}')">変更</button>
+                </div>
+              </td>
+            </tr>`;
+        } else {
+          vehicleRowHtml = `<tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">車両</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.vehicleLicensePlate) || '未割当'}</td></tr>`;
+        }
+
         body.innerHTML = `
           <table style="width:100%;border-collapse:collapse;">
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;width:120px;">予約番号</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.id)}</td></tr>
@@ -383,7 +429,7 @@
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">メール</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.userEmail) || '-'}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">電話番号</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.userPhone) || '-'}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">車両クラス</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.carClassName) || '-'}</td></tr>
-            <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">車両</th><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(r.vehicleLicensePlate) || '未割当'}</td></tr>
+            ${vehicleRowHtml}
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">受取日時</th><td style="padding:8px;border-bottom:1px solid #eee;">${new Date(r.pickupAt).toLocaleString('ja-JP')}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">返却期限</th><td style="padding:8px;border-bottom:1px solid #eee;">${new Date(r.returnAt).toLocaleString('ja-JP')}</td></tr>
             <tr><th style="text-align:left;padding:8px;border-bottom:1px solid #eee;">返却予定</th><td style="padding:8px;border-bottom:1px solid #eee;${r.plannedReturnAt ? 'color:#2563eb;font-weight:bold;' : 'color:#999;'}">${r.plannedReturnAt ? new Date(r.plannedReturnAt).toLocaleString('ja-JP') : '未入力'}</td></tr>
@@ -396,6 +442,66 @@
         `;
       } catch (error) {
         body.innerHTML = `<p style="color:#c00;">エラー: ${escapeHtml(error.message)}</p>`;
+      }
+    }
+
+    // 車両割り当てモーダルを開く
+    async function openVehicleAssignModal(reservationId, carClassId) {
+      openModal('vehicle-assign-modal');
+      document.getElementById('assign-reservation-id').value = reservationId;
+      const select = document.getElementById('assign-vehicle-select');
+      select.innerHTML = '<option value="">読み込み中...</option>';
+      select.disabled = true;
+
+      try {
+        // 同じクラスの車両一覧を取得
+        const vehiclesResult = await API.get(`/v1/admin/vehicles?carClassId=${carClassId}`);
+        const vehicles = Array.isArray(vehiclesResult)
+          ? vehiclesResult
+          : (vehiclesResult.data || vehiclesResult.items || []);
+        select.innerHTML = '<option value="">車両を選択してください</option>';
+
+        if (vehicles.length > 0) {
+          vehicles.forEach(v => {
+            const statusText = v.status === 'available' ? '' : ' (利用不可)';
+            const option = document.createElement('option');
+            option.value = v.id;
+            option.textContent = `${v.licensePlate} - ${v.model}${statusText}`;
+            if (v.status !== 'available') {
+              option.disabled = true;
+            }
+            select.appendChild(option);
+          });
+        } else {
+          select.innerHTML = '<option value="">該当クラスの車両がありません</option>';
+        }
+        select.disabled = false;
+      } catch (error) {
+        select.innerHTML = '<option value="">車両の取得に失敗しました</option>';
+        console.error('車両取得エラー:', error);
+      }
+    }
+
+    // 車両割り当て実行
+    async function assignVehicle() {
+      const reservationId = document.getElementById('assign-reservation-id').value;
+      const vehicleId = document.getElementById('assign-vehicle-select').value;
+
+      if (!vehicleId) {
+        alert('車両を選択してください');
+        return;
+      }
+
+      try {
+        await API.patch(`/v1/admin/reservations/${reservationId}`, { vehicleId });
+        alert('車両を割り当てました');
+        closeModal('vehicle-assign-modal');
+        // 詳細モーダルを更新
+        showDetail(reservationId);
+        // 一覧も更新
+        loadReservations();
+      } catch (error) {
+        alert('エラー: ' + error.message);
       }
     }
 
