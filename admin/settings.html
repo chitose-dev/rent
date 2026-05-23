@@ -91,6 +91,21 @@
         </div>
       </div>
 
+      <!-- 新規予約通知の宛先メールアドレス -->
+      <div class="admin-card">
+        <div class="card-header">
+          <h2 class="card-title">新規予約通知の宛先メールアドレス</h2>
+        </div>
+        <div class="card-body">
+          <p class="form-hint">新規予約があった際に通知メールを受け取るメールアドレス（最大10件）</p>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+            <input type="email" class="form-input" id="newNotifyEmail" style="width:300px;" placeholder="example@example.com">
+            <button type="button" class="btn btn-sm btn-outline" onclick="addNotifyEmail()">追加</button>
+          </div>
+          <div id="notifyEmailsList" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+        </div>
+      </div>
+
       <!-- 営業時間設定 -->
       <div class="admin-card">
         <div class="card-header">
@@ -235,6 +250,51 @@
       renderClosedDates();
     }
 
+    // 新規予約通知の宛先メールアドレス
+    let currentNotifyEmails = [];
+
+    function addNotifyEmail() {
+      const input = document.getElementById('newNotifyEmail');
+      const email = input.value.trim();
+      if (!email) return;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('メールアドレスの形式が正しくありません');
+        return;
+      }
+      if (currentNotifyEmails.includes(email)) {
+        alert('既に追加されています');
+        return;
+      }
+      if (currentNotifyEmails.length >= 10) {
+        alert('最大10件までです');
+        return;
+      }
+      currentNotifyEmails.push(email);
+      input.value = '';
+      renderNotifyEmails();
+    }
+
+    function removeNotifyEmail(email) {
+      currentNotifyEmails = currentNotifyEmails.filter(e => e !== email);
+      renderNotifyEmails();
+    }
+
+    function renderNotifyEmails() {
+      const container = document.getElementById('notifyEmailsList');
+      if (currentNotifyEmails.length === 0) {
+        container.innerHTML = '<span style="color:#666;">未登録</span>';
+        return;
+      }
+      container.innerHTML = currentNotifyEmails.map(email => {
+        const safe = escapeHtml(email);
+        const safeAttr = safe.replace(/'/g, '&#39;');
+        return `<span style="background:#f0f0f0;padding:4px 8px;border-radius:4px;display:inline-flex;align-items:center;gap:4px;">
+          ${safe}
+          <button type="button" onclick="removeNotifyEmail('${safeAttr}')" style="border:none;background:none;cursor:pointer;color:#c00;font-size:14px;">×</button>
+        </span>`;
+      }).join('');
+    }
+
     // 臨時休業日の表示
     function renderClosedDates() {
       const container = document.getElementById('closedDatesList');
@@ -284,6 +344,10 @@
         currentClosedDates = shop.closedDates || [];
         renderClosedDates();
 
+        // 新規予約通知の宛先メールアドレス
+        currentNotifyEmails = shop.notificationEmails || [];
+        renderNotifyEmails();
+
         // 予約設定
         document.getElementById('maxConcurrent').value = shop.maxConcurrentPickups || 3;
         document.getElementById('minAdvanceDays').value = shop.minAdvanceDays || 1;
@@ -330,6 +394,7 @@
         minAdvanceDays: parseInt(document.getElementById('minAdvanceDays').value),
         maxAdvanceDays: parseInt(document.getElementById('maxAdvanceDays').value),
         taxRate: parseInt(document.getElementById('taxRate').value) || 10,
+        notificationEmails: currentNotifyEmails,
       };
 
       const cancelData = {
