@@ -165,6 +165,38 @@
     </div>
   </div>
 
+  <!-- 管理者キャンセルモーダル -->
+  <div class="modal-overlay" id="admin-cancel-modal">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3>予約のキャンセル</h3>
+        <button type="button" class="modal-close" onclick="closeModal('admin-cancel-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: #fdecea; padding: 12px; border-radius: 4px; margin-bottom: 16px;">
+          この予約をキャンセルします。カード決済済みの場合は返金処理も実行されます。
+        </div>
+        <div class="form-group">
+          <label class="form-label">予約番号</label>
+          <input type="text" class="form-input" id="admin-cancel-reservation-id" disabled>
+        </div>
+        <div class="form-group">
+          <label class="form-label">キャンセル理由<span style="color:red;">*</span></label>
+          <textarea class="form-textarea" id="admin-cancel-reason" rows="2" placeholder="店舗都合・お客様からの電話依頼など"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">返金額（円）</label>
+          <input type="number" class="form-input" id="admin-cancel-refund" min="0" placeholder="空欄ならキャンセルポリシーで自動計算">
+          <small style="color:#666;">空欄の場合、キャンセルポリシー（受取日からの日数）に応じて自動計算します。</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('admin-cancel-modal')">閉じる</button>
+        <button type="button" class="btn btn-danger" onclick="submitAdminCancel()">キャンセルを確定</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 車両割り当てモーダル -->
   <div class="modal-overlay" id="vehicle-assign-modal">
     <div class="modal" style="max-width: 450px;">
@@ -347,6 +379,7 @@
       switch (reservation.status) {
         case 'confirmed':
           buttons.push(`<button type="button" class="btn btn-sm btn-success" data-action="pickup" data-id="${safeId}">来店処理</button>`);
+          buttons.push(`<button type="button" class="btn btn-sm btn-danger" data-action="admin-cancel" data-id="${safeId}">キャンセル</button>`);
           break;
         case 'picked_up':
           buttons.push(`<button type="button" class="btn btn-sm btn-warning" data-action="extend" data-id="${safeId}">延長</button>`);
@@ -376,6 +409,7 @@
         case 'return': processReturn(id); break;
         case 'approve-cancel': approveCancel(id); break;
         case 'reject-cancel': rejectCancel(id); break;
+        case 'admin-cancel': openAdminCancelModal(id); break;
       }
     });
 
@@ -549,10 +583,48 @@
     async function rejectCancel(id) {
       const reason = prompt('却下理由を入力してください:');
       if (!reason) return;
-      
+
       try {
         await API.put(`/v1/admin/reservations/${id}/cancel/reject`, { reason });
         alert('キャンセルを却下しました');
+        loadReservations();
+      } catch (error) {
+        alert('エラー: ' + error.message);
+      }
+    }
+
+    // 管理者による予約直接キャンセル
+    let currentAdminCancelId = null;
+
+    function openAdminCancelModal(id) {
+      currentAdminCancelId = id;
+      document.getElementById('admin-cancel-reservation-id').value = id;
+      document.getElementById('admin-cancel-reason').value = '';
+      document.getElementById('admin-cancel-refund').value = '';
+      openModal('admin-cancel-modal');
+    }
+
+    async function submitAdminCancel() {
+      const reason = document.getElementById('admin-cancel-reason').value.trim();
+      if (!reason) {
+        alert('キャンセル理由を入力してください');
+        return;
+      }
+      const refundRaw = document.getElementById('admin-cancel-refund').value.trim();
+      const body = { reason };
+      if (refundRaw !== '') {
+        const refund = parseInt(refundRaw, 10);
+        if (isNaN(refund) || refund < 0) {
+          alert('返金額は0以上の数値で入力してください');
+          return;
+        }
+        body.refundAmount = refund;
+      }
+
+      try {
+        await API.put(`/v1/admin/reservations/${currentAdminCancelId}/cancel`, body);
+        alert('予約をキャンセルしました');
+        closeModal('admin-cancel-modal');
         loadReservations();
       } catch (error) {
         alert('エラー: ' + error.message);
