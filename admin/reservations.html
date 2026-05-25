@@ -145,6 +145,18 @@
           <input type="text" class="form-input" id="extend-current-return" disabled>
         </div>
         <div class="form-group">
+          <label class="form-label">延長方法</label>
+          <div style="display:flex; gap:16px; margin-top:4px; flex-wrap:wrap;">
+            <label style="font-weight:normal; cursor:pointer;"><input type="radio" name="extend-mode" value="plan" checked onchange="onExtendModeChange()"> プランで延長（継続）</label>
+            <label style="font-weight:normal; cursor:pointer;"><input type="radio" name="extend-mode" value="days" onchange="onExtendModeChange()"> 日数を指定（無断延長）</label>
+          </div>
+        </div>
+        <div class="form-group" id="extend-plan-group">
+          <label class="form-label">延長プラン<span style="color:red;">*</span></label>
+          <select class="form-input" id="extend-plan" onchange="updateExtendPreview()"></select>
+          <p id="extend-plan-preview" style="color:#1565c0; font-size:13px; margin-top:6px;"></p>
+        </div>
+        <div class="form-group" id="extend-days-group" style="display:none;">
           <label class="form-label">新しい返却日時<span style="color:red;">*</span></label>
           <input type="datetime-local" class="form-input" id="extend-new-return">
         </div>
@@ -633,62 +645,116 @@
 
     // 延長モーダルを開く
     let currentExtendReservationId = null;
+    let currentExtendPlans = [];
+    let currentExtendOriginalReturn = null;
     async function openExtendModal(id) {
       currentExtendReservationId = id;
+      currentExtendPlans = [];
+      currentExtendOriginalReturn = null;
       openModal('extend-modal');
-      
+
       try {
         const r = await API.get(`/v1/admin/reservations/${id}`);
         document.getElementById('extend-reservation-id').value = r.id;
         const returnAt = new Date(r.returnAt);
+        currentExtendOriginalReturn = returnAt;
         document.getElementById('extend-current-return').value = returnAt.toLocaleString('ja-JP');
-        
-        // 新しい返却日時のデフォルト値を現在の返却日時+1日に設定
+
+        // 新しい返却日時のデフォルト値を現在の返却日時+1日に設定（日数指定モード用）
         const defaultNewReturn = new Date(returnAt);
         defaultNewReturn.setDate(defaultNewReturn.getDate() + 1);
         document.getElementById('extend-new-return').value = defaultNewReturn.toISOString().slice(0, 16);
         document.getElementById('extend-notes').value = '';
+
+        // この車両クラスの有効な料金プランを取得してプルダウンに反映
+        const allPlans = await API.get('/v1/admin/pricing');
+        currentExtendPlans = (allPlans || [])
+          .filter(p => p.carClassId === r.carClassId && p.isActive !== false)
+          .sort((a, b) => a.days - b.days);
+
+        const planSelect = document.getElementById('extend-plan');
+        const planRadio = document.querySelector('input[name="extend-mode"][value="plan"]');
+        planSelect.innerHTML = '';
+        document.getElementById('extend-plan-preview').textContent = '';
+        if (currentExtendPlans.length === 0) {
+          // プランが無いクラスは日数指定モードへフォールバック（プランモードは選べないよう無効化）
+          planRadio.disabled = true;
+          document.querySelector('input[name="extend-mode"][value="days"]').checked = true;
+        } else {
+          planRadio.disabled = false;
+          for (const p of currentExtendPlans) {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = `${p.label}（${p.days}日 / ¥${Number(p.price).toLocaleString()}）`;
+            planSelect.appendChild(opt);
+          }
+          planRadio.checked = true;
+        }
+        onExtendModeChange();
       } catch (error) {
         alert('エラー: ' + error.message);
         closeModal('extend-modal');
       }
     }
 
+    // 延長方法（プラン / 日数指定）の切替
+    function onExtendModeChange() {
+      const mode = document.querySelector('input[name="extend-mode"]:checked')?.value || 'plan';
+      const noPlans = currentExtendPlans.length === 0;
+      document.getElementById('extend-plan-group').style.display = (mode === 'plan' && !noPlans) ? '' : 'none';
+      document.getElementById('extend-days-group').style.display = (mode === 'days' || noPlans) ? '' : 'none';
+      updateExtendPreview();
+    }
+
+    // プラン選択時の延長後返却日・追加料金プレビュー
+    function updateExtendPreview() {
+      const preview = document.getElementById('extend-plan-preview');
+      const plan = currentExtendPlans.find(p => p.id === document.getElementById('extend-plan').value);
+      if (!plan || !currentExtendOriginalReturn) { preview.textContent = ''; return; }
+      const newReturn = new Date(currentExtendOriginalReturn);
+      newReturn.setDate(newReturn.getDate() + plan.days);
+      preview.textContent = `延長後の返却予定: ${newReturn.toLocaleString('ja-JP')} ／ 追加料金: ¥${Number(plan.price).toLocaleString()}`;
+    }
+
     // 延長処理実行
     async function processExtend() {
       if (!currentExtendReservationId) return;
-      
-      const newReturnAt = document.getElementById('extend-new-return').value;
+
+      const mode = document.querySelector('input[name="extend-mode"]:checked')?.value || 'plan';
+      const usePlan = mode === 'plan' && currentExtendPlans.length > 0;
       const paymentMethod = document.getElementById('extend-payment-method').value;
       const notes = document.getElementById('extend-notes').value;
-      
-      if (!newReturnAt) {
-        alert('新しい返却日時を入力してください');
-        return;
+
+      const payload = { paymentMethod, notes };
+      if (usePlan) {
+        const pricingPlanId = document.getElementById('extend-plan').value;
+        if (!pricingPlanId) { alert('延長プランを選択してください'); return; }
+        payload.pricingPlanId = pricingPlanId;
+      } else {
+        const newReturnAt = document.getElementById('extend-new-return').value;
+        if (!newReturnAt) { alert('新しい返却日時を入力してください'); return; }
+        payload.newReturnAt = new Date(newReturnAt).toISOString();
       }
-      
+
       if (!confirm('延長処理を実行しますか？')) return;
-      
+
       try {
-        const result = await API.put(`/v1/admin/reservations/${currentExtendReservationId}/extend`, {
-          newReturnAt: new Date(newReturnAt).toISOString(),
-          paymentMethod,
-          notes
-        });
-        
+        const result = await API.put(`/v1/admin/reservations/${currentExtendReservationId}/extend`, payload);
+
         closeModal('extend-modal');
         
+        const planLine = result.planLabel ? `プラン: ${result.planLabel}\n` : '';
         if (result.stripeCheckoutUrl) {
           // カード決済の場合、決済URLを表示
           const copyUrl = confirm(
-            `延長処理を受け付けました。\n\n追加料金: ¥${result.additionalPrice.toLocaleString()}\n\n決済URLをコピーしてお客様に送信してください。\n\n「OK」でURLをコピーします。`
+            `延長処理を受け付けました。\n\n${planLine}追加料金: ¥${result.additionalPrice.toLocaleString()}\n\n決済URLをコピーしてお客様に送信してください。\n\n「OK」でURLをコピーします。`
           );
           if (copyUrl) {
             await navigator.clipboard.writeText(result.stripeCheckoutUrl);
             alert('決済URLをコピーしました');
           }
         } else {
-          alert(`延長処理が完了しました。\n追加料金: ¥${result.additionalPrice.toLocaleString()}`);
+          alert(`延長処理が完了しました。\n${planLine}追加料金: ¥${result.additionalPrice.toLocaleString()}`);
         }
         
         loadReservations();
