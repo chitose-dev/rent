@@ -412,13 +412,14 @@
         
         // 車両情報
         document.getElementById('detailCarClass').textContent = reservationData.carClassName || '車両クラス';
-        // レンタル日数を計算（pickupAtとreturnAtから）
+        // レンタル日数を計算（受取日を1日目とする＝予約フロー reserve-date.html と同じ数え方）
+        // 例: 7日プランは returnAt = pickupAt + 6日 なので、差分(6) + 1 = 7日
         const pickupDay = new Date(reservationData.pickupAt);
         const returnDay = new Date(reservationData.returnAt);
         pickupDay.setHours(0, 0, 0, 0);
         returnDay.setHours(0, 0, 0, 0);
         const diffMs = returnDay.getTime() - pickupDay.getTime();
-        const days = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        const days = Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1;
         document.getElementById('detailDays').textContent = `${days}日`;
         
         // 日時情報
