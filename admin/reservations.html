@@ -664,10 +664,23 @@
         select.innerHTML = '<option value="">車両を選択してください</option>';
 
         if (vehicles.length > 0) {
+          const now = new Date();
           vehicles.forEach(v => {
             const option = document.createElement('option');
             option.value = v.id;
-            option.textContent = `${v.licensePlate} - ${v.model}`;
+            let label = `${v.licensePlate} - ${v.model}`;
+            // 貸出中の車両は「現在の物理状態」のみで、この予約期間には空いている。
+            // 返却予定日（延滞時は赤字警告）を併記して、前もっての割り当てと分かるようにする
+            if (v.status === 'rented') {
+              const ret = v.currentReturnAt ? new Date(v.currentReturnAt) : null;
+              const retStr = ret ? `${ret.getMonth() + 1}/${ret.getDate()}` : '不明';
+              if (ret && ret < now) {
+                label += `（⚠️現在貸出中・返却予定 ${retStr} を超過／返却要確認）`;
+              } else {
+                label += `（現在貸出中・返却予定 ${retStr}）`;
+              }
+            }
+            option.textContent = label;
             select.appendChild(option);
           });
         } else {
