@@ -595,9 +595,12 @@
     async function handle2FA(event) {
       event.preventDefault();
       
-      const code = document.getElementById('twoFactorCode').value.trim();
+      // 全角数字(０-９)→半角に正規化（日本語スマホのキーボード対策）
+      const code = document.getElementById('twoFactorCode').value
+        .replace(/[０-９]/g, function (d) { return String.fromCharCode(d.charCodeAt(0) - 0xFEE0); })
+        .replace(/[^0-9]/g, '');
       const submitBtn = event.target.querySelector('button[type="submit"]');
-      
+
       if (code.length !== 6) {
         alert('6桁のコードを入力してください');
         return;
