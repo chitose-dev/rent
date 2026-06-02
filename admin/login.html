@@ -353,9 +353,11 @@
       document.getElementById('errorMessage2').classList.remove('show');
     });
 
-    // 認証コード自動フォーマット
+    // 認証コード自動フォーマット（全角数字→半角も吸収。日本語スマホのキーボード対策）
     document.getElementById('verifyCode').addEventListener('input', function(e) {
-      this.value = this.value.replace(/[^0-9]/g, '');
+      this.value = this.value
+        .replace(/[０-９]/g, function (d) { return String.fromCharCode(d.charCodeAt(0) - 0xFEE0); })
+        .replace(/[^0-9]/g, '');
     });
 
     // 既にログイン済みならダッシュボードへ（シンプルなチェック）

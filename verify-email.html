@@ -207,9 +207,18 @@
       document.getElementById('success-message').style.display = 'block';
     }
 
-    // コード入力を数字のみに制限
+    // 全角数字(０-９)を半角に正規化してから数字以外を除去
+    // ※日本語スマホのキーボードは全角数字を入力しがちで、半角のみ許可だと
+    //   入力した数字が消えて「コードを入力しても反応しない」状態になるため
+    function normalizeDigits(v) {
+      return (v || '')
+        .replace(/[０-９]/g, function (d) { return String.fromCharCode(d.charCodeAt(0) - 0xFEE0); })
+        .replace(/[^0-9]/g, '');
+    }
+
+    // コード入力を数字のみに制限（全角→半角も吸収）
     document.getElementById('code').addEventListener('input', function(e) {
-      this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+      this.value = normalizeDigits(this.value).slice(0, 6);
     });
 
     // 確認フォーム送信
@@ -223,11 +232,21 @@
       errorEl.style.display = 'none';
       successEl.style.display = 'none';
 
-      const code = document.getElementById('code').value.trim();
+      const code = normalizeDigits(document.getElementById('code').value);
 
       if (code.length !== 6) {
         errorEl.textContent = '確認コードは6桁の数字を入力してください';
         errorEl.style.display = 'block';
+        return;
+      }
+
+      // userId が取得できていない場合（例: ログインからメール未認証で誘導された等）は
+      // 壊れたリクエストを送らず、再送信での復旧を促す
+      if (!userId) {
+        errorEl.textContent = 'お手数ですが「再送信」を押して新しい確認コードを取得し、最新のコードをご入力ください。';
+        errorEl.style.display = 'block';
+        document.querySelector('.resend-link').style.fontWeight = 'bold';
+        document.querySelector('.resend-link').style.color = '#007bff';
         return;
       }
 
