@@ -497,38 +497,71 @@
       if (!licenseNumber) errors.push('免許証番号');
       if (!password) errors.push('パスワード');
       
-      if (errors.length > 0) {
-        alert('以下の項目を入力してください:\n' + errors.join('\n'));
-        return;
+      // バリデーション（各フィールドのエラー表示）
+      Validator.clearAllErrors();
+      let hasError = false;
+
+      if (!name) {
+        Validator.showError('registerName', '氏名を入力してください');
+        hasError = true;
       }
-      
-      // カナチェック
-      if (!/^[ァ-ヶー\s]+$/.test(nameKana)) {
-        alert('氏名（カナ）はカタカナで入力してください');
-        return;
+      if (!nameKana) {
+        Validator.showError('registerNameKana', '氏名（カナ）を入力してください');
+        hasError = true;
+      } else if (!/^[ァ-ヶー\s]+$/.test(nameKana)) {
+        Validator.showError('registerNameKana', '氏名（カナ）はカタカナで入力してください');
+        hasError = true;
       }
-      
-      // 免許証番号チェック（12桁）
-      if (!/^\d{12}$/.test(licenseNumber)) {
-        alert('免許証番号は12桁の数字で入力してください');
-        return;
+      if (!email) {
+        Validator.showError('registerEmail', 'メールアドレスを入力してください');
+        hasError = true;
+      } else if (!Validator.isEmail(email)) {
+        Validator.showError('registerEmail', '正しいメールアドレスを入力してください');
+        hasError = true;
       }
-      
-      // 郵便番号チェック（7桁）
-      if (!/^\d{7}$/.test(postalCode)) {
-        alert('郵便番号は7桁の数字で入力してください');
-        return;
+      if (!phone) {
+        Validator.showError('registerPhone', '電話番号を入力してください');
+        hasError = true;
       }
-      
-      // 同意チェック
+      if (!birthDate) {
+        alert('生年月日を選択してください');
+        hasError = true;
+      }
+      if (!postalCode) {
+        Validator.showError('registerPostalCode', '郵便番号を入力してください');
+        hasError = true;
+      } else if (!/^\d{7}$/.test(postalCode)) {
+        Validator.showError('registerPostalCode', '郵便番号は7桁の数字で入力してください');
+        hasError = true;
+      }
+      if (!address) {
+        Validator.showError('registerAddress', '住所を入力してください');
+        hasError = true;
+      }
+      if (!licenseNumber) {
+        Validator.showError('registerLicenseNumber', '免許証番号を入力してください');
+        hasError = true;
+      } else if (!/^\d{12}$/.test(licenseNumber)) {
+        Validator.showError('registerLicenseNumber', '免許証番号は12桁の数字で入力してください');
+        hasError = true;
+      }
+      if (!password) {
+        Validator.showError('registerPassword', 'パスワードを入力してください');
+        hasError = true;
+      }
+      if (!passwordConfirm) {
+        Validator.showError('registerPasswordConfirm', 'パスワード（確認）を入力してください');
+        hasError = true;
+      } else if (password !== passwordConfirm) {
+        Validator.showError('registerPasswordConfirm', 'パスワードが一致しません');
+        hasError = true;
+      }
       if (!agreeTerms) {
         alert('利用規約とプライバシーポリシーに同意してください');
-        return;
+        hasError = true;
       }
-      
-      // パスワード確認
-      if (password !== passwordConfirm) {
-        alert('パスワードが一致しません');
+
+      if (hasError) {
         return;
       }
       
@@ -600,7 +633,7 @@
         .replace(/[０-９]/g, function (d) { return String.fromCharCode(d.charCodeAt(0) - 0xFEE0); })
         .replace(/[^0-9]/g, '');
       const submitBtn = event.target.querySelector('button[type="submit"]');
-
+      
       if (code.length !== 6) {
         alert('6桁のコードを入力してください');
         return;
